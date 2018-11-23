@@ -2,7 +2,12 @@
 
 // C++ includes
 #include <iostream>
+#include <vector>
 using namespace std;
+
+// physim includes
+#include <physim/particles/free_particle.hpp>
+using namespace physim::particles;
 
 // charanim includes
 #include <charanim/render/include_gl.hpp>
@@ -30,13 +35,16 @@ void refresh() {
 	glLoadIdentity();
 	V.apply_view();
 
-	glBegin(GL_TRIANGLES);
-		glColor3f(1.0f,0.0f,0.0f);
-		glVertex3f(-1.0f,-1.0f,-5.0f);
-		glVertex3f( 1.0f,-1.0f,-5.0f);
-		glVertex3f( 0.5f, 1.0f,-5.0f);
-	glEnd();
+	for (int i = 0; i < 10; ++i) {
+		S.apply_time_step();
+	}
 
+	const vector<free_particle *>& ps = S.get_particles();
+	glBegin(GL_POINTS);
+	for (const free_particle *p : ps) {
+		glVertex3f(p->cur_pos.x, p->cur_pos.y, p->cur_pos.z);
+	}
+	glEnd();
 
 	glutSwapBuffers();
 }

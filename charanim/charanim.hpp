@@ -4,8 +4,9 @@
 #include <glm/vec3.hpp>
 
 // charanim includes
-#include <charanim/utils.hpp>
 #include <charanim/render/viewer.hpp>
+#include <physim/simulator.hpp>
+#include <charanim/utils.hpp>
 
 typedef std::pair<int,int> point;
 
@@ -13,6 +14,9 @@ namespace charanim {
 
 	/* --------- */
 	/* VARIABLES */
+
+	/* scene */
+	extern physim::simulator S;
 
 	/* glut window */
 	extern int window_id;

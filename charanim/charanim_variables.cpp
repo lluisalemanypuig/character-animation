@@ -2,6 +2,8 @@
 
 namespace charanim {
 
+	physim::simulator S;
+
 	/* glut window */
 	int window_id;
 	int width;

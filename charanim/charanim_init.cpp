@@ -7,6 +7,12 @@
 #include <iostream>
 using namespace std;
 
+// physim includes
+#include <physim/initialiser/initialiser.hpp>
+#include <physim/particles/free_particle.hpp>
+using namespace physim::init;
+using namespace physim::particles;
+
 // custom includes
 #include <charanim/render/include_gl.hpp>
 
@@ -59,6 +65,17 @@ int initialise_animation(int argc, char *argv[]) {
 	V.get_box().set_min_max(glm::vec3(-10,-10,-10), glm::vec3(10,10,10));
 	V.set_window_dims(width, height);
 	V.init_cameras();
+
+	initialiser I;
+	I.set_bounce_initialiser( [](free_particle *p) { p->bouncing = 0.0f; } );
+	I.set_friction_initialiser( [](free_particle *p) { p->friction = 0.0f; } );
+	I.set_pos_initialiser(
+		[](free_particle *p) {
+
+		}
+	);
+
+	S.add_particles(10);
 
 	return 0;
 }

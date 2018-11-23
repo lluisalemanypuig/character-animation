@@ -31,6 +31,18 @@ SOURCES += main.cpp \
 # self-includes
 INCLUDEPATH += ../
 
+# physim library
+CONFIG(debug, debug|release) {
+    LIBS += -L../../physics-simulator/physim-debug/ -lphysim
+    PRE_TARGETDEPS += ../../physics-simulator/physim-debug/libphysim.a
+}
+CONFIG(release, debug|release) {
+    LIBS += -L../../physics-simulator/physim-release/ -lphysim
+    PRE_TARGETDEPS += ../../physics-simulator/physim-release/libphysim.a
+}
+INCLUDEPATH += ../../physics-simulator/
+DEPENDPATH += ../../physics-simulator/
+
 # cal3d
 unix {
     exists(/usr/lib/cal3d/) {
@@ -42,6 +54,7 @@ unix {
     }
 }
 
+# OpenGL
 LIBS += -lglut -lGLU -lGLEW
 unix {
     exists(/usr/lib/nvidia-304/) {
