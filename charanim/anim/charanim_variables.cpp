@@ -1,4 +1,4 @@
-#include <charanim/charanim.hpp>
+#include <anim/charanim.hpp>
 
 namespace charanim {
 

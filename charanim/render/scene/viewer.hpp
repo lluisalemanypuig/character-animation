@@ -7,10 +7,10 @@
 #include <glm/vec3.hpp>
 #include <glm/mat4x4.hpp>
 
-// charanim includes
-#include <charanim/render/cameras/perspective.hpp>
-#include <charanim/render/cameras/orthogonal.hpp>
-#include <charanim/render/box.hpp>
+// render includes
+#include <render/cameras/perspective.hpp>
+#include <render/cameras/orthogonal.hpp>
+#include <render/box.hpp>
 
 /**
  * @brief Class used for rendering and navigating
@@ -202,5 +202,8 @@ class viewer {
 
 		/// Returns the modelview matrix corresponding to the active viewing mode.
 		glm::mat4 make_view_matrix() const;
+
+		/// (Slow) Renders the models
+		void slow_render_models() const;
 };
 

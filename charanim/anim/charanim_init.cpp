@@ -1,4 +1,4 @@
-#include "charanim.hpp"
+#include <anim/charanim.hpp>
 
 // C includes
 #include <string.h>
@@ -14,7 +14,7 @@ using namespace physim::init;
 using namespace physim::particles;
 
 // custom includes
-#include <charanim/render/include_gl.hpp>
+#include <render/include_gl.hpp>
 
 namespace charanim {
 
@@ -75,7 +75,7 @@ int initialise_animation(int argc, char *argv[]) {
 		}
 	);
 
-	S.add_particles(10);
+	S.add_sized_particles(10);
 
 	return 0;
 }

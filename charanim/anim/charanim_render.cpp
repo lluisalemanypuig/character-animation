@@ -1,4 +1,4 @@
-#include "charanim.hpp"
+#include <anim/charanim.hpp>
 
 // C++ includes
 #include <iostream>
@@ -10,7 +10,7 @@ using namespace std;
 using namespace physim::particles;
 
 // charanim includes
-#include <charanim/render/include_gl.hpp>
+#include <render/include_gl.hpp>
 
 namespace charanim {
 
@@ -39,9 +39,9 @@ void refresh() {
 		S.apply_time_step();
 	}
 
-	const vector<free_particle *>& ps = S.get_particles();
+	const vector<sized_particle *>& ps = S.get_sized_particles();
 	glBegin(GL_POINTS);
-	for (const free_particle *p : ps) {
+	for (const sized_particle *p : ps) {
 		glVertex3f(p->cur_pos.x, p->cur_pos.y, p->cur_pos.z);
 	}
 	glEnd();

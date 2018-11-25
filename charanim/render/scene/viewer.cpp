@@ -1,4 +1,4 @@
-#include <charanim/render/viewer.hpp>
+#include <render/scene/viewer.hpp>
 
 // C incldues
 #include <assert.h>
@@ -12,8 +12,9 @@ using namespace std;
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
-// charanim includes
-#include <charanim/render/include_gl.hpp>
+// render includes
+#include <render/include_gl.hpp>
+#include <render/shader/shader_helper.hpp>
 
 // PRIVATE
 
@@ -46,8 +47,7 @@ viewer::~viewer() {
 	clear();
 }
 
-void viewer::clear() {
-}
+void viewer::clear() { }
 
 void viewer::set_window_dims(int w, int h) {
 	win_width = w;
@@ -116,7 +116,7 @@ void viewer::camera_sideways_right(float vel) {
 	move_camera(vel, 270.0);
 }
 
-void viewer::switch_to_perspective()	{ use_perspective = true; use_orthogonal = false; }
+void viewer::switch_to_perspective(){ use_perspective = true; use_orthogonal = false; }
 void viewer::switch_to_orthogonal()	{ use_perspective = false; use_orthogonal = true; }
 
 void viewer::switch_to_inspection()	{ inspect = true; fly = false; }
@@ -193,15 +193,15 @@ void viewer::apply_projection() const {
 		);
 	}
 	else {
-		cerr << "void simulation_viewer::apply_view_mode() - Error!" << endl;
-		cerr << "    Something went wrong with the cameras!" << endl;
+		cerr << "simulation_renderer::apply_view_mode() - Error:" << endl;
+		cerr << "    Something went wrong with the cameras." << endl;
 		cerr << "    No perspective or orthogonal camera activated" << endl;
 		assert(false);
 	}
 }
 
 glm::mat4 viewer::make_projection_matrix() const {
-	glm::mat4 proj;
+	glm::mat4 proj(1.0f);
 
 	if (use_perspective) {
 		proj = glm::perspective(
@@ -217,8 +217,8 @@ glm::mat4 viewer::make_projection_matrix() const {
 		);
 	}
 	else {
-		cerr << "void simulation_viewer::apply_view_mode() - Error!" << endl;
-		cerr << "    Something went wrong with the cameras!" << endl;
+		cerr << "simulation_renderer::apply_view_mode() - Error:" << endl;
+		cerr << "    Something went wrong with the cameras." << endl;
 		cerr << "    No perspective or orthogonal camera activated" << endl;
 		assert(false);
 	}
@@ -239,15 +239,15 @@ void viewer::apply_view() const {
 		glTranslatef(-cam_pos.x, -cam_pos.y, -cam_pos.z);
 	}
 	else {
-		cerr << "void simulation_viewer::apply_camera() - Error!" << endl;
-		cerr << "    Something went wrong with the cameras!" << endl;
+		cerr << "simulation_renderer::apply_camera() - Error:" << endl;
+		cerr << "    Something went wrong with the cameras." << endl;
 		cerr << "    No inspect or fly mode activated" << endl;
 		assert(false);
 	}
 }
 
 glm::mat4 viewer::make_view_matrix() const {
-	glm::mat4 view;
+	glm::mat4 view(1.0f);
 	if (inspect) {
 		view = glm::translate(view, glm::vec3(0.0f, 0.0f, -diag_length));
 		view = glm::rotate(view, theta*TO_RAD, glm::vec3(1.0f, 0.0f, 0.0f));
@@ -260,8 +260,8 @@ glm::mat4 viewer::make_view_matrix() const {
 		view = glm::translate(view, glm::vec3(-cam_pos.x, -cam_pos.y, -cam_pos.z));
 	}
 	else {
-		cerr << "void simulation_viewer::apply_camera() - Error!" << endl;
-		cerr << "    Something went wrong with the cameras!" << endl;
+		cerr << "simulation_renderer::apply_camera() - Error:" << endl;
+		cerr << "    Something went wrong with the cameras," << endl;
 		cerr << "    No inspect or fly mode activated" << endl;
 		assert(false);
 	}

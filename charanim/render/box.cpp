@@ -153,23 +153,41 @@ void box::make_buffers() {
 	};
 
 	glGenVertexArrays(1, &VAO);
-	glGenBuffers(1, &VBO);
-	glGenBuffers(1, &EBO);
+	assert(glGetError() == GL_NO_ERROR);
+
+	GLuint buffs[2];
+	glGenBuffers(2, buffs);
+	assert(glGetError() == GL_NO_ERROR);
+
+	VBO = buffs[0];
+	EBO = buffs[1];
 
 	glBindVertexArray(VAO);
+	assert(glGetError() == GL_NO_ERROR);
 
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+	assert(glGetError() == GL_NO_ERROR);
+
 	glBufferData(GL_ARRAY_BUFFER, 8*3*sizeof(float), &vs[0], GL_STATIC_DRAW);
+	assert(glGetError() == GL_NO_ERROR);
 
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+	assert(glGetError() == GL_NO_ERROR);
+
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), &indices[0], GL_STATIC_DRAW);
+	assert(glGetError() == GL_NO_ERROR);
 
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3*sizeof(float), (void *)0);
+	assert(glGetError() == GL_NO_ERROR);
+
 	glEnableVertexAttribArray(0);
+	assert(glGetError() == GL_NO_ERROR);
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	assert(glGetError() == GL_NO_ERROR);
 
 	glBindVertexArray(0);
+	assert(glGetError() == GL_NO_ERROR);
 
 	#if defined (DEBUG)
 	cout << "box::make_buffers() - buffers made" << endl;

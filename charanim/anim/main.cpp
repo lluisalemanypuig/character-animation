@@ -3,8 +3,8 @@
 using namespace std;
 
 // charanim includes
-#include <charanim/charanim.hpp>
-#include <charanim/render/include_gl.hpp>
+#include <anim/charanim.hpp>
+#include <render/include_gl.hpp>
 
 int main(int argc, char *argv[]) {
 	int r = charanim::initialise_animation(argc, argv);

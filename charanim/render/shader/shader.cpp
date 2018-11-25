@@ -1,4 +1,4 @@
-#include <charanim/render/shader/shader.hpp>
+#include <render/shader/shader.hpp>
 
 // C++ includes
 #include <iostream>
@@ -100,7 +100,7 @@ bool shader::init(const string& dir, const string& vertex_name, const string& fr
 
 	#if defined (DEBUG)
 	cout << "    * vertex shader:" << endl;
-	cout << "        - create shader" << endl;
+	cout << "        - create shader ";
 	#endif
 
 	// -------------
@@ -110,11 +110,11 @@ bool shader::init(const string& dir, const string& vertex_name, const string& fr
 	assert(glGetError() == GL_NO_ERROR);
 
 	#if defined (DEBUG)
+	cout << vertex << endl;
 	cout << "        - set shader source" << endl;
 	#endif
 
-	int vertex_length = vertex_code.length();
-	glShaderSource(vertex, 1, &vertex_shader_code, &vertex_length);
+	glShaderSource(vertex, 1, &vertex_shader_code, nullptr);
 	assert(glGetError() == GL_NO_ERROR);
 
 	#if defined (DEBUG)
@@ -123,9 +123,11 @@ bool shader::init(const string& dir, const string& vertex_name, const string& fr
 
 	glCompileShader(vertex);
 	assert(glGetError() == GL_NO_ERROR);
+
 	// print compile errors if any
 	glGetShaderiv(vertex, GL_COMPILE_STATUS, &success);
 	assert(glGetError() == GL_NO_ERROR);
+
 	if (success == 0) {
 		glGetShaderInfoLog(vertex, 512, nullptr, info_buf);
 		cerr << "-------------------------------------" << endl;
@@ -139,20 +141,20 @@ bool shader::init(const string& dir, const string& vertex_name, const string& fr
 
 	#if defined (DEBUG)
 	cout << "    * fragment shader..." << endl;
-	cout << "        - create shader" << endl;
+	cout << "        - create shader ";
 	#endif
 
 	// ---------------
 	// fragment shader
 	unsigned int fragment = glCreateShader(GL_FRAGMENT_SHADER);
 	assert(glGetError() == GL_NO_ERROR);
-	int fragment_length = fragment_code.length();
 
 	#if defined (DEBUG)
+	cout << fragment << endl;
 	cout << "        - set shader source" << endl;
 	#endif
 
-	glShaderSource(fragment, 1, &fragment_shader_code, &fragment_length);
+	glShaderSource(fragment, 1, &fragment_shader_code, nullptr);
 	assert(glGetError() == GL_NO_ERROR);
 
 	#if defined (DEBUG)
@@ -161,9 +163,11 @@ bool shader::init(const string& dir, const string& vertex_name, const string& fr
 
 	glCompileShader(fragment);
 	assert(glGetError() == GL_NO_ERROR);
+
 	// print compile errors if any
 	glGetShaderiv(fragment, GL_COMPILE_STATUS, &success);
 	assert(glGetError() == GL_NO_ERROR);
+
 	if (success == 0) {
 		glGetShaderInfoLog(fragment, 512, nullptr, info_buf);
 		cerr << "-------------------------------------" << endl;
@@ -182,15 +186,20 @@ bool shader::init(const string& dir, const string& vertex_name, const string& fr
 	// create shader program
 	ID = glCreateProgram();
 	assert(glGetError() == GL_NO_ERROR);
+
 	glAttachShader(ID, vertex);
 	assert(glGetError() == GL_NO_ERROR);
+
 	glAttachShader(ID, fragment);
 	assert(glGetError() == GL_NO_ERROR);
+
 	glLinkProgram(ID);
 	assert(glGetError() == GL_NO_ERROR);
+
 	// print linking errors if any
 	glGetProgramiv(ID, GL_LINK_STATUS, &success);
 	assert(glGetError() == GL_NO_ERROR);
+
 	if (success == 0)
 	{
 		glGetProgramInfoLog(ID, 512, nullptr, info_buf);
@@ -211,6 +220,7 @@ bool shader::init(const string& dir, const string& vertex_name, const string& fr
 	// the program now and no longer necessery
 	glDeleteShader(vertex);
 	assert(glGetError() == GL_NO_ERROR);
+
 	glDeleteShader(fragment);
 	assert(glGetError() == GL_NO_ERROR);
 
@@ -222,7 +232,10 @@ void shader::clear() {
 		#if defined(DEBUG)
 		cout << "shader::clear() - deleting shader program " << ID << endl;
 		#endif
+
 		glDeleteProgram(ID);
+		assert(glGetError() == GL_NO_ERROR);
+
 		ID = 0;
 	}
 }
@@ -232,21 +245,25 @@ void shader::clear() {
 void shader::set_bool(const string& name, bool value) const {
 	GLint loc = glGetUniformLocation(ID, name.c_str());
 	glUniform1i(loc, value);
+	assert(glGetError() == GL_NO_ERROR);
 }
 
 void shader::set_int(const string& name, int value) const {
 	GLint loc = glGetUniformLocation(ID, name.c_str());
 	glUniform1i(loc, value);
+	assert(glGetError() == GL_NO_ERROR);
 }
 
 void shader::set_float(const string& name, float value) const {
 	GLint loc = glGetUniformLocation(ID, name.c_str());
 	glUniform1f(loc, value);
+	assert(glGetError() == GL_NO_ERROR);
 }
 
 void shader::set_vec2(const string& name, const glm::vec2& v) const {
 	GLint loc = glGetUniformLocation(ID, name.c_str());
 	glUniform2f(loc, v.x, v.y);
+	assert(glGetError() == GL_NO_ERROR);
 }
 
 void shader::set_vec3(const string& name, const glm::vec3& v) const {

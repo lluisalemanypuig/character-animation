@@ -4,9 +4,9 @@
 #include <glm/vec3.hpp>
 
 // charanim includes
-#include <charanim/render/viewer.hpp>
+#include <render/scene/viewer.hpp>
 #include <physim/simulator.hpp>
-#include <charanim/utils.hpp>
+#include <anim/utils.hpp>
 
 typedef std::pair<int,int> point;
 
@@ -41,6 +41,8 @@ namespace charanim {
 
 	/* view control */
 	extern viewer V;
+	/* sphere model */
+	extern
 
 	/* --------- */
 	/* FUNCTIONS */
