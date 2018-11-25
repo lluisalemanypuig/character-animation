@@ -42,9 +42,11 @@ void refresh() {
 	glLoadIdentity();
 	V.apply_view();
 
-	for (int i = 0; i < 10; ++i) {
+	for (int i = 0; i < 5; ++i) {
 		S.apply_time_step();
 	}
+
+	glDisable(GL_LIGHTING);
 
 	/* draw walls and stuff */
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
@@ -64,17 +66,27 @@ void refresh() {
 		flat_shader.set_vec3("view_pos", glm::vec3(0.f,0.f,0.f));
 		flat_shader.set_mat4("projection", projection);
 
+		int i = 0;
 		for (const sized_particle *p : ps) {
 			glm::mat4 model(1.0f);
 			model = glm::translate(model, to_gvec3(p->cur_pos));
-			model = glm::scale(model, glm::vec3(p->R, p->R, p->R));
+			model = glm::scale(model, glm::vec3(2.0f*p->R, 2.0f*p->R, 2.0f*p->R));
 
 			glm::mat4 modelview = view*model;
 			glm::mat3 normal_matrix = glm::inverseTranspose(glm::mat3(modelview));
 
+			if (i == 0) {
+				flat_shader.set_vec4("colour", glm::vec4(1.0f,0.0f,0.0f,1.0f));
+			}
+			else if (i == 1) {
+				flat_shader.set_vec4("colour", glm::vec4(0.0f,0.0f,1.0f,1.0f));
+			}
+
 			flat_shader.set_mat4("modelview", modelview);
 			flat_shader.set_mat3("normal_matrix", normal_matrix);
 			sphere->render();
+
+			++i;
 		}
 
 		flat_shader.release();

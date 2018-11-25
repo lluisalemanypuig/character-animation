@@ -13,7 +13,7 @@ typedef glm::vec3 gvec3;
 
 // physim includes
 #include <physim/initialiser/initialiser.hpp>
-#include <physim/particles/free_particle.hpp>
+#include <physim/particles/sized_particle.hpp>
 #include <physim/geometry/plane.hpp>
 #include <physim/math/vec3.hpp>
 typedef physim::math::vec3 pm_vec3;
@@ -43,6 +43,7 @@ void initialise_simulation() {
 	S.add_geometry(wall3);
 	S.add_geometry(wall4);
 
+	/*
 	initialiser I;
 	I.set_bounce_initialiser( [](free_particle *p) { p->bouncing = 1.0f; } );
 	I.set_friction_initialiser( [](free_particle *p) { p->friction = 0.0f; } );
@@ -70,8 +71,28 @@ void initialise_simulation() {
 	S.set_particle_particle_collisions(true);
 	S.set_time_step(0.001f);
 	S.set_initialiser(&I);
+	*/
 
-	S.add_sized_particles(10);
+	sized_particle *p1 = new sized_particle();
+	sized_particle *p2 = new sized_particle();
+
+	p2->lifetime = p1->lifetime = 99999999.0f;
+	p1->bouncing = p2->bouncing = 1.0f;
+	p1->friction = p2->friction = 0.0f;
+
+	p1->cur_pos.x = p1->cur_pos.z = 1.0f;
+	p1->cur_vel.x = p1->cur_vel.z = 1.0f;
+
+	p2->cur_pos.x = p2->cur_pos.z = 19.0f;
+	p2->cur_vel.x = p2->cur_vel.z = -1.0f;
+
+	p1->R = p2->R = 1.0f;
+
+	S.set_particle_particle_collisions(true);
+	S.set_viscous_drag(0.0f);
+
+	S.add_sized_particle(p1);
+	S.add_sized_particle(p2);
 }
 
 void initialise_renderer() {
