@@ -44,7 +44,7 @@ void rsphere::translate_object() const {
 
 void rsphere::draw_geometry() const {
 	cout << "rsphere::draw_geometry() - Error!" << endl;
-	cout << "    This object does not have a model and" << endl;
+	cout << "    This object does not have a mesh and" << endl;
 	cout << "    I don't know how to draw a sphere" << endl;
 	cout << "    using glBegin(), glEnd()" << endl;
 }

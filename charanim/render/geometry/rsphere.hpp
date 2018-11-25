@@ -5,7 +5,7 @@
 
 // render includes
 #include <render/geometry/rgeometry.hpp>
-#include <render/model/rendered_model.hpp>
+#include <render/mesh/rendered_tri_mesh.hpp>
 #include <render/box.hpp>
 
 /*
@@ -14,7 +14,7 @@
  *
  */
 
-// use the center to translate a model
+// use the center to translate a mesh
 // of a sphere to the right position.
 class rsphere : public rgeom {
 	private:

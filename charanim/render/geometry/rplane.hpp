@@ -5,7 +5,7 @@
 
 // render includes
 #include <render/geometry/rgeometry.hpp>
-#include <render/model/rendered_model.hpp>
+#include <render/mesh/rendered_tri_mesh.hpp>
 #include <render/box.hpp>
 
 /*

@@ -23,7 +23,7 @@ struct material {
 	std::string txt_name;
 	/// Texture (OpenGL) id used on this material.
 	uint txt_id;
-	/// Illumination model.
+	/// Illumination mesh.
 	int illum;
 	/// Specular exponent.
 	float Ns;
@@ -46,7 +46,7 @@ struct material {
 	 * @param ns Specular exponent.
 	 * @param ni ¿?
 	 * @param D Transparency
-	 * @param ill Illumination model.
+	 * @param ill Illumination mesh.
 	 * @param textID Texture identifier.
 	 * @param id Material's identifier.
 	 */

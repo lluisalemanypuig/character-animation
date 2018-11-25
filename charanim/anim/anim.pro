@@ -5,7 +5,8 @@ CONFIG -= qt
 
 HEADERS += \
     charanim.hpp \
-    utils.hpp
+    utils.hpp \
+    vec_helper.hpp
 
 SOURCES += main.cpp \
     utils.cpp \

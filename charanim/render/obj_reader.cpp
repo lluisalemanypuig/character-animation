@@ -315,7 +315,7 @@ void OBJ_reader::parse_file_lines(size_t A, size_t B) {
 	}
 }
 
-bool OBJ_reader::load_object(const string& dir, const string& fname, rendered_model& M) {
+bool OBJ_reader::load_object(const string& dir, const string& fname, rendered_tri_mesh& M) {
 	directory = dir;
 	filename = fname;
 

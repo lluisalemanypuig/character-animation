@@ -3,9 +3,12 @@
 // glm includes
 #include <glm/vec3.hpp>
 
+// physim includes
+#include <physim/simulator.hpp>
+
 // charanim includes
 #include <render/scene/viewer.hpp>
-#include <physim/simulator.hpp>
+#include <render/mesh/rendered_tri_mesh.hpp>
 #include <anim/utils.hpp>
 
 typedef std::pair<int,int> point;
@@ -14,6 +17,9 @@ namespace charanim {
 
 	/* --------- */
 	/* VARIABLES */
+
+	/* important keys */
+	#define ESC 27
 
 	/* scene */
 	extern physim::simulator S;
@@ -41,8 +47,11 @@ namespace charanim {
 
 	/* view control */
 	extern viewer V;
-	/* sphere model */
-	extern
+	/* sphere mesh */
+	extern rendered_tri_mesh *sphere;
+
+	/* render control */
+	extern bool draw_base_spheres;
 
 	/* --------- */
 	/* FUNCTIONS */

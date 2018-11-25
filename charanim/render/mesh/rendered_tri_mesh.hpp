@@ -9,24 +9,24 @@
 #include <glm/vec2.hpp>
 
 // render includes
-#include <render/model/model_utils.hpp>
-#include <render/model/model.hpp>
+#include <render/mesh/tri_mesh_utils.hpp>
+#include <render/mesh/tri_mesh.hpp>
 
 /**
- * @brief Rendered model class.
+ * @brief Rendered mesh class.
  *
- * This is an abstraction of a model that has to be rendered somehow.
+ * This is an abstraction of a mesh that has to be rendered somehow.
  *
  * This means having to draw its geometry with flat colours, lighting,
  * textures, ...
  *
- * Rendering this model requires calling the appropriate methods
+ * Rendering this mesh requires calling the appropriate methods
  * within a valid OpenGL context. For example, if one wants to render
- * this model with textures method @ref load_textures must be loaded
+ * this mesh with textures method @ref load_textures must be loaded
  * within an OpenGL context. Same for faster rendering using OpenGL lists
  * (see @ref copmile).
  */
-class rendered_model : public model {
+class rendered_tri_mesh : public tri_mesh {
 	private:
 		/**
 		 * @brief Materials used in the mesh.
@@ -65,16 +65,16 @@ class rendered_model : public model {
 
 	public:
 		/// Constructor.
-		rendered_model();
+		rendered_tri_mesh();
 		/**
 		 * @brief Copy constructor
 		 *
 		 * The index for the glList is not copied. Therefore, it
 		 * should be compiled again.
 		 */
-		rendered_model(const rendered_model& m);
+		rendered_tri_mesh(const rendered_tri_mesh& m);
 		/// Destructor.
-		~rendered_model();
+		~rendered_tri_mesh();
 
 		// SETTERS
 
@@ -90,22 +90,25 @@ class rendered_model : public model {
 
 		mesh_state state(const mesh_state& ignore = mesh_state::correct) const;
 
+		/// Returns the material index of each triangle.
 		const std::vector<int>& get_material_idxs() const;
+		/// Returns the list of unique material indices.
 		const std::set<int>& get_unique_material_idxs() const;
 
+		/// Returns the materials of this mesh.
 		const std::vector<material>& get_materials() const;
 
 		// MODIFIERS
 
 		/**
-		 * @brief Loads the textures for the model.
+		 * @brief Loads the textures for the mesh.
 		 *
-		 * In case this model has textures, they should be loaded here.
+		 * In case this mesh has textures, they should be loaded here.
 		 */
 		void load_textures();
 
 		/**
-		 * @brief Clears the memory occupied by the model.
+		 * @brief Clears the memory occupied by the mesh.
 		 *
 		 * This means clearing not only the memory for the vertices,
 		 * normals, ..., but also the compiled models.
@@ -170,7 +173,7 @@ class rendered_model : public model {
 		/**
 		 * @brief Builds buffer objects for fast rendering.
 		 *
-		 * Builds the necessary buffer objects to render the model
+		 * Builds the necessary buffer objects to render the mesh
 		 * more efficiently than with GL lists.
 		 */
 		void make_buffers();
@@ -178,7 +181,7 @@ class rendered_model : public model {
 		/**
 		 * @brief Builds buffer objects for fast rendering.
 		 *
-		 * Builds the necessary buffer objects to render the model
+		 * Builds the necessary buffer objects to render the mesh
 		 * more efficiently than with GL lists. This function adds
 		 * materials to the buffers.
 		 */
@@ -187,14 +190,14 @@ class rendered_model : public model {
 		/**
 		 * @brief Builds buffer objects for fast rendering.
 		 *
-		 * Builds the necessary buffer objects to render the model
+		 * Builds the necessary buffer objects to render the mesh
 		 * more efficiently than with GL lists. This function adds
 		 * materials to the buffers.
 		 */
 		void make_buffers_materials_textures();
 
 		/**
-		 * @brief Chooses the best way of rendering this model.
+		 * @brief Chooses the best way of rendering this mesh.
 		 *
 		 * If no buffer is available, then uses a glList.
 		 * If no list is available (@ref list_index is -1) then

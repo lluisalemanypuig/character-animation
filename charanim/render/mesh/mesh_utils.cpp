@@ -1,4 +1,4 @@
-#include <render/model/model_utils.hpp>
+#include <render/mesh/tri_mesh_utils.hpp>
 
 material::material
 (

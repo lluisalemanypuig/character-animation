@@ -9,8 +9,8 @@
 #include <glm/vec3.hpp>
 
 // Custom includes
-#include <render/model/rendered_model.hpp>
-#include <render/model/model_utils.hpp>
+#include <render/mesh/rendered_tri_mesh.hpp>
+#include <render/mesh/tri_mesh_utils.hpp>
 
 /**
  * @brief Wavefront format file reader class.
@@ -106,7 +106,7 @@ class OBJ_reader {
 		 * @return Returns true on success.
 		 */
 		bool load_object
-		(const std::string& dir, const std::string& name, rendered_model& M);
+		(const std::string& dir, const std::string& name, rendered_tri_mesh& M);
 
 };
 

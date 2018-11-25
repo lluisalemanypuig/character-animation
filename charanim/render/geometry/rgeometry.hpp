@@ -7,7 +7,7 @@
 #include <glm/mat4x4.hpp>
 
 // render includes
-#include <render/model/rendered_model.hpp>
+#include <render/mesh/rendered_tri_mesh.hpp>
 #include <render/box.hpp>
 
 /*
@@ -28,9 +28,9 @@ class rgeom {
 	protected:
 		bool render;
 		rendered_geometry_type t;
-		std::shared_ptr<rendered_model> _model;
+		std::shared_ptr<rendered_tri_mesh> _model;
 
-		// flat color of the model
+		// flat color of the mesh
 		float r,g,b,a;
 
 		/**
@@ -59,13 +59,13 @@ class rgeom {
 
 		void set_render(bool r);
 		void set_color(float _r, float _g, float _b, float _a);
-		void set_model(const std::shared_ptr<rendered_model>& _model);
+		void set_model(const std::shared_ptr<rendered_tri_mesh>& _model);
 
 		// GETTERS
 
 		bool should_render() const;
 		rendered_geometry_type get_type() const;
-		std::shared_ptr<rendered_model> get_model();
+		std::shared_ptr<rendered_tri_mesh> get_model();
 
 		float red() const;
 		float green() const;
@@ -77,9 +77,9 @@ class rgeom {
 		/**
 		 * @brief Draws the geometry.
 		 *
-		 * In case this geometry has a rendered model associated
-		 * (see @ref model) then its method
-		 * @ref rendered_model::render() is called. Otherwise,
+		 * In case this geometry has a rendered mesh associated
+		 * (see @ref mesh) then its method
+		 * @ref rendered_mesh::render() is called. Otherwise,
 		 * the function calls the pure virtual method
 		 * @ref draw_geometry().
 		 *
@@ -99,7 +99,7 @@ class rgeom {
 
 		virtual void make_model_matrix(glm::mat4& mat) const = 0;
 
-		/// Makes the bounding box of this model.
+		/// Makes the bounding box of this mesh.
 		virtual void make_box(box& b) const = 0;
 };
 

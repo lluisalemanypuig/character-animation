@@ -16,9 +16,6 @@ HEADERS += \
     cameras/orthogonal.hpp \
     cameras/perspective.hpp \
     cameras/observer.hpp \
-    model/model.hpp \
-    model/model_utils.hpp \
-    model/rendered_model.hpp \
     scene/sim_renderer.hpp \
     geometry/rsphere.hpp \
     geometry/rtriangle.hpp \
@@ -30,7 +27,10 @@ HEADERS += \
     textures/texture_loader.hpp \
     scene/viewer.hpp \
     shader/shader.hpp \
-    shader/shader_helper.hpp
+    shader/shader_helper.hpp \
+    mesh/tri_mesh.hpp \
+    mesh/rendered_tri_mesh.hpp \
+    mesh/tri_mesh_utils.hpp
 
 SOURCES += \
     obj_reader.cpp \
@@ -42,9 +42,9 @@ SOURCES += \
     cameras/orthogonal.cpp \
     cameras/perspective.cpp \
     cameras/observer.cpp \
-    model/model.cpp \
-    model/model_utils.cpp \
-    model/rendered_model.cpp \
+    mesh/mesh.cpp \
+    mesh/mesh_utils.cpp \
+    mesh/rendered_mesh.cpp \
     scene/sim_renderer.cpp \
     geometry/rgeometry.cpp \
     textures/texture_loader.cpp \

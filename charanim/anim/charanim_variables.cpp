@@ -19,13 +19,18 @@ namespace charanim {
 
 	glm::vec3 bgd_color;
 
-	/* view control */
-	viewer V;
-
 	/* animation control variables */
 	int FPS;
 	int fps_count;
 	bool display_fps;
 	timing::time_point sec;
+
+	/* view control */
+	viewer V;
+	/* sphere mesh */
+	rendered_tri_mesh *sphere;
+
+	/* render control */
+	bool draw_base_spheres;
 
 } // -- namespace charanim

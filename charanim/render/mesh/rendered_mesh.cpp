@@ -1,4 +1,4 @@
-#include <render/model/rendered_model.hpp>
+#include <render/mesh/rendered_tri_mesh.hpp>
 
 // C includes
 #include <assert.h>
@@ -18,12 +18,12 @@ using namespace std;
 
 // PUBLIC
 
-rendered_model::rendered_model() : model() {
+rendered_tri_mesh::rendered_tri_mesh() : tri_mesh() {
 	list_index = 0;
 	VAO = VBO = IBO = EBO = 0;
 }
 
-rendered_model::rendered_model(const rendered_model& m) : model(m) {
+rendered_tri_mesh::rendered_tri_mesh(const rendered_tri_mesh& m) : tri_mesh(m) {
 	materials = m.materials;
 	mat_idxs = m.mat_idxs;
 	texture_coords = m.texture_coords;
@@ -33,13 +33,13 @@ rendered_model::rendered_model(const rendered_model& m) : model(m) {
 	VAO = VBO = IBO = EBO = 0;
 }
 
-rendered_model::~rendered_model() {
+rendered_tri_mesh::~rendered_tri_mesh() {
 	clear();
 }
 
 // SETTERS
 
-void rendered_model::set_materials
+void rendered_tri_mesh::set_materials
 (const vector<material>& mats, const vector<string>& material_ids)
 {
 	materials = mats;
@@ -68,18 +68,18 @@ void rendered_model::set_materials
 	unique_mat_idxs.insert(mat_idxs.begin(), mat_idxs.end());
 }
 
-void rendered_model::set_texture_coords(const vector<glm::vec2>& texts) {
+void rendered_tri_mesh::set_texture_coords(const vector<glm::vec2>& texts) {
 	texture_coords = texts;
 }
 
-void rendered_model::set_texture_coord_idxs(const vector<int>& text_coord_idxs) {
+void rendered_tri_mesh::set_texture_coord_idxs(const vector<int>& text_coord_idxs) {
 	texture_coord_idxs = text_coord_idxs;
 }
 
 // GETTERS
 
-mesh_state rendered_model::state(const mesh_state& ignore) const {
-	mesh_state s = model::state(ignore);
+mesh_state rendered_tri_mesh::state(const mesh_state& ignore) const {
+	mesh_state s = tri_mesh::state(ignore);
 	if (s != mesh_state::correct) {
 		return s;
 	}
@@ -100,31 +100,31 @@ mesh_state rendered_model::state(const mesh_state& ignore) const {
 	return mesh_state::correct;
 }
 
-const std::vector<int>& rendered_model::get_material_idxs() const {
+const std::vector<int>& rendered_tri_mesh::get_material_idxs() const {
 	return mat_idxs;
 }
 
-const std::set<int>& rendered_model::get_unique_material_idxs() const {
+const std::set<int>& rendered_tri_mesh::get_unique_material_idxs() const {
 	return unique_mat_idxs;
 }
 
-const std::vector<material>& rendered_model::get_materials() const {
+const std::vector<material>& rendered_tri_mesh::get_materials() const {
 	return materials;
 }
 
-void rendered_model::load_textures() {
+void rendered_tri_mesh::load_textures() {
 	texture_loader& load = texture_loader::get_loader();
 	load.load_textures(materials, texture_openGL_idxs);
 }
 
 // MODIFIERS
 
-void rendered_model::clear() {
-	model::clear();
+void rendered_tri_mesh::clear() {
+	tri_mesh::clear();
 
 	if (list_index > 0) {
 		#if defined(DEBUG)
-		cout << "rendered_model::clear() - delete OpenGL list" << endl;
+		cout << "rendered_mesh::clear() - delete OpenGL list" << endl;
 		#endif
 		glDeleteLists(list_index, 1);
 		list_index = 0;
@@ -132,28 +132,28 @@ void rendered_model::clear() {
 
 	if (VAO > 0) {
 		#if defined(DEBUG)
-		cout << "rendered_model::clear() - delete VAO " << VAO << endl;
+		cout << "rendered_mesh::clear() - delete VAO " << VAO << endl;
 		#endif
 		glDeleteVertexArrays(1, &VAO);
 		VAO = 0;
 	}
 	if (VBO > 0) {
 		#if defined(DEBUG)
-		cout << "rendered_model::clear() - delete VBO " << VBO << endl;
+		cout << "rendered_mesh::clear() - delete VBO " << VBO << endl;
 		#endif
 		glDeleteBuffers(1, &VBO);
 		VBO = 0;
 	}
 	if (IBO > 0) {
 		#if defined(DEBUG)
-		cout << "rendered_model::clear() - delete IBO " << IBO << endl;
+		cout << "rendered_mesh::clear() - delete IBO " << IBO << endl;
 		#endif
 		glDeleteBuffers(1, &IBO);
 		IBO = 0;
 	}
 	if (EBO > 0) {
 		#if defined(DEBUG)
-		cout << "rendered_model::clear() - delete EBO " << EBO << endl;
+		cout << "rendered_mesh::clear() - delete EBO " << EBO << endl;
 		#endif
 		glDeleteBuffers(1, &EBO);
 		EBO = 0;
@@ -168,18 +168,18 @@ void rendered_model::clear() {
 	texture_openGL_idxs.clear();
 }
 
-bool rendered_model::uses_lists() const {
+bool rendered_tri_mesh::uses_lists() const {
 	return list_index > 0;
 }
 
-bool rendered_model::uses_buffers() const {
+bool rendered_tri_mesh::uses_buffers() const {
 	return VBO > 0 and EBO > 0;
 }
 
 // OTHERS
 
-void rendered_model::display_mesh_info() const {
-	model::display_mesh_info();
+void rendered_tri_mesh::display_mesh_info() const {
+	tri_mesh::display_mesh_info();
 	cout << "    # Materials= " << materials.size() << endl;
 	cout << "    # Texture coordinates= " << texture_coords.size() << endl;
 	uint ntxts = 0;
@@ -216,7 +216,7 @@ void rendered_model::display_mesh_info() const {
 	}
 }
 
-void rendered_model::slow_render() const {
+void rendered_tri_mesh::slow_render() const {
 	for (size_t t = 0; t < triangles.size(); t += 3) {
 		// set the material of the face
 		bool textenable = false;
@@ -260,7 +260,7 @@ void rendered_model::slow_render() const {
 	}
 }
 
-uint rendered_model::compile() {
+uint rendered_tri_mesh::compile() {
 	if (list_index == 0) {
 		list_index = glGenLists(1);
 		glNewList(list_index, GL_COMPILE);
@@ -269,13 +269,13 @@ uint rendered_model::compile() {
 	}
 
 	#if defined (DEBUG)
-	cout << "rendered_model::compile:" << endl;
+	cout << "rendered_mesh::compile:" << endl;
 	cout << "    Object compiled into list with index: " << list_index << endl;
 	#endif
 	return list_index;
 }
 
-void rendered_model::make_buffers() {
+void rendered_tri_mesh::make_buffers() {
 
 	vector<float> data(2*3*triangles.size());
 	vector<uint> indices(triangles.size());
@@ -345,14 +345,14 @@ void rendered_model::make_buffers() {
 	glBindVertexArray(0);
 
 	#if defined (DEBUG)
-	cout << "rendered_model::make_buffers() - buffers made" << endl;
+	cout << "rendered_mesh::make_buffers() - buffers made" << endl;
 	cout << "    VAO: " << VAO << endl;
 	cout << "    VBO: " << VBO << endl;
 	cout << "    EBO: " << EBO << endl;
 	#endif
 }
 
-void rendered_model::make_buffers_materials() {
+void rendered_tri_mesh::make_buffers_materials() {
 
 	vector<float> data((3 + 3)*triangles.size());
 	vector<GLint> flat_idxs(triangles.size());
@@ -442,7 +442,7 @@ void rendered_model::make_buffers_materials() {
 	assert(glGetError() == GL_NO_ERROR);
 
 	#if defined (DEBUG)
-	cout << "rendered_model::make_buffers_materials() - buffers made" << endl;
+	cout << "rendered_mesh::make_buffers_materials() - buffers made" << endl;
 	cout << "    VAO: " << VAO << endl;
 	cout << "    VBO: " << VBO << endl;
 	cout << "    IBO: " << IBO << endl;
@@ -450,7 +450,7 @@ void rendered_model::make_buffers_materials() {
 	#endif
 }
 
-void rendered_model::make_buffers_materials_textures() {
+void rendered_tri_mesh::make_buffers_materials_textures() {
 
 	vector<float> data((3 + 3 + 2)*triangles.size());
 	vector<int> flat_idxs((1 + 1)*triangles.size());
@@ -566,7 +566,7 @@ void rendered_model::make_buffers_materials_textures() {
 	assert(glGetError() == GL_NO_ERROR);
 
 	#if defined (DEBUG)
-	cout << "rendered_model::make_buffers_materials_textures() - buffers made" << endl;
+	cout << "rendered_mesh::make_buffers_materials_textures() - buffers made" << endl;
 	cout << "    VAO: " << VAO << endl;
 	cout << "    VBO: " << VBO << endl;
 	cout << "    IBO: " << IBO << endl;
@@ -574,7 +574,7 @@ void rendered_model::make_buffers_materials_textures() {
 	#endif
 }
 
-void rendered_model::render() const {
+void rendered_tri_mesh::render() const {
 	if (uses_buffers()) {
 		glBindVertexArray(VAO);
 		assert(glGetError() == GL_NO_ERROR);
@@ -586,6 +586,7 @@ void rendered_model::render() const {
 		assert(glGetError() == GL_NO_ERROR);
 	}
 	else if (uses_lists()) {
+		cout << "Using gl lists" << endl;
 		glCallList(list_index);
 	}
 	else {

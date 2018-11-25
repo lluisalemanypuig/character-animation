@@ -10,12 +10,12 @@
 
 // render includes
 #include <render/box.hpp>
-#include <render/model/model_utils.hpp>
+#include <render/mesh/tri_mesh_utils.hpp>
 
 /**
  * @brief Implements a mesh that need not be triangular.
  */
-class model {
+class tri_mesh {
 	protected:
 		/// Mesh name. Used for debugging purposes.
 		std::string mesh_name;
@@ -44,11 +44,11 @@ class model {
 
 	public:
 		/// Default constructor.
-		model();
+		tri_mesh();
 		/// Copy constructor.
-		model(const model& m);
+		tri_mesh(const tri_mesh& m);
 		/// Destructor.
-		virtual ~model();
+		virtual ~tri_mesh();
 
 		// SETTERS
 
@@ -72,11 +72,11 @@ class model {
 		 */
 		mesh_state state(const mesh_state& ignore = mesh_state::correct) const;
 
-		/// Returns a constant reference to this model's vertices.
+		/// Returns a constant reference to this mesh's vertices.
 		const std::vector<glm::vec3>& get_vertices() const;
 
 		/**
-		 * @brief Make the bounding box of the model @e m.
+		 * @brief Make the bounding box of the mesh @e m.
 		 *
 		 * The box has its faces parallel to the axis.
 		 * @param[out] b Bounding box

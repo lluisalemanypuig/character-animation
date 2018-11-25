@@ -11,6 +11,7 @@ using namespace physim::particles;
 
 // charanim includes
 #include <render/include_gl.hpp>
+#include <anim/vec_helper.hpp>
 
 namespace charanim {
 
@@ -39,12 +40,29 @@ void refresh() {
 		S.apply_time_step();
 	}
 
+	glDisable(GL_LIGHTING);
 	const vector<sized_particle *>& ps = S.get_sized_particles();
-	glBegin(GL_POINTS);
-	for (const sized_particle *p : ps) {
-		glVertex3f(p->cur_pos.x, p->cur_pos.y, p->cur_pos.z);
+	if (draw_base_spheres) {
+		glColor3f(1.0f,0.0f,0.0f);
+		for (const sized_particle *p : ps) {
+			glPushMatrix();
+				glTranslatef(p->cur_pos.x, p->cur_pos.y, p->cur_pos.z);
+				glScalef(p->R/2.0f, p->R/2.0f, p->R/2.0f);
+				glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+				sphere->slow_render();
+				glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+			glPopMatrix();
+		}
 	}
-	glEnd();
+	else {
+		glPointSize(3.0f);
+		glBegin(GL_POINTS);
+		glColor3f(0.0f,0.0f,1.0f);
+		for (const sized_particle *p : ps) {
+			glVertex3f(p->cur_pos.x, p->cur_pos.y, p->cur_pos.z);
+		}
+		glEnd();
+	}
 
 	glutSwapBuffers();
 }
@@ -67,6 +85,8 @@ void timed_refresh(int v) {
 }
 
 void exit_func() {
+	sphere->clear();
+	delete sphere;
 }
 
 void special_keys_keyboard(int key, int x, int y) {
@@ -74,7 +94,14 @@ void special_keys_keyboard(int key, int x, int y) {
 }
 
 void regular_keys_keyboard(unsigned char c, int x, int y) {
-
+	switch (c) {
+		case ESC:
+			glutDestroyWindow(window_id);
+			break;
+		case 's':
+			draw_base_spheres = not draw_base_spheres;
+			break;
+	}
 }
 
 void mouse_passive(int x, int y) {
