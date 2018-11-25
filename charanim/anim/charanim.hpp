@@ -1,5 +1,8 @@
 #pragma once
 
+// C++ includes
+#include <vector>
+
 // glm includes
 #include <glm/vec3.hpp>
 
@@ -9,6 +12,8 @@
 // charanim includes
 #include <render/scene/viewer.hpp>
 #include <render/mesh/rendered_tri_mesh.hpp>
+#include <render/geometry/rgeometry.hpp>
+#include <render/shader/shader.hpp>
 #include <anim/utils.hpp>
 
 typedef std::pair<int,int> point;
@@ -21,7 +26,7 @@ namespace charanim {
 	/* important keys */
 	#define ESC 27
 
-	/* scene */
+	/* physics-based simulation */
 	extern physim::simulator S;
 
 	/* glut window */
@@ -45,10 +50,19 @@ namespace charanim {
 	extern bool display_fps;
 	extern timing::time_point sec;
 
+	/* RENDERISATION */
+
 	/* view control */
 	extern viewer V;
+	extern std::vector<rgeom *> geometry;
 	/* sphere mesh */
 	extern rendered_tri_mesh *sphere;
+
+	/* shaders */
+	extern shader flat_shader;
+	extern shader material_shader;
+	extern shader texture_shader;
+
 
 	/* render control */
 	extern bool draw_base_spheres;

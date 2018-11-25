@@ -5,12 +5,18 @@
 #include <vector>
 using namespace std;
 
+// glm includes
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_inverse.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+
 // physim includes
 #include <physim/particles/free_particle.hpp>
 using namespace physim::particles;
 
 // charanim includes
 #include <render/include_gl.hpp>
+#include <render/shader/shader_helper.hpp>
 #include <anim/vec_helper.hpp>
 
 namespace charanim {
@@ -40,19 +46,38 @@ void refresh() {
 		S.apply_time_step();
 	}
 
-	glDisable(GL_LIGHTING);
+	/* draw walls and stuff */
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	for (rgeom *r : geometry) {
+		r->draw();
+	}
+
+	/* draw particles/spheres/models of characters */
 	const vector<sized_particle *>& ps = S.get_sized_particles();
 	if (draw_base_spheres) {
-		glColor3f(1.0f,0.0f,0.0f);
+		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
+		glm::mat4 projection = V.make_projection_matrix();
+		glm::mat4 view = V.make_view_matrix();
+
+		flat_shader.bind();
+		flat_shader.set_vec3("view_pos", glm::vec3(0.f,0.f,0.f));
+		flat_shader.set_mat4("projection", projection);
+
 		for (const sized_particle *p : ps) {
-			glPushMatrix();
-				glTranslatef(p->cur_pos.x, p->cur_pos.y, p->cur_pos.z);
-				glScalef(p->R/2.0f, p->R/2.0f, p->R/2.0f);
-				glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-				sphere->slow_render();
-				glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-			glPopMatrix();
+			glm::mat4 model(1.0f);
+			model = glm::translate(model, to_gvec3(p->cur_pos));
+			model = glm::scale(model, glm::vec3(p->R, p->R, p->R));
+
+			glm::mat4 modelview = view*model;
+			glm::mat3 normal_matrix = glm::inverseTranspose(glm::mat3(modelview));
+
+			flat_shader.set_mat4("modelview", modelview);
+			flat_shader.set_mat3("normal_matrix", normal_matrix);
+			sphere->render();
 		}
+
+		flat_shader.release();
 	}
 	else {
 		glPointSize(3.0f);
@@ -85,8 +110,20 @@ void timed_refresh(int v) {
 }
 
 void exit_func() {
+	cout << "Clear memory..." << endl;
+
 	sphere->clear();
 	delete sphere;
+
+	for (rgeom *r : geometry) {
+		r->clear();
+		delete r;
+	}
+	geometry.clear();
+
+	flat_shader.clear();
+	material_shader.clear();
+	texture_shader.clear();
 }
 
 void special_keys_keyboard(int key, int x, int y) {
@@ -98,6 +135,7 @@ void regular_keys_keyboard(unsigned char c, int x, int y) {
 		case ESC:
 			glutDestroyWindow(window_id);
 			break;
+
 		case 's':
 			draw_base_spheres = not draw_base_spheres;
 			break;

@@ -119,9 +119,7 @@ void rendered_tri_mesh::load_textures() {
 
 // MODIFIERS
 
-void rendered_tri_mesh::clear() {
-	tri_mesh::clear();
-
+void rendered_tri_mesh::clear_graphics() {
 	if (list_index > 0) {
 		#if defined(DEBUG)
 		cout << "rendered_mesh::clear() - delete OpenGL list" << endl;
@@ -158,6 +156,11 @@ void rendered_tri_mesh::clear() {
 		glDeleteBuffers(1, &EBO);
 		EBO = 0;
 	}
+}
+
+void rendered_tri_mesh::clear() {
+	tri_mesh::clear();
+	clear_graphics();
 
 	materials.clear();
 	mat_idxs.clear();
@@ -467,9 +470,11 @@ void rendered_tri_mesh::make_buffers_materials_textures() {
 		data[8*t + 4] = norm.y;
 		data[8*t + 5] = norm.z;
 
-		const glm::vec2& tex = texture_coords[ texture_coord_idxs[t] ];
-		data[8*t + 6] = tex.x;
-		data[8*t + 7] = 1.0f - tex.y;
+		if (texture_coord_idxs[t] > 0) {
+			const glm::vec2& tex = texture_coords[ texture_coord_idxs[t] ];
+			data[8*t + 6] = tex.x;
+			data[8*t + 7] = 1.0f - tex.y;
+		}
 
 		int M = mat_idxs[t/3];
 		flat_idxs[2*t    ] = M;
@@ -586,7 +591,6 @@ void rendered_tri_mesh::render() const {
 		assert(glGetError() == GL_NO_ERROR);
 	}
 	else if (uses_lists()) {
-		cout << "Using gl lists" << endl;
 		glCallList(list_index);
 	}
 	else {

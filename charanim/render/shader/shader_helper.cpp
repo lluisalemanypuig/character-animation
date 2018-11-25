@@ -70,7 +70,7 @@ namespace shader_helper {
 			++it;
 		}
 
-		for (int i = 0; i < 4; ++i, ++it) {
+		for (int i = 0; i < 4 and it != unique_mat_idxs.end(); ++i, ++it) {
 			idxs[i] = *it;
 		}
 

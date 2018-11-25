@@ -16,7 +16,6 @@ HEADERS += \
     cameras/orthogonal.hpp \
     cameras/perspective.hpp \
     cameras/observer.hpp \
-    scene/sim_renderer.hpp \
     geometry/rsphere.hpp \
     geometry/rtriangle.hpp \
     geometry/rplane.hpp \
@@ -42,15 +41,14 @@ SOURCES += \
     cameras/orthogonal.cpp \
     cameras/perspective.cpp \
     cameras/observer.cpp \
-    mesh/mesh.cpp \
-    mesh/mesh_utils.cpp \
-    mesh/rendered_mesh.cpp \
-    scene/sim_renderer.cpp \
     geometry/rgeometry.cpp \
     textures/texture_loader.cpp \
     scene/viewer.cpp \
     shader/shader.cpp \
-    shader/shader_helper.cpp
+    shader/shader_helper.cpp \
+    mesh/rendered_tri_mesh.cpp \
+    mesh/tri_mesh.cpp \
+    mesh/tri_mesh_utils.cpp
 
 # for 'self' includes
 INCLUDEPATH += ..

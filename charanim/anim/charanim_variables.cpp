@@ -25,10 +25,18 @@ namespace charanim {
 	bool display_fps;
 	timing::time_point sec;
 
+	/* RENDERISATION */
+
 	/* view control */
 	viewer V;
+	std::vector<rgeom *> geometry;
 	/* sphere mesh */
 	rendered_tri_mesh *sphere;
+
+	/* shaders */
+	shader flat_shader;
+	shader material_shader;
+	shader texture_shader;
 
 	/* render control */
 	bool draw_base_spheres;

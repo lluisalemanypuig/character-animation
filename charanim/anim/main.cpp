@@ -18,6 +18,7 @@ int main(int argc, char *argv[]) {
 
 	cout << "Initialisation successful" << endl;
 
+	atexit(charanim::exit_func);
 	glutDisplayFunc(charanim::refresh);
 	glutReshapeFunc(charanim::resize);
 	glutMouseFunc(charanim::mouse_click);

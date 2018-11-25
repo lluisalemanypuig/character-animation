@@ -107,6 +107,9 @@ class rendered_tri_mesh : public tri_mesh {
 		 */
 		void load_textures();
 
+		/// Clears the buffers and glLists, if needed to.
+		void clear_graphics();
+
 		/**
 		 * @brief Clears the memory occupied by the mesh.
 		 *
