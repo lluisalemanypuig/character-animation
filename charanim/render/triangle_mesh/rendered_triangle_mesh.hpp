@@ -9,8 +9,8 @@
 #include <glm/vec2.hpp>
 
 // render includes
-#include <render/mesh/tri_mesh_utils.hpp>
-#include <render/mesh/tri_mesh.hpp>
+#include <render/triangle_mesh/triangle_mesh_utils.hpp>
+#include <render/triangle_mesh/triangle_mesh.hpp>
 
 /**
  * @brief Rendered mesh class.
@@ -26,7 +26,7 @@
  * within an OpenGL context. Same for faster rendering using OpenGL lists
  * (see @ref copmile).
  */
-class rendered_tri_mesh : public tri_mesh {
+class rendered_triangle_mesh : public triangle_mesh {
 	private:
 		/**
 		 * @brief Materials used in the mesh.
@@ -65,16 +65,16 @@ class rendered_tri_mesh : public tri_mesh {
 
 	public:
 		/// Constructor.
-		rendered_tri_mesh();
+		rendered_triangle_mesh();
 		/**
 		 * @brief Copy constructor
 		 *
 		 * The index for the glList is not copied. Therefore, it
 		 * should be compiled again.
 		 */
-		rendered_tri_mesh(const rendered_tri_mesh& m);
+		rendered_triangle_mesh(const rendered_triangle_mesh& m);
 		/// Destructor.
-		~rendered_tri_mesh();
+		~rendered_triangle_mesh();
 
 		// SETTERS
 

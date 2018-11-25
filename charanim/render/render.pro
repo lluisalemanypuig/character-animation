@@ -27,9 +27,9 @@ HEADERS += \
     scene/viewer.hpp \
     shader/shader.hpp \
     shader/shader_helper.hpp \
-    mesh/tri_mesh.hpp \
-    mesh/rendered_tri_mesh.hpp \
-    mesh/tri_mesh_utils.hpp
+    triangle_mesh/triangle_mesh.hpp \
+    triangle_mesh/triangle_mesh_utils.hpp \
+    triangle_mesh/rendered_triangle_mesh.hpp
 
 SOURCES += \
     obj_reader.cpp \
@@ -46,9 +46,9 @@ SOURCES += \
     scene/viewer.cpp \
     shader/shader.cpp \
     shader/shader_helper.cpp \
-    mesh/rendered_tri_mesh.cpp \
-    mesh/tri_mesh.cpp \
-    mesh/tri_mesh_utils.cpp
+    triangle_mesh/rendered_triangle_mesh.cpp \
+    triangle_mesh/triangle_mesh.cpp \
+    triangle_mesh/triangle_mesh_utils.cpp
 
 # for 'self' includes
 INCLUDEPATH += ..

@@ -31,7 +31,7 @@ namespace charanim {
 	viewer V;
 	std::vector<rgeom *> geometry;
 	/* sphere mesh */
-	rendered_tri_mesh *sphere;
+	rendered_triangle_mesh *sphere;
 
 	/* shaders */
 	shader flat_shader;

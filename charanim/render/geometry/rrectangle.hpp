@@ -5,7 +5,7 @@
 
 // render includes
 #include <render/geometry/rgeometry.hpp>
-#include <render/mesh/rendered_tri_mesh.hpp>
+#include <render/triangle_mesh/rendered_triangle_mesh.hpp>
 #include <render/box.hpp>
 
 /*
@@ -40,6 +40,6 @@ class rrectangle : public rgeom {
 		// OTHERS
 
 		void draw_geometry() const;
-		void make_model_matrix(glm::mat4& tri_mesh) const;
+		void make_model_matrix(glm::mat4& triangle_mesh) const;
 		void make_box(box& b) const;
 };

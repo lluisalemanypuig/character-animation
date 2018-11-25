@@ -10,12 +10,12 @@
 
 // render includes
 #include <render/box.hpp>
-#include <render/mesh/tri_mesh_utils.hpp>
+#include <render/triangle_mesh/triangle_mesh_utils.hpp>
 
 /**
  * @brief Implements a mesh that need not be triangular.
  */
-class tri_mesh {
+class triangle_mesh {
 	protected:
 		/// Mesh name. Used for debugging purposes.
 		std::string mesh_name;
@@ -44,11 +44,11 @@ class tri_mesh {
 
 	public:
 		/// Default constructor.
-		tri_mesh();
+		triangle_mesh();
 		/// Copy constructor.
-		tri_mesh(const tri_mesh& m);
+		triangle_mesh(const triangle_mesh& m);
 		/// Destructor.
-		virtual ~tri_mesh();
+		virtual ~triangle_mesh();
 
 		// SETTERS
 

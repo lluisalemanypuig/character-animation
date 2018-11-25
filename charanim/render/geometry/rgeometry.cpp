@@ -33,7 +33,7 @@ void rgeom::set_color(float _r, float _g, float _b, float _a) {
 	b = _b;
 	a = _a;
 }
-void rgeom::set_model(const std::shared_ptr<rendered_tri_mesh>& _m) {
+void rgeom::set_model(const std::shared_ptr<rendered_triangle_mesh>& _m) {
 	_model = _m;
 }
 
@@ -45,7 +45,7 @@ rendered_geometry_type rgeom::get_type() const {
 	return t;
 }
 
-std::shared_ptr<rendered_tri_mesh> rgeom::get_model() {
+std::shared_ptr<rendered_triangle_mesh> rgeom::get_model() {
 	return _model;
 }
 

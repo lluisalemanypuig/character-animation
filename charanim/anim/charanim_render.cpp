@@ -33,25 +33,8 @@ void refresh() {
 	glClearColor(bgd_color.x, bgd_color.y, bgd_color.z, 1.0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	// no shader for all
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-	V.apply_projection();
-
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
-	V.apply_view();
-
-	for (int i = 0; i < 5; ++i) {
+	for (int i = 0; i < 10; ++i) {
 		S.apply_time_step();
-	}
-
-	glDisable(GL_LIGHTING);
-
-	/* draw walls and stuff */
-	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-	for (rgeom *r : geometry) {
-		r->draw();
 	}
 
 	/* draw particles/spheres/models of characters */
@@ -75,13 +58,6 @@ void refresh() {
 			glm::mat4 modelview = view*model;
 			glm::mat3 normal_matrix = glm::inverseTranspose(glm::mat3(modelview));
 
-			if (i == 0) {
-				flat_shader.set_vec4("colour", glm::vec4(1.0f,0.0f,0.0f,1.0f));
-			}
-			else if (i == 1) {
-				flat_shader.set_vec4("colour", glm::vec4(0.0f,0.0f,1.0f,1.0f));
-			}
-
 			flat_shader.set_mat4("modelview", modelview);
 			flat_shader.set_mat3("normal_matrix", normal_matrix);
 			sphere->render();
@@ -91,7 +67,25 @@ void refresh() {
 
 		flat_shader.release();
 	}
-	else {
+
+	// no shader for all
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	V.apply_projection();
+
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
+	V.apply_view();
+
+	glDisable(GL_LIGHTING);
+
+	/* draw walls and stuff */
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	for (rgeom *r : geometry) {
+		r->draw();
+	}
+
+	if (not draw_base_spheres) {
 		glPointSize(3.0f);
 		glBegin(GL_POINTS);
 		glColor3f(0.0f,0.0f,1.0f);

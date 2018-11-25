@@ -7,7 +7,7 @@
 #include <glm/mat4x4.hpp>
 
 // render includes
-#include <render/mesh/rendered_tri_mesh.hpp>
+#include <render/triangle_mesh/rendered_triangle_mesh.hpp>
 #include <render/box.hpp>
 
 /*
@@ -28,7 +28,7 @@ class rgeom {
 	protected:
 		bool render;
 		rendered_geometry_type t;
-		std::shared_ptr<rendered_tri_mesh> _model;
+		std::shared_ptr<rendered_triangle_mesh> _model;
 
 		// flat color of the mesh
 		float r,g,b,a;
@@ -59,13 +59,13 @@ class rgeom {
 
 		void set_render(bool r);
 		void set_color(float _r, float _g, float _b, float _a);
-		void set_model(const std::shared_ptr<rendered_tri_mesh>& _model);
+		void set_model(const std::shared_ptr<rendered_triangle_mesh>& _model);
 
 		// GETTERS
 
 		bool should_render() const;
 		rendered_geometry_type get_type() const;
-		std::shared_ptr<rendered_tri_mesh> get_model();
+		std::shared_ptr<rendered_triangle_mesh> get_model();
 
 		float red() const;
 		float green() const;

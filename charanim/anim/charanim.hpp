@@ -11,7 +11,7 @@
 
 // charanim includes
 #include <render/scene/viewer.hpp>
-#include <render/mesh/rendered_tri_mesh.hpp>
+#include <render/triangle_mesh/rendered_triangle_mesh.hpp>
 #include <render/geometry/rgeometry.hpp>
 #include <render/shader/shader.hpp>
 #include <anim/utils.hpp>
@@ -56,7 +56,7 @@ namespace charanim {
 	extern viewer V;
 	extern std::vector<rgeom *> geometry;
 	/* sphere mesh */
-	extern rendered_tri_mesh *sphere;
+	extern rendered_triangle_mesh *sphere;
 
 	/* shaders */
 	extern shader flat_shader;

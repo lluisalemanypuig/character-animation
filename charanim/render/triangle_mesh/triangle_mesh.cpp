@@ -1,4 +1,4 @@
-#include <render/mesh/tri_mesh.hpp>
+#include <render/triangle_mesh/triangle_mesh.hpp>
 
 // C includes
 #include <assert.h>
@@ -14,7 +14,7 @@ using namespace std;
 
 // PROTECTED
 
-glm::vec3 tri_mesh::triangle_normal(int t) const {
+glm::vec3 triangle_mesh::triangle_normal(int t) const {
 	assert(t != -1);
 
 	int T = 3*t;
@@ -31,11 +31,11 @@ glm::vec3 tri_mesh::triangle_normal(int t) const {
 
 // PUBLIC
 
-tri_mesh::tri_mesh() {
+triangle_mesh::triangle_mesh() {
 	mesh_name = "anonymous";
 }
 
-tri_mesh::tri_mesh(const tri_mesh& m) {
+triangle_mesh::triangle_mesh(const triangle_mesh& m) {
 	mesh_name = m.mesh_name;
 	vertices = m.vertices;
 	normals = m.normals;
@@ -43,35 +43,35 @@ tri_mesh::tri_mesh(const tri_mesh& m) {
 	normal_idxs = m.normal_idxs;
 }
 
-tri_mesh::~tri_mesh() {
+triangle_mesh::~triangle_mesh() {
 	clear();
 }
 
 // SETTERS
 
-void tri_mesh::set_name(const string& name) {
+void triangle_mesh::set_name(const string& name) {
 	mesh_name = name;
 }
 
-void tri_mesh::set_vertices(const vector<glm::vec3>& verts) {
+void triangle_mesh::set_vertices(const vector<glm::vec3>& verts) {
 	vertices = verts;
 }
 
-void tri_mesh::set_normals(const vector<glm::vec3>& nrmls) {
+void triangle_mesh::set_normals(const vector<glm::vec3>& nrmls) {
 	normals = nrmls;
 }
 
-void tri_mesh::set_triangles(const vector<int>& tris) {
+void triangle_mesh::set_triangles(const vector<int>& tris) {
 	triangles = tris;
 }
 
-void tri_mesh::set_normal_idxs(const vector<int>& nrmls_idxs) {
+void triangle_mesh::set_normal_idxs(const vector<int>& nrmls_idxs) {
 	normal_idxs = nrmls_idxs;
 }
 
 // MODIFIERS
 
-mesh_state tri_mesh::state(const mesh_state& ignore) const {
+mesh_state triangle_mesh::state(const mesh_state& ignore) const {
 	if (((ignore & mesh_state::no_vertices) == 0) and vertices.size() == 0) {
 		cerr << "mesh::is_valid: Error" << endl;
 		cerr << "    Vertices not found in mesh '" << mesh_name << "'" << endl;
@@ -118,11 +118,11 @@ mesh_state tri_mesh::state(const mesh_state& ignore) const {
 	return mesh_state::correct;
 }
 
-const std::vector<glm::vec3>& tri_mesh::get_vertices() const {
+const std::vector<glm::vec3>& triangle_mesh::get_vertices() const {
 	return vertices;
 }
 
-void tri_mesh::make_box(box& b) const {
+void triangle_mesh::make_box(box& b) const {
 	glm::vec3 min = vertices[0];
 	glm::vec3 max = vertices[0];
 	for (const glm::vec3& v : vertices) {
@@ -138,7 +138,7 @@ void tri_mesh::make_box(box& b) const {
 	b.set_min_max(min, max);
 }
 
-void tri_mesh::make_normals_flat() {
+void triangle_mesh::make_normals_flat() {
 	normals.clear();
 	normal_idxs.clear();
 
@@ -155,7 +155,7 @@ void tri_mesh::make_normals_flat() {
 	}
 }
 
-void tri_mesh::make_normals_smooth() {
+void triangle_mesh::make_normals_smooth() {
 	// compute to what faces each
 	// vertex is adjacent to
 	vector<vector<int> > tris_per_vertex(vertices.size());
@@ -213,7 +213,7 @@ void tri_mesh::make_normals_smooth() {
 	normals = smoothed_normals;
 }
 
-void tri_mesh::scale_to_unit() {
+void triangle_mesh::scale_to_unit() {
 	glm::vec3 center(0.0f, 0.0f, 0.0f);
 	glm::vec3 m(1e10, 1e10, 1e10);
 	glm::vec3 M(-1e10, -1e10, -1e10);
@@ -232,7 +232,7 @@ void tri_mesh::scale_to_unit() {
 	}
 }
 
-void tri_mesh::clear() {
+void triangle_mesh::clear() {
 	vertices.clear();
 	triangles.clear();
 	normals.clear();
@@ -241,7 +241,7 @@ void tri_mesh::clear() {
 
 // OTHERS
 
-void tri_mesh::display_mesh_info() const {
+void triangle_mesh::display_mesh_info() const {
 	cout << "Mesh '" << mesh_name << "' information: " << endl;
 	cout << "    # Vertices= " << vertices.size() << endl;
 	cout << "    # Triangles= " << triangles.size() << endl;

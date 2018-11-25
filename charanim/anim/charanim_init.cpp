@@ -50,15 +50,16 @@ void initialise_simulation() {
 	I.set_lifetime_initialiser( [](free_particle *p) { p->lifetime = 999999999.0f; } );
 	I.set_pos_initialiser(
 		[](free_particle *p) {
-			float x = 20.0f*float(rand())/RAND_MAX;
-			float z = 20.0f*float(rand())/RAND_MAX;
+			float x = 15.0f*float(rand())/RAND_MAX + 2.5f;
+			float z = 15.0f*float(rand())/RAND_MAX + 2.5f;
 			p->cur_pos = pm_vec3(x, 0.0f, z);
 		}
 	);
 	I.set_vel_initialiser(
 		[](free_particle *p) {
-			float x = 10.0f*float(rand())/RAND_MAX;
-			float z = 10.0f*float(rand())/RAND_MAX;
+			float x = float(rand())/RAND_MAX;
+			float z = float(rand())/RAND_MAX;
+			cout << x << "0" << z << endl;
 			p->cur_vel = pm_vec3(x, 0.0f, z);
 		}
 	);
@@ -68,31 +69,41 @@ void initialise_simulation() {
 		}
 	);
 
+	S.set_viscous_drag(100.0f);
 	S.set_particle_particle_collisions(true);
-	S.set_time_step(0.001f);
+	S.set_time_step(0.0001f);
 	S.set_initialiser(&I);
+	S.add_sized_particles(10);
 	*/
+
 
 	sized_particle *p1 = new sized_particle();
 	sized_particle *p2 = new sized_particle();
+	sized_particle *p3 = new sized_particle();
 
-	p2->lifetime = p1->lifetime = 99999999.0f;
-	p1->bouncing = p2->bouncing = 1.0f;
-	p1->friction = p2->friction = 0.0f;
+	p1->lifetime = p2->lifetime = p3->lifetime = 99999999.0f;
+	p1->bouncing = p2->bouncing = p3->bouncing = 1.0f;
+	p1->friction = p2->friction = p3->friction = 0.0f;
 
-	p1->cur_pos.x = p1->cur_pos.z = 1.0f;
+	p1->cur_pos.x = p1->cur_pos.z = 2.0f;
 	p1->cur_vel.x = p1->cur_vel.z = 1.0f;
+	p1->R = 1.0f;
 
-	p2->cur_pos.x = p2->cur_pos.z = 19.0f;
+	p2->cur_pos.x = p2->cur_pos.z = 18.0f;
 	p2->cur_vel.x = p2->cur_vel.z = -1.0f;
+	p2->R = 1.0f;
 
-	p1->R = p2->R = 1.0f;
+	p3->cur_pos.x = 16.0f; p3->cur_pos.z = 4.0f;
+	p3->cur_vel.x = p3->cur_vel.z = 1.0f;
+	p3->R = 2.0f;
 
 	S.set_particle_particle_collisions(true);
 	S.set_viscous_drag(0.0f);
 
 	S.add_sized_particle(p1);
 	S.add_sized_particle(p2);
+	S.add_sized_particle(p3);
+
 }
 
 void initialise_renderer() {
@@ -134,7 +145,7 @@ int initialise_shaders_models() {
 		return 1;
 	}
 
-	sphere = new rendered_tri_mesh();
+	sphere = new rendered_triangle_mesh();
 	OBJ_reader obj;
 	obj.load_object("../../models", "sphere.obj", *sphere);
 	sphere->make_buffers();

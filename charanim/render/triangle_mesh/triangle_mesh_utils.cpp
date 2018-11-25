@@ -1,4 +1,4 @@
-#include <render/mesh/tri_mesh_utils.hpp>
+#include <render/triangle_mesh/triangle_mesh_utils.hpp>
 
 material::material
 (

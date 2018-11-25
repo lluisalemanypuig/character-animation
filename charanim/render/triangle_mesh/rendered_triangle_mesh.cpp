@@ -1,4 +1,4 @@
-#include <render/mesh/rendered_tri_mesh.hpp>
+#include <render/triangle_mesh/rendered_triangle_mesh.hpp>
 
 // C includes
 #include <assert.h>
@@ -18,12 +18,12 @@ using namespace std;
 
 // PUBLIC
 
-rendered_tri_mesh::rendered_tri_mesh() : tri_mesh() {
+rendered_triangle_mesh::rendered_triangle_mesh() : triangle_mesh() {
 	list_index = 0;
 	VAO = VBO = IBO = EBO = 0;
 }
 
-rendered_tri_mesh::rendered_tri_mesh(const rendered_tri_mesh& m) : tri_mesh(m) {
+rendered_triangle_mesh::rendered_triangle_mesh(const rendered_triangle_mesh& m) : triangle_mesh(m) {
 	materials = m.materials;
 	mat_idxs = m.mat_idxs;
 	texture_coords = m.texture_coords;
@@ -33,13 +33,13 @@ rendered_tri_mesh::rendered_tri_mesh(const rendered_tri_mesh& m) : tri_mesh(m) {
 	VAO = VBO = IBO = EBO = 0;
 }
 
-rendered_tri_mesh::~rendered_tri_mesh() {
+rendered_triangle_mesh::~rendered_triangle_mesh() {
 	clear();
 }
 
 // SETTERS
 
-void rendered_tri_mesh::set_materials
+void rendered_triangle_mesh::set_materials
 (const vector<material>& mats, const vector<string>& material_ids)
 {
 	materials = mats;
@@ -68,18 +68,18 @@ void rendered_tri_mesh::set_materials
 	unique_mat_idxs.insert(mat_idxs.begin(), mat_idxs.end());
 }
 
-void rendered_tri_mesh::set_texture_coords(const vector<glm::vec2>& texts) {
+void rendered_triangle_mesh::set_texture_coords(const vector<glm::vec2>& texts) {
 	texture_coords = texts;
 }
 
-void rendered_tri_mesh::set_texture_coord_idxs(const vector<int>& text_coord_idxs) {
+void rendered_triangle_mesh::set_texture_coord_idxs(const vector<int>& text_coord_idxs) {
 	texture_coord_idxs = text_coord_idxs;
 }
 
 // GETTERS
 
-mesh_state rendered_tri_mesh::state(const mesh_state& ignore) const {
-	mesh_state s = tri_mesh::state(ignore);
+mesh_state rendered_triangle_mesh::state(const mesh_state& ignore) const {
+	mesh_state s = triangle_mesh::state(ignore);
 	if (s != mesh_state::correct) {
 		return s;
 	}
@@ -100,26 +100,26 @@ mesh_state rendered_tri_mesh::state(const mesh_state& ignore) const {
 	return mesh_state::correct;
 }
 
-const std::vector<int>& rendered_tri_mesh::get_material_idxs() const {
+const std::vector<int>& rendered_triangle_mesh::get_material_idxs() const {
 	return mat_idxs;
 }
 
-const std::set<int>& rendered_tri_mesh::get_unique_material_idxs() const {
+const std::set<int>& rendered_triangle_mesh::get_unique_material_idxs() const {
 	return unique_mat_idxs;
 }
 
-const std::vector<material>& rendered_tri_mesh::get_materials() const {
+const std::vector<material>& rendered_triangle_mesh::get_materials() const {
 	return materials;
 }
 
-void rendered_tri_mesh::load_textures() {
+void rendered_triangle_mesh::load_textures() {
 	texture_loader& load = texture_loader::get_loader();
 	load.load_textures(materials, texture_openGL_idxs);
 }
 
 // MODIFIERS
 
-void rendered_tri_mesh::clear_graphics() {
+void rendered_triangle_mesh::clear_graphics() {
 	if (list_index > 0) {
 		#if defined(DEBUG)
 		cout << "rendered_mesh::clear() - delete OpenGL list" << endl;
@@ -158,8 +158,8 @@ void rendered_tri_mesh::clear_graphics() {
 	}
 }
 
-void rendered_tri_mesh::clear() {
-	tri_mesh::clear();
+void rendered_triangle_mesh::clear() {
+	triangle_mesh::clear();
 	clear_graphics();
 
 	materials.clear();
@@ -171,18 +171,18 @@ void rendered_tri_mesh::clear() {
 	texture_openGL_idxs.clear();
 }
 
-bool rendered_tri_mesh::uses_lists() const {
+bool rendered_triangle_mesh::uses_lists() const {
 	return list_index > 0;
 }
 
-bool rendered_tri_mesh::uses_buffers() const {
+bool rendered_triangle_mesh::uses_buffers() const {
 	return VBO > 0 and EBO > 0;
 }
 
 // OTHERS
 
-void rendered_tri_mesh::display_mesh_info() const {
-	tri_mesh::display_mesh_info();
+void rendered_triangle_mesh::display_mesh_info() const {
+	triangle_mesh::display_mesh_info();
 	cout << "    # Materials= " << materials.size() << endl;
 	cout << "    # Texture coordinates= " << texture_coords.size() << endl;
 	uint ntxts = 0;
@@ -219,7 +219,7 @@ void rendered_tri_mesh::display_mesh_info() const {
 	}
 }
 
-void rendered_tri_mesh::slow_render() const {
+void rendered_triangle_mesh::slow_render() const {
 	for (size_t t = 0; t < triangles.size(); t += 3) {
 		// set the material of the face
 		bool textenable = false;
@@ -263,7 +263,7 @@ void rendered_tri_mesh::slow_render() const {
 	}
 }
 
-uint rendered_tri_mesh::compile() {
+uint rendered_triangle_mesh::compile() {
 	if (list_index == 0) {
 		list_index = glGenLists(1);
 		glNewList(list_index, GL_COMPILE);
@@ -278,7 +278,7 @@ uint rendered_tri_mesh::compile() {
 	return list_index;
 }
 
-void rendered_tri_mesh::make_buffers() {
+void rendered_triangle_mesh::make_buffers() {
 
 	vector<float> data(2*3*triangles.size());
 	vector<uint> indices(triangles.size());
@@ -355,7 +355,7 @@ void rendered_tri_mesh::make_buffers() {
 	#endif
 }
 
-void rendered_tri_mesh::make_buffers_materials() {
+void rendered_triangle_mesh::make_buffers_materials() {
 
 	vector<float> data((3 + 3)*triangles.size());
 	vector<GLint> flat_idxs(triangles.size());
@@ -453,7 +453,7 @@ void rendered_tri_mesh::make_buffers_materials() {
 	#endif
 }
 
-void rendered_tri_mesh::make_buffers_materials_textures() {
+void rendered_triangle_mesh::make_buffers_materials_textures() {
 
 	vector<float> data((3 + 3 + 2)*triangles.size());
 	vector<int> flat_idxs((1 + 1)*triangles.size());
@@ -579,7 +579,7 @@ void rendered_tri_mesh::make_buffers_materials_textures() {
 	#endif
 }
 
-void rendered_tri_mesh::render() const {
+void rendered_triangle_mesh::render() const {
 	if (uses_buffers()) {
 		glBindVertexArray(VAO);
 		assert(glGetError() == GL_NO_ERROR);
