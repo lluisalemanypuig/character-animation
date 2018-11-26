@@ -2,6 +2,10 @@
 
 namespace charanim {
 
+	int _argc;
+	char **_argv;
+
+	/* physics-based simulation */
 	physim::simulator S;
 
 	/* glut window */

@@ -115,11 +115,10 @@ void timed_refresh(int v) {
 	glutTimerFunc(1000.0f/FPS, timed_refresh, v);
 }
 
-void exit_func() {
-	cout << "Clear memory..." << endl;
-
+void exit_func() {	
 	sphere->clear();
 	delete sphere;
+	sphere = nullptr;
 
 	for (rgeom *r : geometry) {
 		r->clear();
@@ -130,6 +129,8 @@ void exit_func() {
 	flat_shader.clear();
 	material_shader.clear();
 	texture_shader.clear();
+
+	S.clear_simulation();
 }
 
 void special_keys_keyboard(int key, int x, int y) {
@@ -140,6 +141,11 @@ void regular_keys_keyboard(unsigned char c, int x, int y) {
 	switch (c) {
 		case ESC:
 			glutDestroyWindow(window_id);
+			break;
+
+		case 'r':
+			exit_func();
+			init_anim(false);
 			break;
 
 		case 's':

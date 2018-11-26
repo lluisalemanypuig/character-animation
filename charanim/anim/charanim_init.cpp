@@ -180,7 +180,7 @@ int parse_arguments(int argc, char *argv[]) {
 	return 0;
 }
 
-int initialise_animation(int argc, char *argv[]) {
+int init_anim(bool init_window) {
 	width = 640;
 	height = 480;
 
@@ -202,22 +202,24 @@ int initialise_animation(int argc, char *argv[]) {
 	draw_base_spheres = false;
 
 	/* PARSE ARGUMENTS */
-	int arg_parse = parse_arguments(argc, argv);
+	int arg_parse = parse_arguments(_argc, _argv);
 	if (arg_parse != 0) {
 		return arg_parse;
 	}
 
 	/* INITIALISE GLUT WINDOW */
-	glutInit(&argc, argv);
-	glutInitDisplayMode(GLUT_DEPTH | GLUT_DOUBLE | GLUT_RGBA);
-	glutInitWindowSize(width, height);
-	window_id = glutCreateWindow("Character animation");
+	if (init_window) {
+		glutInit(&_argc, _argv);
+		glutInitDisplayMode(GLUT_DEPTH | GLUT_DOUBLE | GLUT_RGBA);
+		glutInitWindowSize(width, height);
+		window_id = glutCreateWindow("Character animation");
 
-	GLenum err = glewInit();
-	if (err != 0) {
-		cerr << "charanim::initialise_animation - Error:" << endl;
-		cerr << "    when initialising glew: " << err << endl;
-		return 1;
+		GLenum err = glewInit();
+		if (err != 0) {
+			cerr << "charanim::initialise_animation - Error:" << endl;
+			cerr << "    when initialising glew: " << err << endl;
+			return 1;
+		}
 	}
 
 	glEnable(GL_DEPTH_TEST);
@@ -234,6 +236,12 @@ int initialise_animation(int argc, char *argv[]) {
 	}
 
 	return 0;
+}
+
+int initialise_animation(int argc, char *argv[]) {
+	_argc = argc;
+	_argv = argv;
+	init_anim(true);
 }
 
 } // -- namespace charanim

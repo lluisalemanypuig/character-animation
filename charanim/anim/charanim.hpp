@@ -20,6 +20,10 @@ typedef std::pair<int,int> point;
 
 namespace charanim {
 
+	// copy of input parameters
+	extern int _argc;
+	extern char **_argv;
+
 	/* --------- */
 	/* VARIABLES */
 
@@ -63,7 +67,6 @@ namespace charanim {
 	extern shader material_shader;
 	extern shader texture_shader;
 
-
 	/* render control */
 	extern bool draw_base_spheres;
 
@@ -72,6 +75,8 @@ namespace charanim {
 
 	/* initialise animation (load models, ...) */
 
+	/// Returns 0 on success, 1 on error, 2 on '--help'
+	int init_anim(bool init_window);
 	/// Returns 0 on success, 1 on error, 2 on '--help'
 	int initialise_animation(int argc, char *argv[]);
 
