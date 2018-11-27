@@ -40,7 +40,7 @@ namespace shader_helper {
 			++it;
 		}
 
-		for (int i = 0; i < 4; ++i, ++it) {
+		for (int i = 0; i < 4 and it != unique_mat_idxs.end(); ++i, ++it) {
 			idxs[i] = *it;
 		}
 
@@ -79,8 +79,46 @@ namespace shader_helper {
 		for (int i = 0; i < 4; ++i) {
 			if (idxs[i] != inf) {
 				const material& mat = all_mats[idxs[i]];
+				if (mat.txt_id > __NULL_TEXTURE_INDEX) {
+					// these two lines are important
+					glActiveTexture(GL_TEXTURE0 + mat.txt_id);
+					glBindTexture(GL_TEXTURE_2D, mat.txt_id);
+
+					string texname = "tex" + std::to_string(mat.txt_id);
+					S.set_int(texname, mat.txt_id);
+				}
+			}
+		}
+	}
+
+	void activate_materials_textures(const rendered_triangle_mesh& M, shader& S) {
+		const set<int>& unique_mat_idxs = M.get_unique_material_idxs();
+		size_t inf = unique_mat_idxs.size() + 1;
+
+		if (unique_mat_idxs.size() > 5) {
+			cerr << "shader_helper::activate_textures - Error:" << endl;
+			cerr << "    Too many materials (" << unique_mat_idxs.size() << ")." << endl;
+			return;
+		}
+
+		size_t idxs[4] = {inf, inf, inf, inf};
+		auto it = unique_mat_idxs.begin();
+		if (*it == -1) {
+			++it;
+		}
+
+		for (int i = 0; i < 4 and it != unique_mat_idxs.end(); ++i, ++it) {
+			idxs[i] = *it;
+		}
+
+		const vector<material>& all_mats = M.get_materials();
+
+		for (int i = 0; i < 4; ++i) {
+			if (idxs[i] != inf) {
+				const material& mat = all_mats[idxs[i]];
 				set_mat_shader(mat, "material[" + std::to_string(i) + "]", S);
 				if (mat.txt_id > __NULL_TEXTURE_INDEX) {
+					// these two lines are important
 					glActiveTexture(GL_TEXTURE0 + mat.txt_id);
 					glBindTexture(GL_TEXTURE_2D, mat.txt_id);
 

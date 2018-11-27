@@ -10,4 +10,6 @@ namespace shader_helper {
 
 	void activate_textures(const rendered_triangle_mesh& M, shader& S);
 
+	void activate_materials_textures(const rendered_triangle_mesh& M, shader& S);
+
 } // -- namespace shader_helper
