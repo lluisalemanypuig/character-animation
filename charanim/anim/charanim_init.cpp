@@ -15,6 +15,7 @@ typedef glm::vec3 gvec3;
 #include <physim/initialiser/initialiser.hpp>
 #include <physim/particles/sized_particle.hpp>
 #include <physim/geometry/plane.hpp>
+#include <physim/geometry/sphere.hpp>
 #include <physim/math/vec3.hpp>
 typedef physim::math::vec3 pm_vec3;
 using namespace physim::init;
@@ -37,11 +38,13 @@ void initialise_simulation() {
 	plane *wall2 = new plane( pm_vec3(-1.0f, 0.0f,  0.0f), pm_vec3(20.0f, 0.0f,  0.0f) );
 	plane *wall3 = new plane( pm_vec3( 0.0f, 0.0f,  1.0f), pm_vec3( 0.0f, 0.0f,  0.0f) );
 	plane *wall4 = new plane( pm_vec3( 0.0f, 0.0f, -1.0f), pm_vec3( 0.0f, 0.0f, 20.0f) );
-
 	S.add_geometry(wall1);
 	S.add_geometry(wall2);
 	S.add_geometry(wall3);
 	S.add_geometry(wall4);
+
+	//physim::geom::sphere *ball = new physim::geom::sphere( pm_vec3(10.0f,0.0f,10.0f), 1);
+	//S.add_geometry(ball);
 
 	/*
 	initialiser I;
@@ -81,9 +84,17 @@ void initialise_simulation() {
 	sized_particle *p2 = new sized_particle();
 	sized_particle *p3 = new sized_particle();
 
-	p1->lifetime = p2->lifetime = p3->lifetime = 99999999.0f;
-	p1->bouncing = p2->bouncing = p3->bouncing = 1.0f;
-	p1->friction = p2->friction = p3->friction = 0.0f;
+	p1->lifetime = 99999999.0f;
+	p1->bouncing = 1.0f;
+	p1->friction = 0.0f;
+
+	p2->lifetime = 99999999.0f;
+	p2->bouncing = 1.0f;
+	p2->friction = 0.0f;
+
+	p3->lifetime = 99999999.0f;
+	p3->bouncing = 1.0f;
+	p3->friction = 0.0f;
 
 	p1->cur_pos.x = p1->cur_pos.z = 2.0f;
 	p1->cur_vel.x = p1->cur_vel.z = 1.0f;
@@ -103,7 +114,6 @@ void initialise_simulation() {
 	S.add_sized_particle(p1);
 	S.add_sized_particle(p2);
 	S.add_sized_particle(p3);
-
 }
 
 void initialise_renderer() {
@@ -137,9 +147,9 @@ void initialise_renderer() {
 
 int initialise_shaders_models() {
 	if (
-		not flat_shader.init("../../shaders", "flat.vert", "flat.frag") or
-		not material_shader.init("../../shaders", "materials.vert", "materials.frag") or
-		not texture_shader.init("../../shaders", "textures.vert", "textures.frag")
+		not flat_shader.init("../../charanim/shaders", "flat.vert", "flat.frag") or
+		not material_shader.init("../../charanim/shaders", "materials.vert", "materials.frag") or
+		not texture_shader.init("../../charanim/shaders", "textures.vert", "textures.frag")
 	)
 	{
 		return 1;

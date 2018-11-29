@@ -35,17 +35,6 @@ CONFIG(release, debug|release) {
 INCLUDEPATH += ../../../physics-simulator/
 DEPENDPATH += ../../../physics-simulator/
 
-# cal3d
-unix {
-    exists(/usr/lib/cal3d/) {
-        LIBS += -lcal3d
-    }
-    else {
-        LIBS += -L../../cal3d/lib64 -lcal3d
-        INCLUDEPATH += -I ../../cal3d/include
-    }
-}
-
 # OpenGL
 LIBS += -lglut -lGLU -lGLEW
 unix {
@@ -55,4 +44,15 @@ unix {
     else {
         LIBS += -lGL
     }
+}
+
+# cal3d
+unix {
+	exists(/usr/lib/cal3d/) {
+		LIBS += -lcal3d
+	}
+	else {
+		LIBS += -L../../../cal3d/lib64/libcal3d.la
+		INCLUDEPATH += -I ../../../cal3d/include
+	}
 }
