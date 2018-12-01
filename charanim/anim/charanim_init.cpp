@@ -251,7 +251,7 @@ int init_anim(bool init_window) {
 int initialise_animation(int argc, char *argv[]) {
 	_argc = argc;
 	_argv = argv;
-	init_anim(true);
+	return init_anim(true);
 }
 
 } // -- namespace charanim
