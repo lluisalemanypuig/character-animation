@@ -13,6 +13,7 @@ using namespace std;
 #include <glm/glm.hpp>
 
 // render includes
+#include <render/err_war_utils.hpp>
 #include <render/include_gl.hpp>
 
 // PRIVATE
@@ -65,17 +66,17 @@ box::~box() {
 
 void box::clear() {
 	if (VAO > 0) {
-		cout << "box::~box() - delete VAO " << VAO << endl;
+		cout << line << " box::~box() - delete VAO " << VAO << endl;
 		glDeleteVertexArrays(1, &VAO);
 		VAO = 0;
 	}
 	if (VBO > 0) {
-		cout << "box::~box() - delete VBO " << VBO << endl;
+		cout << line << " box::~box() - delete VBO " << VBO << endl;
 		glDeleteBuffers(1, &VBO);
 		VBO = 0;
 	}
 	if (EBO > 0) {
-		cout << "box::~box() - delete EBO " << EBO << endl;
+		cout << line << " box::~box() - delete EBO " << EBO << endl;
 		glDeleteBuffers(1, &EBO);
 		EBO = 0;
 	}
@@ -190,10 +191,10 @@ void box::make_buffers() {
 	assert(glGetError() == GL_NO_ERROR);
 
 	#if defined (DEBUG)
-	cout << "box::make_buffers() - buffers made" << endl;
-	cout << "    VAO: " << VAO << endl;
-	cout << "    VBO: " << VBO << endl;
-	cout << "    EBO: " << EBO << endl;
+	cout << line << " box::make_buffers() - buffers made" << endl;
+	cout << line << "     VAO: " << VAO << endl;
+	cout << line << "     VBO: " << VBO << endl;
+	cout << line << "     EBO: " << EBO << endl;
 	#endif
 }
 

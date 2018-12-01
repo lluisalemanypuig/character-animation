@@ -9,6 +9,9 @@ using namespace std;
 // glm includes
 #include <glm/gtc/type_ptr.hpp>
 
+// render includes
+#include <render/err_war_utils.hpp>
+
 shader::shader() {
 	ID = 0;
 }
@@ -24,9 +27,9 @@ bool shader::init(const string& dir, const string& vertex_name, const string& fr
 	string fragment_file = dir + "/" + fragment_name;
 
 	#if defined (DEBUG)
-	cout << "shader::init - Load shader programs:" << endl;
-	cout << "    vertex:   " << vertex_file << endl;
-	cout << "    fragment: " << fragment_file << endl;
+	cout << line << " shader::init - Load shader programs:" << endl;
+	cout << line << "     vertex:   " << vertex_file << endl;
+	cout << line << "     fragment: " << fragment_file << endl;
 	#endif
 
 	// 1. retrieve the vertex/fragment source code from filePath
@@ -53,7 +56,7 @@ bool shader::init(const string& dir, const string& vertex_name, const string& fr
 		}
 
 		#if defined (DEBUG)
-		cout << "    Reading buffers..." << endl;
+		cout << line << "     Reading buffers..." << endl;
 		#endif
 
 		// read file's buffer contents into streams
@@ -62,7 +65,7 @@ bool shader::init(const string& dir, const string& vertex_name, const string& fr
 		fragment_shader_stream << fragment_shader_file.rdbuf();
 
 		#if defined (DEBUG)
-		cout << "        buffers read" << endl;
+		cout << line << "         buffers read" << endl;
 		#endif
 
 		// close file handlers
@@ -74,17 +77,18 @@ bool shader::init(const string& dir, const string& vertex_name, const string& fr
 		fragment_code = fragment_shader_stream.str();
 
 		#if defined (DEBUG)
-		cout << "        contents of files stored" << endl;
+		cout << line << "         contents of files stored" << endl;
 		#endif
 	}
 	catch (ifstream::failure e) {
-		cerr << "shader::init - Error while reading shader files." << endl;
+		cerr << "shader::init - " << ERR << endl;
+		cerr << "    While reading shader files." << endl;
 		cerr << "    Exception: " << string(e.what()) << endl;
 		success = 0;
 	}
 
 	if (success == 0) {
-		cerr << "    Initialisation of shader program aborted." << endl;
+		cerr << line << "     Initialisation of shader program aborted." << endl;
 		return false;
 	}
 
@@ -92,15 +96,15 @@ bool shader::init(const string& dir, const string& vertex_name, const string& fr
 	const char *fragment_shader_code = fragment_code.c_str();
 
 	#if defined (DEBUG)
-	cout << "    Compile shaders..." << endl;
+	cout << line << "     Compile shaders..." << endl;
 	#endif
 
 	// 2. compile shaders
 	char info_buf[512];
 
 	#if defined (DEBUG)
-	cout << "    * vertex shader:" << endl;
-	cout << "        - create shader ";
+	cout << line << "     * vertex shader:" << endl;
+	cout << line << "         - create shader ";
 	#endif
 
 	// -------------
@@ -111,14 +115,14 @@ bool shader::init(const string& dir, const string& vertex_name, const string& fr
 
 	#if defined (DEBUG)
 	cout << vertex << endl;
-	cout << "        - set shader source" << endl;
+	cout << line << "         - set shader source" << endl;
 	#endif
 
 	glShaderSource(vertex, 1, &vertex_shader_code, nullptr);
 	assert(glGetError() == GL_NO_ERROR);
 
 	#if defined (DEBUG)
-	cout << "        - compile source" << endl;
+	cout << line << "         - compile source" << endl;
 	#endif
 
 	glCompileShader(vertex);
@@ -131,7 +135,7 @@ bool shader::init(const string& dir, const string& vertex_name, const string& fr
 	if (success == 0) {
 		glGetShaderInfoLog(vertex, 512, nullptr, info_buf);
 		cerr << "-------------------------------------" << endl;
-		cerr << "shader::init - Error:" << endl;
+		cerr << "shader::init - " << ERR << endl;
 		cerr << "    Vertex shader compilation failed." << endl;
 		cerr << "    Log: " << endl;
 		cerr << info_buf << endl;
@@ -140,8 +144,8 @@ bool shader::init(const string& dir, const string& vertex_name, const string& fr
 	}
 
 	#if defined (DEBUG)
-	cout << "    * fragment shader..." << endl;
-	cout << "        - create shader ";
+	cout << line << "     * fragment shader..." << endl;
+	cout << line << "         - create shader ";
 	#endif
 
 	// ---------------
@@ -151,14 +155,14 @@ bool shader::init(const string& dir, const string& vertex_name, const string& fr
 
 	#if defined (DEBUG)
 	cout << fragment << endl;
-	cout << "        - set shader source" << endl;
+	cout << line << "         - set shader source" << endl;
 	#endif
 
 	glShaderSource(fragment, 1, &fragment_shader_code, nullptr);
 	assert(glGetError() == GL_NO_ERROR);
 
 	#if defined (DEBUG)
-	cout << "        - compile source" << endl;
+	cout << line << "         - compile source" << endl;
 	#endif
 
 	glCompileShader(fragment);
@@ -171,7 +175,7 @@ bool shader::init(const string& dir, const string& vertex_name, const string& fr
 	if (success == 0) {
 		glGetShaderInfoLog(fragment, 512, nullptr, info_buf);
 		cerr << "-------------------------------------" << endl;
-		cerr << "shader::init - Error:" << endl;
+		cerr << "shader::init - " << ERR << endl;
 		cerr << "    Fragment shader compilation failed." << endl;
 		cerr << "    Log: " << endl;
 		cerr << info_buf << endl;
@@ -180,7 +184,7 @@ bool shader::init(const string& dir, const string& vertex_name, const string& fr
 	}
 
 	#if defined (DEBUG)
-	cout << "    Creating program..." << endl;
+	cout << line << "     Creating program..." << endl;
 	#endif
 
 	// create shader program
@@ -200,11 +204,10 @@ bool shader::init(const string& dir, const string& vertex_name, const string& fr
 	glGetProgramiv(ID, GL_LINK_STATUS, &success);
 	assert(glGetError() == GL_NO_ERROR);
 
-	if (success == 0)
-	{
+	if (success == 0) {
 		glGetProgramInfoLog(ID, 512, nullptr, info_buf);
 		cerr << "-------------------------------------" << endl;
-		cerr << "shader::init - Error:" << endl;
+		cerr << "shader::init - " << ERR << endl;
 		cerr << "    Shader program linkage failed." << endl;
 		cerr << "    Log: " << endl;
 		cerr << info_buf << endl;
@@ -213,7 +216,7 @@ bool shader::init(const string& dir, const string& vertex_name, const string& fr
 	}
 
 	#if defined (DEBUG)
-	cout << "        program created: " << ID << endl;
+	cout << line << "         program created: " << ID << endl;
 	#endif
 
 	// delete shaders as they're linked into
@@ -230,7 +233,7 @@ bool shader::init(const string& dir, const string& vertex_name, const string& fr
 void shader::clear() {
 	if (ID != 0) {
 		#if defined(DEBUG)
-		cout << "shader::clear() - deleting shader program " << ID << endl;
+		cout << line << " shader::clear() - deleting shader program " << ID << endl;
 		#endif
 
 		glDeleteProgram(ID);

@@ -10,6 +10,9 @@ using namespace std;
 // glm includes
 #include <glm/glm.hpp>
 
+// render includes
+#include <render/err_war_utils.hpp>
+
 // PRIVATE
 
 // PROTECTED
@@ -73,17 +76,17 @@ void triangle_mesh::set_normal_idxs(const vector<int>& nrmls_idxs) {
 
 mesh_state triangle_mesh::state(const mesh_state& ignore) const {
 	if (((ignore & mesh_state::no_vertices) == 0) and vertices.size() == 0) {
-		cerr << "mesh::is_valid: Error" << endl;
+		cerr << "mesh::is_valid - " << ERR << endl;
 		cerr << "    Vertices not found in mesh '" << mesh_name << "'" << endl;
 		return mesh_state::no_vertices;
 	}
 	if (((ignore & mesh_state::no_triangles) == 0) and triangles.size() == 0) {
-		cerr << "mesh::is_valid: Error" << endl;
+		cerr << "mesh::is_valid - " << ERR << endl;
 		cerr << "    No triangles found in mesh '" << mesh_name << "'" << endl;
 		return mesh_state::no_triangles;
 	}
 	if (((ignore & mesh_state::no_normals) == 0) and normals.size() == 0) {
-		cerr << "mesh::is_valid: Error" << endl;
+		cerr << "mesh::is_valid - " << ERR << endl;
 		cerr << "    No normal vectors found in mesh '" << mesh_name << "'" << endl;
 		return mesh_state::no_normals;
 	}
@@ -96,7 +99,7 @@ mesh_state triangle_mesh::state(const mesh_state& ignore) const {
 	for (size_t t = 0; t < triangles.size(); ++t) {
 		if ((ignore & mesh_state::vertex_idx_ob) == 0) {
 			if (triangles[t] != -1 and triangles[t] > vertices.size()) {
-				cerr << "mesh::is_valid: Error:" << endl;
+				cerr << "mesh::is_valid - " << ERR << endl;
 				cerr << "    Face " << t/3 << " has " << t%3 << "-th "
 					 << "vertex index (" << triangles[t]
 					 << ") out of bounds." << endl;
@@ -106,7 +109,7 @@ mesh_state triangle_mesh::state(const mesh_state& ignore) const {
 
 		if ((ignore & mesh_state::normal_idx_ob) == 0) {
 			if (normal_idxs[t] != -1 and normal_idxs[t] > normals.size()) {
-				cerr << "mesh::is_valid: Error:" << endl;
+				cerr << "mesh::is_valid - " << ERR << endl;
 				cerr << "    Triangle " << t/3 << " has " << t%3 << "-th "
 					 << "normal index (" << normal_idxs[t]
 					 << ") out of bounds." << endl;

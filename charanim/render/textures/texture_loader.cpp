@@ -6,8 +6,9 @@
 using namespace std;
 
 // render includes
-#include <render/include_gl.hpp>
 #include <render/textures/std_image.hpp>
+#include <render/err_war_utils.hpp>
+#include <render/include_gl.hpp>
 
 // PRIVATE
 
@@ -51,39 +52,39 @@ void texture_loader::load_textures(vector<material>& mats, vector<unsigned int>&
 		// load texture and assign index to material
 
 		#if defined (DEBUG)
-		cout << "texture_loader::load_textures:" << endl;
-		cout << "    About to load image '" << m.txt_name << "'" << endl;
-		cout << "    of " << i << "-th material" << endl;
+		cout << line << " texture_loader::load_textures:" << endl;
+		cout << line << "     About to load image '" << m.txt_name << "'" << endl;
+		cout << line << "     of " << i << "-th material" << endl;
 		#endif
 
 		int width, height, n_channels;
 		unsigned char *data =
 			stbi_load(m.txt_name.c_str(), &width, &height, &n_channels, 0);
 		if (data == nullptr) {
-			cerr << "texture_loader::load_textures - Error:" << endl;
+			cerr << "texture_loader::load_textures - " << ERR << ":" << endl;
 			cerr << "    Could not load texture '" << m.txt_name << "'" << endl;
 			cerr << "    in material '" << m.id << "'" << endl;
 		}
 
 		#if defined (DEBUG)
-		cout << "    image loaded!" << endl;
-		cout << "        dimensions: " << width << "x" << height << endl;
-		cout << "        # channels: " << n_channels << endl;
-		cout << "    Generating texture... ";
+		cout << line << "     image loaded!" << endl;
+		cout << line << "         dimensions: " << width << "x" << height << endl;
+		cout << line << "         # channels: " << n_channels << endl;
+		cout << line << "     Generating texture... ";
 		#endif
 
 		glGenTextures(1, &id);
 
 		#if defined (DEBUG)
 		cout << "id: " << id << endl;
-		cout << "    glBindTexture...      ";
+		cout << line << "     glBindTexture...      ";
 		#endif
 
 		glBindTexture(GL_TEXTURE_2D, id);
 
 		#if defined (DEBUG)
 		cout << "done" << endl;
-		cout << "    glTexImage2D...       ";
+		cout << line << "     glTexImage2D...       ";
 		#endif
 
 		if (n_channels == 3) {
@@ -117,7 +118,7 @@ void texture_loader::load_textures(vector<material>& mats, vector<unsigned int>&
 	idxs = vector<unsigned int>( unique_texs.begin(), unique_texs.end() );
 
 	if (tex_loaded > __MAX_TEXTURES_LOADED) {
-		cerr << "texture_loader::load_textures - Error" << endl;
+		cerr << "texture_loader::load_textures - " << ERR << endl;
 		cerr << "    Maximum amount of loaded textures reached" << endl;
 	}
 }
@@ -155,14 +156,14 @@ void texture_loader::clear_textures(const vector<material>& mats) {
 
 void texture_loader::clear_all() {
 	#if defined(DEBUG)
-	cout << "texture_loader::clear_all() - Delete all texutres" << endl;
+	cout << line << " texture_loader::clear_all() - Delete all texutres" << endl;
 	#endif
 	for (auto& txt_id : textures) {
 		if (txt_id.second == 0) {
 			continue;
 		}
 		#if defined(DEBUG)
-		cout << "    deleting " << txt_id.second << endl;
+		cout << line << "     deleting " << txt_id.second << endl;
 		#endif
 		glDeleteTextures(1, &txt_id.second);
 		txt_id.second = 0;

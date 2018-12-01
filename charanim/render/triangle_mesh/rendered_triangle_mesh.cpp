@@ -11,8 +11,9 @@ using namespace std;
 #include <glm/glm.hpp>
 
 // render includes
-#include <render/include_gl.hpp>
 #include <render/textures/texture_loader.hpp>
+#include <render/err_war_utils.hpp>
+#include <render/include_gl.hpp>
 
 // PRIVATE
 
@@ -88,7 +89,7 @@ mesh_state rendered_triangle_mesh::state(const mesh_state& ignore) const {
 	for (size_t t = 0; t < triangles.size(); ++t) {
 		if ((ignore & mesh_state::texture_coord_idx_ob) == 0) {
 			if (texture_coord_idxs[t] != -1 and texture_coord_idxs[t] > texture_coords.size()) {
-				cerr << "mesh::is_valid: Error:" << endl;
+				cerr << "mesh::is_valid - " << ERR << endl;
 				cerr << "    Triangle " << t/3 << " has " << t%3 << "-th "
 					 << "texture index (" << texture_coord_idxs[t]
 					 << ") out of bounds." << endl;
@@ -122,7 +123,7 @@ void rendered_triangle_mesh::load_textures() {
 void rendered_triangle_mesh::clear_graphics() {
 	if (list_index > 0) {
 		#if defined(DEBUG)
-		cout << "rendered_mesh::clear() - delete OpenGL list" << endl;
+		cout << line << " rendered_mesh::clear() - delete OpenGL list" << endl;
 		#endif
 		glDeleteLists(list_index, 1);
 		list_index = 0;
@@ -130,28 +131,28 @@ void rendered_triangle_mesh::clear_graphics() {
 
 	if (VAO > 0) {
 		#if defined(DEBUG)
-		cout << "rendered_mesh::clear() - delete VAO " << VAO << endl;
+		cout << line << " rendered_mesh::clear() - delete VAO " << VAO << endl;
 		#endif
 		glDeleteVertexArrays(1, &VAO);
 		VAO = 0;
 	}
 	if (VBO > 0) {
 		#if defined(DEBUG)
-		cout << "rendered_mesh::clear() - delete VBO " << VBO << endl;
+		cout << line << " rendered_mesh::clear() - delete VBO " << VBO << endl;
 		#endif
 		glDeleteBuffers(1, &VBO);
 		VBO = 0;
 	}
 	if (IBO > 0) {
 		#if defined(DEBUG)
-		cout << "rendered_mesh::clear() - delete IBO " << IBO << endl;
+		cout << line << " rendered_mesh::clear() - delete IBO " << IBO << endl;
 		#endif
 		glDeleteBuffers(1, &IBO);
 		IBO = 0;
 	}
 	if (EBO > 0) {
 		#if defined(DEBUG)
-		cout << "rendered_mesh::clear() - delete EBO " << EBO << endl;
+		cout << line << " rendered_mesh::clear() - delete EBO " << EBO << endl;
 		#endif
 		glDeleteBuffers(1, &EBO);
 		EBO = 0;
@@ -272,8 +273,8 @@ uint rendered_triangle_mesh::compile() {
 	}
 
 	#if defined (DEBUG)
-	cout << "rendered_mesh::compile:" << endl;
-	cout << "    Object compiled into list with index: " << list_index << endl;
+	cout << line << " rendered_mesh::compile " << line << ":" << endl;
+	cout << line << "     Object compiled into list with index: " << list_index << endl;
 	#endif
 	return list_index;
 }
@@ -348,10 +349,10 @@ void rendered_triangle_mesh::make_buffers() {
 	glBindVertexArray(0);
 
 	#if defined (DEBUG)
-	cout << "rendered_mesh::make_buffers() - buffers made" << endl;
-	cout << "    VAO: " << VAO << endl;
-	cout << "    VBO: " << VBO << endl;
-	cout << "    EBO: " << EBO << endl;
+	cout << line << " rendered_mesh::make_buffers() " << line << " - buffers made" << endl;
+	cout << line << "     VAO: " << VAO << endl;
+	cout << line << "     VBO: " << VBO << endl;
+	cout << line << "     EBO: " << EBO << endl;
 	#endif
 }
 
@@ -445,11 +446,11 @@ void rendered_triangle_mesh::make_buffers_materials() {
 	assert(glGetError() == GL_NO_ERROR);
 
 	#if defined (DEBUG)
-	cout << "rendered_mesh::make_buffers_materials() - buffers made" << endl;
-	cout << "    VAO: " << VAO << endl;
-	cout << "    VBO: " << VBO << endl;
-	cout << "    IBO: " << IBO << endl;
-	cout << "    EBO: " << EBO << endl;
+	cout << line << " rendered_mesh::make_buffers_materials() " << line << " - buffers made" << endl;
+	cout << line << "     VAO: " << VAO << endl;
+	cout << line << "     VBO: " << VBO << endl;
+	cout << line << "     IBO: " << IBO << endl;
+	cout << line << "     EBO: " << EBO << endl;
 	#endif
 }
 
@@ -571,11 +572,11 @@ void rendered_triangle_mesh::make_buffers_materials_textures() {
 	assert(glGetError() == GL_NO_ERROR);
 
 	#if defined (DEBUG)
-	cout << "rendered_mesh::make_buffers_materials_textures() - buffers made" << endl;
-	cout << "    VAO: " << VAO << endl;
-	cout << "    VBO: " << VBO << endl;
-	cout << "    IBO: " << IBO << endl;
-	cout << "    EBO: " << EBO << endl;
+	cout << line << " rendered_mesh::make_buffers_materials_textures() " << line << " - buffers made" << endl;
+	cout << line << "     VAO: " << VAO << endl;
+	cout << line << "     VBO: " << VBO << endl;
+	cout << line << "     IBO: " << IBO << endl;
+	cout << line << "     EBO: " << EBO << endl;
 	#endif
 }
 
