@@ -49,7 +49,6 @@ void refresh() {
 		flat_shader.set_vec3("view_pos", glm::vec3(0.f,0.f,0.f));
 		flat_shader.set_mat4("projection", projection);
 
-		int i = 0;
 		for (const sized_particle *p : ps) {
 			glm::mat4 model(1.0f);
 			model = glm::translate(model, to_gvec3(p->cur_pos));
@@ -61,8 +60,6 @@ void refresh() {
 			flat_shader.set_mat4("modelview", modelview);
 			flat_shader.set_mat3("normal_matrix", normal_matrix);
 			sphere->render();
-
-			++i;
 		}
 
 		flat_shader.release();
