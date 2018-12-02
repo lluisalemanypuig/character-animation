@@ -48,7 +48,7 @@ unix {
 
 # cal3d
 unix {
-	exists(/usr/lib/cal3d/) {
+    exists(/usr/lib/) {
 		LIBS += -lcal3d
 	}
 	else {
