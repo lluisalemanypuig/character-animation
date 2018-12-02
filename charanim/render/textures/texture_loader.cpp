@@ -74,6 +74,7 @@ void texture_loader::load_textures(vector<material>& mats, vector<unsigned int>&
 		#endif
 
 		glGenTextures(1, &id);
+		assert(glGetError() == GL_NO_ERROR);
 
 		#if defined (DEBUG)
 		cout << "id: " << id << endl;
@@ -81,6 +82,7 @@ void texture_loader::load_textures(vector<material>& mats, vector<unsigned int>&
 		#endif
 
 		glBindTexture(GL_TEXTURE_2D, id);
+		assert(glGetError() == GL_NO_ERROR);
 
 		#if defined (DEBUG)
 		cout << "done" << endl;
@@ -90,21 +92,28 @@ void texture_loader::load_textures(vector<material>& mats, vector<unsigned int>&
 		if (n_channels == 3) {
 			glTexImage2D
 			(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+			assert(glGetError() == GL_NO_ERROR);
 		}
 		else if (n_channels == 4) {
 			glTexImage2D
 			(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+			assert(glGetError() == GL_NO_ERROR);
 		}
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+		assert(glGetError() == GL_NO_ERROR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+		assert(glGetError() == GL_NO_ERROR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		assert(glGetError() == GL_NO_ERROR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		assert(glGetError() == GL_NO_ERROR);
 
 		#if defined (DEBUG)
 		cout << "done" << endl;
 		#endif
 
 		glGenerateMipmap(GL_TEXTURE_2D);
+		assert(glGetError() == GL_NO_ERROR);
 
 		stbi_image_free(data);
 
@@ -149,26 +158,30 @@ void texture_loader::clear_textures(const vector<material>& mats) {
 		}
 
 		glDeleteTextures(1, &id);
+		assert(glGetError() == GL_NO_ERROR);
 		it->second = 0;
 		--tex_loaded;
 	}
 }
 
 void texture_loader::clear_all() {
-	#if defined(DEBUG)
-	cout << line << " texture_loader::clear_all() - Delete all texutres" << endl;
-	#endif
-	for (auto& txt_id : textures) {
-		if (txt_id.second == 0) {
-			continue;
-		}
+	if (tex_loaded > 0) {
 		#if defined(DEBUG)
-		cout << line << "     deleting " << txt_id.second << endl;
+		cout << line << " texture_loader::clear_all() - Delete all texutres" << endl;
 		#endif
-		glDeleteTextures(1, &txt_id.second);
-		txt_id.second = 0;
+		for (auto& txt_id : textures) {
+			if (txt_id.second == 0) {
+				continue;
+			}
+			#if defined(DEBUG)
+			cout << line << "     deleting " << txt_id.second << endl;
+			#endif
+			glDeleteTextures(1, &txt_id.second);
+			assert(glGetError() == GL_NO_ERROR);
+			txt_id.second = 0;
+		}
+		tex_loaded = 0;
 	}
-	tex_loaded = 0;
 }
 
 // GETTERS

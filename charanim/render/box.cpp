@@ -66,17 +66,23 @@ box::~box() {
 
 void box::clear() {
 	if (VAO > 0) {
+		#if defined(DEBUG)
 		cout << line << " box::~box() - delete VAO " << VAO << endl;
+		#endif
 		glDeleteVertexArrays(1, &VAO);
 		VAO = 0;
 	}
 	if (VBO > 0) {
+		#if defined(DEBUG)
 		cout << line << " box::~box() - delete VBO " << VBO << endl;
+		#endif
 		glDeleteBuffers(1, &VBO);
 		VBO = 0;
 	}
 	if (EBO > 0) {
+		#if defined(DEBUG)
 		cout << line << " box::~box() - delete EBO " << EBO << endl;
+		#endif
 		glDeleteBuffers(1, &EBO);
 		EBO = 0;
 	}
@@ -166,27 +172,34 @@ void box::make_buffers() {
 	glBindVertexArray(VAO);
 	assert(glGetError() == GL_NO_ERROR);
 
+	// ---------------------
+	// VBO fill
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
 	assert(glGetError() == GL_NO_ERROR);
 
-	glBufferData(GL_ARRAY_BUFFER, 8*3*sizeof(float), &vs[0], GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, 3*8*sizeof(float), &vs[0].x, GL_STATIC_DRAW);
 	assert(glGetError() == GL_NO_ERROR);
 
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-	assert(glGetError() == GL_NO_ERROR);
-
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), &indices[0], GL_STATIC_DRAW);
-	assert(glGetError() == GL_NO_ERROR);
-
+	// vertex coordinates
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3*sizeof(float), (void *)0);
 	assert(glGetError() == GL_NO_ERROR);
 
 	glEnableVertexAttribArray(0);
 	assert(glGetError() == GL_NO_ERROR);
 
+	// ---------------------
+	// EBO fill
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+	assert(glGetError() == GL_NO_ERROR);
+
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), &indices[0], GL_STATIC_DRAW);
+	assert(glGetError() == GL_NO_ERROR);
+
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	assert(glGetError() == GL_NO_ERROR);
 
+	// ---------------------
+	// VAO release
 	glBindVertexArray(0);
 	assert(glGetError() == GL_NO_ERROR);
 
@@ -215,8 +228,17 @@ void box::slow_render() const {
 }
 
 void box::fast_render() const {
+	if (VAO == 0) {
+		return;
+	}
+
 	glBindVertexArray(VAO);
+	assert(glGetError() == GL_NO_ERROR);
+
 	glDrawElements(GL_QUADS, 20, GL_UNSIGNED_INT, 0);
+	assert(glGetError() == GL_NO_ERROR);
+
 	glBindVertexArray(0);
+	assert(glGetError() == GL_NO_ERROR);
 }
 

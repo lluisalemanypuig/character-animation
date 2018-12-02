@@ -14,6 +14,9 @@ using namespace std;
 // glm includes
 #include <glm/glm.hpp>
 
+// custom includes
+#include <render/err_war_utils.hpp>
+
 // PUBLIC
 
 OBJ_reader::OBJ_reader() { }
@@ -43,7 +46,7 @@ bool OBJ_reader::load_file() {
 	ifstream obj;
 	obj.open(full_name.c_str());
 	if (not obj.is_open()) {
-		cerr << "OBJ_reader::load_file: Error" << endl;
+		cerr << "OBJ_reader::load_file - " << ERR << endl;
 		cerr << "    An error occurred while trying to open the object file" << endl;
 		cerr << "    '" << full_name << "'" << endl;
 		return false;
@@ -66,7 +69,7 @@ bool OBJ_reader::load_material(const char *mtl_file) {
 	ifstream mtl;
 	mtl.open(full_name.c_str());
 	if (not mtl.is_open()) {
-		cerr << "OBJ_reader::load_material: Error" << endl;
+		cerr << "OBJ_reader::load_material - " << ERR << endl;
 		cerr << "    An error occurred while trying to open the material file" << endl;
 		cerr << "    '" << full_name << "'" << endl;
 		return false;
@@ -153,7 +156,8 @@ bool OBJ_reader::load_material(const char *mtl_file) {
 			txt_name = directory + "/" + txt_name;
 		}
 		else {
-			cerr << "    Tag '" << tag << "' not recognised" << endl;
+			cerr << "OBJ_reader::load_material - "
+				 << WAR << " Tag '" << tag << "' not recognised" << endl;
 		}
 	}
 	// load last batch of data read
@@ -293,7 +297,7 @@ void OBJ_reader::parse_file_lines(size_t A, size_t B) {
 				mat_ids.push_back(current_material);
 			}
 			else {
-				cerr << "OBJ_reader::get_vertices_faces_normals: Error" << endl;
+				cerr << "OBJ_reader::get_vertices_faces_normals - " << ERR << endl;
 				cerr << "    Line " << i << " does not contain a triangle or a quad" << endl;
 				cerr << "    Found: " << file_lines[i] << endl;
 			}
@@ -320,11 +324,11 @@ bool OBJ_reader::load_object(const string& dir, const string& fname, rendered_tr
 	filename = fname;
 
 	#if defined (DEBUG)
-	cout << "OBJ_reader::load_object: Loading file '" << directory + "/" + filename << "'" << endl;
+	cout << line << " OBJ_reader::load_object: Loading file '" << directory + "/" + filename << "'" << endl;
 	#endif
 
 	if (not load_file()) {
-		cerr << "OBJ_reader::load_object: Error" << endl;
+		cerr << "OBJ_reader::load_object - " << ERR << endl;
 		cerr << "    File '" << filename << "' could not be loaded" << endl;
 		return false;
 	}
@@ -344,7 +348,7 @@ bool OBJ_reader::load_object(const string& dir, const string& fname, rendered_tr
 		// parse the material file
 		bool r = load_material(mtl_filename);
 		if (not r) {
-			cerr << "OBJ_reader::load_object: Warning" << endl;
+			cerr << "OBJ_reader::load_object - " << WAR << endl;
 			cerr << "    Material file '" << mtl_filename << "' was found" << endl;
 			cerr << "    at line " << aux << " but could not be read." << endl;
 		}
@@ -358,7 +362,7 @@ bool OBJ_reader::load_object(const string& dir, const string& fname, rendered_tr
 		mesh_name = buffer_object_name;
 	}
 	else {
-		cerr << "OBJ_reader::load_object: Error" << endl;
+		cerr << "OBJ_reader::load_object - " << ERR << endl;
 		cerr << "    Bad .obj file format." << endl;
 		cerr << "    At line " << aux << " expected 'o %s', but found" << endl;
 		cerr << "        '" << file_lines[aux] << "'" << endl;
@@ -366,8 +370,8 @@ bool OBJ_reader::load_object(const string& dir, const string& fname, rendered_tr
 	}
 
 	#if defined (DEBUG)
-	cout << "    Parsing object '" << mesh_name << "'" << endl;
-	cout << "    Object '" << mesh_name << "' is described from line "
+	cout << line << "     Parsing object '" << mesh_name << "'" << endl;
+	cout << line << "     Object '" << mesh_name << "' is described from line "
 		 << aux << " to line " << file_lines.size() << endl;
 	#endif
 
@@ -375,7 +379,7 @@ bool OBJ_reader::load_object(const string& dir, const string& fname, rendered_tr
 	parse_file_lines(4, file_lines.size() - 1);
 
 	#if defined (DEBUG)
-	cout << "    file '" << filename << "' "
+	cout << line << "     file '" << filename << "' "
 		 << "completely parsed" << endl;
 	#endif
 
@@ -410,16 +414,16 @@ bool OBJ_reader::load_object(const string& dir, const string& fname, rendered_tr
 	M.set_texture_coord_idxs(texture_coord_idxs);
 
 	#if defined (DEBUG)
-	cout << "    object '" << mesh_name << "' ";
-	cout << "from file '" << filename << "' was loaded" << endl;
+	cout << line << "     object '" << mesh_name << "' "
+		 << "from file '" << filename << "' was loaded" << endl;
 
 	mesh_state state = M.state();
 	if (state != mesh_state::correct) {
-		cout << "    the mesh contains errors" << endl;
+		cout << line << "     the mesh contains errors" << endl;
 		return false;
 	}
 	else {
-		cout << "    the mesh is in a correct state" << endl;
+		cout << line << "     the mesh is in a correct state" << endl;
 	}
 	#endif
 
