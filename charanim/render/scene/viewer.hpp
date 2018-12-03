@@ -191,7 +191,7 @@ class viewer {
 		void apply_projection() const;
 
 		/// Returns the projection matrix corresponding to the active camera.
-		glm::mat4 make_projection_matrix() const;
+		void make_projection_matrix(glm::mat4& mat) const;
 
 		/**
 		 * @brief Move the scene according to the internal state.
@@ -201,9 +201,8 @@ class viewer {
 		void apply_view() const;
 
 		/// Returns the modelview matrix corresponding to the active viewing mode.
-		glm::mat4 make_view_matrix() const;
+		void make_view_matrix(glm::mat4& mat) const;
 
 		/// (Slow) Renders the models
 		void slow_render_models() const;
 };
-

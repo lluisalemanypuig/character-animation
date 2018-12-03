@@ -10,6 +10,7 @@ using namespace std;
 
 // glm includes
 #include <glm/glm.hpp>
+#define GLM_FORCE_RADIANS
 #include <glm/gtc/matrix_transform.hpp>
 
 // render includes
@@ -18,7 +19,7 @@ using namespace std;
 
 // PRIVATE
 
-#define TO_RAD float(M_PI)/180.0f
+#define TO_RAD(d) d*float(M_PI)/180.0f
 
 // PROTECTED
 
@@ -84,13 +85,13 @@ void viewer::increment_zoom(float i) {
 }
 
 void viewer::move_camera(float vel, float dir) {
-	float rad = (yaw + dir)*TO_RAD;
+	float rad = TO_RAD(yaw + dir);
 	cam_pos.x -= sin(rad)*vel;
 	cam_pos.z -= cos(rad)*vel;
 }
 
 void viewer::tilt_camera_up(float vel, float dir) {
-	float rad = (pitch + dir)*TO_RAD;
+	float rad = TO_RAD(pitch + dir);
 	cam_pos.y += sin(rad)*vel;
 }
 
@@ -200,12 +201,10 @@ void viewer::apply_projection() const {
 	}
 }
 
-glm::mat4 viewer::make_projection_matrix() const {
-	glm::mat4 proj(1.0f);
-
+void viewer::make_projection_matrix(glm::mat4& proj) const {
 	if (use_perspective) {
 		proj = glm::perspective(
-			pers_cam.get_FOV()*TO_RAD, pers_cam.getRAw(),
+			TO_RAD(pers_cam.get_FOV()), pers_cam.getRAw(),
 			pers_cam.get_znear(), pers_cam.get_zfar()
 		);
 	}
@@ -222,8 +221,6 @@ glm::mat4 viewer::make_projection_matrix() const {
 		cerr << "    No perspective or orthogonal camera activated" << endl;
 		assert(false);
 	}
-
-	return proj;
 }
 
 void viewer::apply_view() const {
@@ -246,17 +243,16 @@ void viewer::apply_view() const {
 	}
 }
 
-glm::mat4 viewer::make_view_matrix() const {
-	glm::mat4 view(1.0f);
+void viewer::make_view_matrix(glm::mat4& view) const {
 	if (inspect) {
 		view = glm::translate(view, glm::vec3(0.0f, 0.0f, -diag_length));
-		view = glm::rotate(view, theta*TO_RAD, glm::vec3(1.0f, 0.0f, 0.0f));
-		view = glm::rotate(view, -psi*TO_RAD, glm::vec3(0.0f, 1.0f, 0.0f));
+		view = glm::rotate(view, TO_RAD(theta), glm::vec3(1.0f, 0.0f, 0.0f));
+		view = glm::rotate(view, TO_RAD(-psi), glm::vec3(0.0f, 1.0f, 0.0f));
 		view = glm::translate(view, glm::vec3(-VRP.x, -VRP.y, -VRP.z));
 	}
 	else if (fly) {
-		view = glm::rotate(view, -pitch*TO_RAD, glm::vec3(1.0f, 0.0f, 0.0f));
-		view = glm::rotate(view, -yaw*TO_RAD, glm::vec3(0.0f, 1.0f, 0.0f));
+		view = glm::rotate(view, TO_RAD(-pitch), glm::vec3(1.0f, 0.0f, 0.0f));
+		view = glm::rotate(view, TO_RAD(-yaw), glm::vec3(0.0f, 1.0f, 0.0f));
 		view = glm::translate(view, glm::vec3(-cam_pos.x, -cam_pos.y, -cam_pos.z));
 	}
 	else {
@@ -265,6 +261,4 @@ glm::mat4 viewer::make_view_matrix() const {
 		cerr << "    No inspect or fly mode activated" << endl;
 		assert(false);
 	}
-
-	return view;
 }
