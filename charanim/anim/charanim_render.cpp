@@ -42,8 +42,9 @@ void refresh() {
 	if (draw_base_spheres) {
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
-		glm::mat4 projection = V.make_projection_matrix();
-		glm::mat4 view = V.make_view_matrix();
+		glm::mat4 projection(1.0f), view(1.0f);
+		V.make_projection_matrix(projection);
+		V.make_view_matrix(view);
 
 		flat_shader.bind();
 		flat_shader.set_vec3("view_pos", glm::vec3(0.f,0.f,0.f));
