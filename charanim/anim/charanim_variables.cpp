@@ -14,12 +14,13 @@ namespace charanim {
 	int height;
 
 	int special_key;
-	int pressed_button;
+	int mouse_button;
+	int mouse_state;
 
-	point last_mouse_moved;
-	point last_mouse_click;
-	point special_key_pressed;
-	point regular_key_pressed;
+	latticePoint last_mouse_moved;
+	latticePoint last_mouse_click;
+	latticePoint special_key_pressed;
+	latticePoint regular_key_pressed;
 
 	glm::vec3 bgd_color;
 

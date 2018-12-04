@@ -1,0 +1,7 @@
+type regular_grid
+resolution 100 100
+dimensions 100 100
+wall 10 10 20 50
+wall 10 90 50 90
+wall 40 50 70 40
+wall 80 10 80 80

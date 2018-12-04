@@ -6,13 +6,22 @@ CONFIG -= qt
 HEADERS += \
     charanim.hpp \
     utils.hpp \
-    vec_helper.hpp
+    vec_helper.hpp \
+    study_cases.hpp \
+    terrain/terrain.hpp \
+    terrain/path_finder.hpp \
+    terrain/definitions.hpp \
+    terrain/regular_grid.hpp
 
 SOURCES += main.cpp \
     utils.cpp \
     charanim_variables.cpp \
     charanim_render.cpp \
-    charanim_init.cpp
+    study_cases.cpp \
+    sim_00.cpp \
+    terrain/terrain.cpp \
+    terrain/path_finder.cpp \
+    terrain/regular_grid.cpp
 
 # self-includes
 INCLUDEPATH += ../
@@ -48,7 +57,7 @@ unix {
 
 # cal3d
 unix {
-    exists(/usr/lib/) {
+	exists(/usr/lib/cal3d) {
 		LIBS += -lcal3d
 	}
 	else {

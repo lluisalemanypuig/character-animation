@@ -1,34 +1,36 @@
+// C includes
+#include <string.h>
+
 // C++ includes
 #include <iostream>
 using namespace std;
 
-// charanim includes
-#include <anim/charanim.hpp>
-#include <render/include_gl.hpp>
+// Custom includes
+#include <anim/study_cases.hpp>
+
+void list_all_cases() {
+	cout << "Welcome to the particles renderer" << endl;
+	cout << "The list of simulations available are:" << endl;
+	cout << endl;
+	cout << "    * 00 : visualise any map passed as parameter." << endl;
+	cout << "           Throw some particles in it." << endl;
+	cout << endl;
+}
 
 int main(int argc, char *argv[]) {
-	int r = charanim::initialise_animation(argc, argv);
-	if (r == 1) {
-		cerr << "Error during initialisation." << endl;
+	if (argc == 1) {
+		cerr << "Error: lacking parameter for scene: ./particles case_identifier" << endl;
+		cerr << "    Use './anim --list' or" << endl;
+		cerr << "        './anim --help' or" << endl;
+		cerr << "    to see all scenes available." << endl;
 		return 1;
 	}
-	if (r == 2) {
+
+	if (strcmp(argv[1], "--list") == 0 or strcmp(argv[1], "--help") == 0) {
+		list_all_cases();
 		return 0;
 	}
 
-	cout << "Initialisation successful" << endl;
-
-	atexit(charanim::exit_func);
-	glutDisplayFunc(charanim::refresh);
-	glutReshapeFunc(charanim::resize);
-	glutMouseFunc(charanim::mouse_click);
-	glutPassiveMotionFunc(charanim::mouse_passive);
-	glutMotionFunc(charanim::mouse_drag);
-	glutSpecialFunc(charanim::special_keys_keyboard);
-	glutKeyboardFunc(charanim::regular_keys_keyboard);
-
-	int fps = charanim::FPS;
-	glutTimerFunc(1000.0f/fps, charanim::timed_refresh, 0);
-
-	glutMainLoop();
+	charanim::study_cases::choose_case(argc, argv);
+	return 0;
 }

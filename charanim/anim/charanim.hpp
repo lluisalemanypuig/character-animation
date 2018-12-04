@@ -16,7 +16,7 @@
 #include <render/shader/shader.hpp>
 #include <anim/utils.hpp>
 
-typedef std::pair<int,int> point;
+typedef std::pair<int,int> latticePoint;
 
 namespace charanim {
 
@@ -39,12 +39,13 @@ namespace charanim {
 	extern int height;
 
 	extern int special_key;
-	extern int pressed_button;
+	extern int mouse_button;
+	extern int mouse_state;
 
-	extern point last_mouse_click;
-	extern point last_mouse_moved;
-	extern point special_key_pressed;
-	extern point regular_key_pressed;
+	extern latticePoint last_mouse_click;
+	extern latticePoint last_mouse_moved;
+	extern latticePoint special_key_pressed;
+	extern latticePoint regular_key_pressed;
 
 	extern glm::vec3 bgd_color;
 
@@ -81,7 +82,8 @@ namespace charanim {
 	int initialise_animation(int argc, char *argv[]);
 
 	/* rendering functions */
-	void refresh();
+	void base_render();
+	void full_render();
 	void timed_refresh(int v);
 	void exit_func();
 	void special_keys_keyboard(int key, int x, int y);
