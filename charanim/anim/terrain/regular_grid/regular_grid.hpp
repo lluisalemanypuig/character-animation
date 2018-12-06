@@ -5,7 +5,7 @@
 #include <vector>
 
 // charanim includes
-#include <anim/terrain/definitions.hpp>
+#include <anim/definitions.hpp>
 #include <anim/terrain/path_finder.hpp>
 
 namespace charanim {
@@ -17,12 +17,17 @@ class regular_grid : public path_finder {
 		 *
 		 * A cell is marked as true if it is occupied.
 		 */
-		std::vector<bool> occupied_cells;
+		float *grid_cells;
 
 		/// Number of cells in the x-axis.
 		size_t resX;
 		/// Number of cells in the y-axis.
 		size_t resY;
+
+		/// Continuous dimension in the x-axis
+		float dimX;
+		/// Continuous dimension in the y-axis
+		float dimY;
 
 	public:
 		regular_grid();
@@ -31,7 +36,7 @@ class regular_grid : public path_finder {
 		// MODIFIERS
 
 		/// Initialises the grid with cellsx x cellsy cells.
-		void init(size_t cellsx, size_t cellsy);
+		void init(size_t cellsx, size_t cellsy, float dimX, float dimY);
 		void init(const std::vector<segment>& segs);
 
 		void clear();

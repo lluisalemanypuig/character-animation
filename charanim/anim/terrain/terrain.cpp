@@ -6,7 +6,7 @@
 using namespace std;
 
 // charanim includes
-#include <anim/terrain/regular_grid.hpp>
+#include <anim/terrain/regular_grid/regular_grid.hpp>
 
 namespace charanim {
 
@@ -57,12 +57,14 @@ bool terrain::read_map(const string& filename) {
 
 	path_finder_type pf_type = path_finder_type::none;
 
-	bool res_read;
+	bool res_read = false;
 	size_t resX, resY;
+	resX = resY = 0;
 
 	string keyword;
 
 	while (fin >> keyword) {
+		cout << "keyword: " << keyword << endl;
 		if (keyword == "type") {
 			fin >> keyword;
 			if (keyword == "regular_grid") {
@@ -79,6 +81,7 @@ bool terrain::read_map(const string& filename) {
 		}
 		else if (keyword == "resolution") {
 			fin >> resX >> resY;
+			cout << resX << "," << resY << endl;
 			res_read = true;
 		}
 		else if (keyword == "dimensions") {
@@ -109,16 +112,6 @@ bool terrain::read_map(const string& filename) {
 		return false;
 	}
 
-	// make walls of the quadrilateral
-	segment wall1(point2D(0,0), point2D(dimX, 0));
-	segment wall2(point2D(0,0), point2D(0, dimY));
-	segment wall3(point2D(dimX,0), point2D(dimX, dimY));
-	segment wall4(point2D(0,dimY), point2D(dimX, dimY));
-	sgs.push_back(wall1);
-	sgs.push_back(wall2);
-	sgs.push_back(wall3);
-	sgs.push_back(wall4);
-
 	if (pf_type == path_finder_type::regular_grid) {
 		if (not res_read) {
 			cerr << "terrain::read_map - Error (" << __LINE__ << "):" << endl;
@@ -133,12 +126,22 @@ bool terrain::read_map(const string& filename) {
 		pf = new regular_grid();
 
 		regular_grid *rg = static_cast<regular_grid *>(pf);
-		rg->init(resX, resY);
+		rg->init(resX, resY, dimX, dimY);
 		rg->init(sgs);
 	}
 	else if (pf_type == path_finder_type::visibility_graph) {
 
 	}
+
+	// make walls of the quadrilateral
+	segment wall1(point2D(0,0), point2D(dimX, 0));
+	segment wall2(point2D(0,0), point2D(0, dimY));
+	segment wall3(point2D(dimX,0), point2D(dimX, dimY));
+	segment wall4(point2D(0,dimY), point2D(dimX, dimY));
+	sgs.push_back(wall1);
+	sgs.push_back(wall2);
+	sgs.push_back(wall3);
+	sgs.push_back(wall4);
 
 	return true;
 }

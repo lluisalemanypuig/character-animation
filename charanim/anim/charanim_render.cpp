@@ -157,8 +157,8 @@ namespace charanim {
 	}
 
 	void mouse_drag(int x, int y) {
-		int dx = x - last_mouse_moved.first;
-		int dy = y - last_mouse_moved.second;
+		int dx = x - last_mouse_moved.x();
+		int dy = y - last_mouse_moved.y();
 		last_mouse_moved = latticePoint(x,y);
 
 		if (mouse_button == GLUT_LEFT_BUTTON) {

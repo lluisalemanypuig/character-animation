@@ -15,8 +15,7 @@
 #include <render/geometry/rgeometry.hpp>
 #include <render/shader/shader.hpp>
 #include <anim/utils.hpp>
-
-typedef std::pair<int,int> latticePoint;
+#include <anim/definitions.hpp>
 
 namespace charanim {
 

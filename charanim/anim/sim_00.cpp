@@ -33,14 +33,14 @@ using namespace physim::geom;
 namespace charanim {
 namespace study_cases {
 
-	terrain T;
+	static terrain sim_00_T;
 
 	void sim_00_usage() {
 
 	}
 
 	void sim_00_init_sim() {
-		const vector<segment>& sgs = T.get_segments();
+		const vector<segment>& sgs = sim_00_T.get_segments();
 		for (const segment& s : sgs) {
 			const point2D& A = s.first;
 			const point2D& B = s.second;
@@ -93,7 +93,7 @@ namespace study_cases {
 	void sim_00_init_geometry() {
 		// add the geometry read from the map
 
-		const vector<segment>& sgs = T.get_segments();
+		const vector<segment>& sgs = sim_00_T.get_segments();
 		for (const segment& s : sgs) {
 			const point2D& A = s.first;
 			const point2D& B = s.second;
@@ -164,7 +164,7 @@ namespace study_cases {
 		}
 
 		if (map_file != "none") {
-			bool r = T.read_map(map_file);
+			bool r = sim_00_T.read_map(map_file);
 			if (not r) {
 				return 1;
 			}

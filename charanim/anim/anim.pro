@@ -10,8 +10,10 @@ HEADERS += \
     study_cases.hpp \
     terrain/terrain.hpp \
     terrain/path_finder.hpp \
-    terrain/definitions.hpp \
-    terrain/regular_grid.hpp
+    definitions.hpp \
+    terrain/regular_grid/regular_grid.hpp \
+    terrain/regular_grid/ray_rasterize.hpp \
+    terrain/regular_grid/ray_rasterize_4_way.hpp
 
 SOURCES += main.cpp \
     utils.cpp \
@@ -21,7 +23,9 @@ SOURCES += main.cpp \
     sim_00.cpp \
     terrain/terrain.cpp \
     terrain/path_finder.cpp \
-    terrain/regular_grid.cpp
+    terrain/regular_grid/regular_grid.cpp \
+    terrain/regular_grid/ray_rasterize.cpp \
+    terrain/regular_grid/ray_rasterize_4_way.cpp
 
 # self-includes
 INCLUDEPATH += ../

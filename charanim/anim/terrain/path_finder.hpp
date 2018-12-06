@@ -5,7 +5,7 @@
 #include <vector>
 
 // charanim includes
-#include <anim/terrain/definitions.hpp>
+#include <anim/definitions.hpp>
 
 namespace charanim {
 

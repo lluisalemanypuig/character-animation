@@ -8,6 +8,7 @@ using namespace std;
 
 // glm includes
 #include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/matrix_inverse.hpp>
 
 // render includes
@@ -117,12 +118,14 @@ void initGL(int argc, char *argv[]) {
 	dispx = dispy = 0.0f;
 
 	V.get_box().set_min_max(
-		glm::vec3(-5.0f,-5.0f,-5.0f),
-		glm::vec3( 5.0f, 5.0f, 5.0f)
+		glm::vec3(-4.0f,-1.0f,-1.0f),
+		glm::vec3( 4.0f, 8.0f, 1.0f)
 	);
 
 	V.set_window_dims(iw, ih);
 	V.init_cameras();
+
+	glPointSize(7);
 }
 
 // ------------
@@ -145,12 +148,24 @@ void refresh() {
 
 	V.apply_view();
 
+	glDisable(GL_LIGHTING);
 	glTranslatef(dispx, dispy, 0.0f);
 
-	glBegin(GL_TRIANGLES);
+	glBegin(GL_POINTS);
+		glColor3f(0.8f, 0.8f, 0.8f);
 		glVertex3f(-1.0f, 0.0f, 0.0f);
 		glVertex3f( 1.0f, 0.0f, 0.0f);
 		glVertex3f( 0.0f, 1.0f, 0.0f);
+
+		glColor3f(0.2f, 1.0f, 0.2f);
+		glVertex3f( 2.0f, 0.0f, 0.0f);
+		glVertex3f( 3.0f, 0.0f, 0.0f);
+		glVertex3f( 2.5f, 1.0f, 0.0f);
+
+		glColor3f(1.0f, 1.0f, 0.2f);
+		glVertex3f(-4.0f, 5.0f, 0.0f);
+		glVertex3f(-2.0f, 5.0f, 0.0f);
+		glVertex3f(-3.0f, 7.0f, 0.0f);
 	glEnd();
 
 	glutSwapBuffers();
@@ -203,10 +218,29 @@ void mouse_click_event(int button, int state, int x, int y) {
 	UNUSED(x);
 	UNUSED(y);
 
-	cout << "GLUT viewport coordinates: " << x << "," << y << endl;
-	float ox = (2.0f*x)/iw - 1.0f;
-	float oy = 1.0f - ((2.0f*y)/ih);
-	cout << "OpenGL viewport coordinates: " << ox << "," << oy << endl;
+	cout << "device coordinates: " << x << "," << y << endl;
+	float dx = (2.0f*x)/iw - 1.0f;
+	float dy = 1.0f - ((2.0f*y)/ih);
+
+	glm::mat4 proj(1.0f), view(1.0f);
+	V.make_projection_matrix(proj);
+	V.make_view_matrix(view);
+	view = glm::translate(view, glm::vec3(dispx, dispy, 0.0f));
+
+	glm::mat4 proj_modelview = view*proj;
+	glm::mat4 inv_mat = glm::inverse(proj_modelview);
+
+	glm::vec4 v(dx, dy, 1.0f, 1.0f);
+
+	// device = proj*view*model*world
+	// world = modl_inv*view_inv*proj_inv*device
+
+	glm::vec4 world = v*inv_mat;
+	world.x /= world.w;
+	world.y /= world.w;
+	world.z /= world.w;
+
+	cout << "world: " << world.x << "," << world.y << "," << world.z << endl;
 
 	pressed_button = button;
 }
@@ -224,8 +258,8 @@ void mouse_drag_event(int x, int y) {
 	last_mouse = point(x,y);
 
 	if (pressed_button == GLUT_LEFT_BUTTON) {
-		dispx += dx*float(iw)/ih;
-		dispy -= dy*float(iw)/ih;
+		dispx += (dx*float(iw)/ih)/10.0f;
+		dispy -= (dy*float(iw)/ih)/10.0f;
 	}
 	else if (pressed_button == GLUT_RIGHT_BUTTON) {
 		V.increment_zoom(0.75f*dy);

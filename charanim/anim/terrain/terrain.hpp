@@ -6,7 +6,7 @@
 #include <vector>
 
 // anim includes
-#include <anim/terrain/definitions.hpp>
+#include <anim/definitions.hpp>
 #include <anim/terrain/path_finder.hpp>
 
 namespace charanim {
