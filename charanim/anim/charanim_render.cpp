@@ -70,8 +70,11 @@ namespace charanim {
 
 		/* draw walls and stuff */
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-		for (rgeom *r : geometry) {
-			r->draw();
+		glDisable(GL_LIGHTING);
+		for (const rgeom *r : geometry) {
+			if (r->get_model() == nullptr) {
+				r->draw_geometry();
+			}
 		}
 
 		if (not draw_base_spheres) {
