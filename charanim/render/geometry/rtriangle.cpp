@@ -27,14 +27,12 @@ const glm::vec3& rtriangle::p3() const { return _p3; }
 // OTHERS
 
 void rtriangle::draw_geometry() const {
-	glDisable(GL_LIGHTING);
 	glColor4f(r,g,b,a);
 	glBegin(GL_TRIANGLES);
 		glVertex3f(_p1.x, _p1.y, _p1.z);
 		glVertex3f(_p2.x, _p2.y, _p2.z);
 		glVertex3f(_p3.x, _p3.y, _p3.z);
 	glEnd();
-	glEnable(GL_LIGHTING);
 }
 
 void rtriangle::make_model_matrix(glm::mat4& ) const {}

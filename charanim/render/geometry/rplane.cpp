@@ -27,7 +27,6 @@ const glm::vec3& rplane::p4() const { return _p4; }
 // OTHERS
 
 void rplane::draw_geometry() const {
-	glDisable(GL_LIGHTING);
 	glColor4f(r,g,b,a);
 	glBegin(GL_TRIANGLES);
 		glVertex3f(_p1.x, _p1.y, _p1.z);
@@ -39,7 +38,6 @@ void rplane::draw_geometry() const {
 		glVertex3f(_p3.x, _p3.y, _p3.z);
 		glVertex3f(_p4.x, _p4.y, _p4.z);
 	glEnd();
-	glEnable(GL_LIGHTING);
 }
 
 

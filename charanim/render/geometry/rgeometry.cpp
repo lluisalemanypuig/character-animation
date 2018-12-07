@@ -66,7 +66,6 @@ void rgeom::draw() const {
 			_model->render();
 		}
 		else {
-			glEnable(GL_LIGHTING);
 			glPushMatrix();
 				translate_object();
 				_model->render();
