@@ -42,6 +42,10 @@ const std::vector<segment>& terrain::get_segments() const {
 	return sgs;
 }
 
+const path_finder *terrain::get_path_finder() const {
+	return pf;
+}
+
 // I/O
 
 bool terrain::read_map(const string& filename) {
@@ -64,7 +68,6 @@ bool terrain::read_map(const string& filename) {
 	string keyword;
 
 	while (fin >> keyword) {
-		cout << "keyword: " << keyword << endl;
 		if (keyword == "type") {
 			fin >> keyword;
 			if (keyword == "regular_grid") {
@@ -81,7 +84,6 @@ bool terrain::read_map(const string& filename) {
 		}
 		else if (keyword == "resolution") {
 			fin >> resX >> resY;
-			cout << resX << "," << resY << endl;
 			res_read = true;
 		}
 		else if (keyword == "dimensions") {
@@ -112,6 +114,12 @@ bool terrain::read_map(const string& filename) {
 		return false;
 	}
 
+	// make walls of the quadrilateral
+	segment wall1(vec2(-1,-1), vec2(dimX, -1));
+	segment wall2(vec2(-1,-1), vec2(-1, dimY));
+	segment wall3(vec2(dimX,-1), vec2(dimX, dimY));
+	segment wall4(vec2(-1,dimY), vec2(dimX, dimY));
+
 	if (pf_type == path_finder_type::regular_grid) {
 		if (not res_read) {
 			cerr << "terrain::read_map - Error (" << __LINE__ << "):" << endl;
@@ -128,16 +136,17 @@ bool terrain::read_map(const string& filename) {
 		regular_grid *rg = static_cast<regular_grid *>(pf);
 		rg->init(resX, resY, dimX, dimY);
 		rg->init(sgs);
+		rg->expand_function_distance(wall1);
+		rg->expand_function_distance(wall2);
+		rg->expand_function_distance(wall3);
+		rg->expand_function_distance(wall4);
+
+		rg->make_final_state();
 	}
 	else if (pf_type == path_finder_type::visibility_graph) {
 
 	}
 
-	// make walls of the quadrilateral
-	segment wall1(point2D(0,0), point2D(dimX, 0));
-	segment wall2(point2D(0,0), point2D(0, dimY));
-	segment wall3(point2D(dimX,0), point2D(dimX, dimY));
-	segment wall4(point2D(0,dimY), point2D(dimX, dimY));
 	sgs.push_back(wall1);
 	sgs.push_back(wall2);
 	sgs.push_back(wall3);

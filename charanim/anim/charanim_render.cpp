@@ -68,8 +68,6 @@ namespace charanim {
 		glLoadIdentity();
 		V.apply_view();
 
-		glDisable(GL_LIGHTING);
-
 		/* draw walls and stuff */
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 		for (rgeom *r : geometry) {
@@ -118,9 +116,11 @@ namespace charanim {
 	}
 
 	void exit_func() {
-		sphere->clear();
-		delete sphere;
-		sphere = nullptr;
+		if (sphere != nullptr) {
+			sphere->clear();
+			delete sphere;
+			sphere = nullptr;
+		}
 
 		for (rgeom *r : geometry) {
 			r->clear();

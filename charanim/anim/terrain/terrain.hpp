@@ -53,6 +53,9 @@ class terrain {
 		 */
 		const std::vector<segment>& get_segments() const;
 
+		/// Returns the underlying path finder.
+		const path_finder *get_path_finder() const;
+
 		// I/O
 
 		/**

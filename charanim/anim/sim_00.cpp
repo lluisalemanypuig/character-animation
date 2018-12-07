@@ -29,6 +29,7 @@ using namespace physim::geom;
 #include <anim/charanim.hpp>
 #include <anim/vec_helper.hpp>
 #include <anim/terrain/terrain.hpp>
+#include <anim/terrain/regular_grid/regular_grid.hpp>
 
 namespace charanim {
 namespace study_cases {
@@ -39,55 +40,88 @@ namespace study_cases {
 
 	}
 
-	void sim_00_init_sim() {
-		const vector<segment>& sgs = sim_00_T.get_segments();
-		for (const segment& s : sgs) {
-			const point2D& A = s.first;
-			const point2D& B = s.second;
+	void render_regular_grid(const regular_grid *r) {
 
-			pm_vec3 p1( A.x, 0.0f,  A.y);
-			pm_vec3 p2( B.x, 0.0f,  B.y);
-			pm_vec3 p3(p2.x, 2.0f, p2.z);
-			pm_vec3 p4(p1.x, 2.0f, p1.z);
+		const float *cells = r->get_grid();
+		const size_t rX = r->get_resX();
+		const size_t rY = r->get_resY();
 
-			rectangle *rl = new rectangle(p1,p2,p3,p4);
-			S.add_geometry(rl);
+		const float dX = r->get_dimX();
+		const float dY = r->get_dimY();
+		const float max_dist = r->get_max_dist();
+
+		const float lX = dX/rX;
+		const float lY = dY/rY;
+
+		float col;
+		for (size_t cy = 0; cy < rY; ++cy) {
+			for (size_t cx = 0; cx < rX; ++cx) {
+				if (cy + 1 < rY and cx + 1 < rX) {
+					// draw triangles
+					glBegin(GL_TRIANGLES);
+						col = cells[cy*rX + cx]/max_dist;
+						glColor3f(col,col,col);
+						glVertex3f(cx*lX, 0.0f, cy*lY);
+
+						col = cells[cy*rX + cx + 1]/max_dist;
+						glColor3f(col,col,col);
+						glVertex3f((cx + 1)*lX, 0.0f, cy*lY);
+
+						col = cells[(cy + 1)*rX + cx + 1]/max_dist;
+						glColor3f(col,col,col);
+						glVertex3f((cx + 1)*lX, 0.0f, (cy + 1)*lY);
+					glEnd();
+					glBegin(GL_TRIANGLES);
+						col = cells[cy*rX + cx]/max_dist;
+						glColor3f(col,col,col);
+						glVertex3f(cx*lX, 0.0f, cy*lY);
+
+						col = cells[(cy + 1)*rX + cx + 1]/max_dist;
+						glColor3f(col,col,col);
+						glVertex3f((cx + 1)*lX, 0.0f, (cy + 1)*lY);
+
+						col = cells[(cy + 1)*rX + cx]/max_dist;
+						glColor3f(col,col,col);
+						glVertex3f(cx*lX, 0.0f, (cy + 1)*lY);
+					glEnd();
+				}
+
+			}
+		}
+	}
+
+	void sim_00_render() {
+		glClearColor(bgd_color.x, bgd_color.y, bgd_color.z, 1.0);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+		base_render();
+
+		// render path finder (on the xy plane)
+		const path_finder *pf = sim_00_T.get_path_finder();
+		if (pf->get_type() == path_finder_type::regular_grid) {
+			render_regular_grid(
+				static_cast<const regular_grid *>(pf)
+			);
 		}
 
-		sized_particle *p1 = new sized_particle();
-		sized_particle *p2 = new sized_particle();
-		sized_particle *p3 = new sized_particle();
+		glutSwapBuffers();
+	}
 
-		p1->lifetime = 99999999.0f;
-		p1->bouncing = 1.0f;
-		p1->friction = 0.0f;
+	void sim_00_timed_refresh(int v) {
+		sim_00_render();
 
-		p2->lifetime = 99999999.0f;
-		p2->bouncing = 1.0f;
-		p2->friction = 0.0f;
+		++fps_count;
+		timing::time_point here = timing::now();
+		double elapsed = timing::elapsed_seconds(sec, here);
+		if (elapsed >= 1.0) {
+			if (display_fps) {
+				cout << "fps= " << fps_count << " (" << FPS << ")" << endl;
+			}
+			fps_count = 0;
+			sec = timing::now();
+		}
 
-		p3->lifetime = 99999999.0f;
-		p3->bouncing = 1.0f;
-		p3->friction = 0.0f;
-
-		p1->cur_pos.x = p1->cur_pos.z = 2.0f;
-		p1->cur_vel.x = p1->cur_vel.z = 1.0f;
-		p1->R = 1.0f;
-
-		p2->cur_pos.x = p2->cur_pos.z = 18.0f;
-		p2->cur_vel.x = p2->cur_vel.z = -1.0f;
-		p2->R = 1.0f;
-
-		p3->cur_pos.x = 16.0f; p3->cur_pos.z = 4.0f;
-		p3->cur_vel.x = p3->cur_vel.z = 1.0f;
-		p3->R = 2.0f;
-
-		S.set_particle_particle_collisions(true);
-		S.set_viscous_drag(0.0f);
-
-		S.add_sized_particle(p1);
-		S.add_sized_particle(p2);
-		S.add_sized_particle(p3);
+		glutTimerFunc(1000.0f/FPS, sim_00_timed_refresh, v);
 	}
 
 	void sim_00_init_geometry() {
@@ -95,8 +129,8 @@ namespace study_cases {
 
 		const vector<segment>& sgs = sim_00_T.get_segments();
 		for (const segment& s : sgs) {
-			const point2D& A = s.first;
-			const point2D& B = s.second;
+			const vec2& A = s.first;
+			const vec2& B = s.second;
 
 			glm_vec3 p1( A.x, 0.0f,  A.y);
 			glm_vec3 p2( B.x, 0.0f,  B.y);
@@ -112,41 +146,6 @@ namespace study_cases {
 			V.get_box().enlarge_box(p3);
 			V.get_box().enlarge_box(p4);
 		}
-	}
-
-	int sim_00_init_shaders_models() {
-		if (
-			not flat_shader.init("../../charanim/shaders", "flat.vert", "flat.frag") or
-			not material_shader.init("../../charanim/shaders", "materials.vert", "materials.frag") or
-			not texture_shader.init("../../charanim/shaders", "textures.vert", "textures.frag")
-		)
-		{
-			return 1;
-		}
-
-		sphere = new rendered_triangle_mesh();
-		OBJ_reader obj;
-		obj.load_object("../../models", "sphere.obj", *sphere);
-		sphere->make_buffers();
-
-		flat_shader.bind();
-		flat_shader.set_bool("wireframe", true);
-		flat_shader.set_vec4("colour", glm::vec4(0.0f,0.0f,1.0f,1.0f));
-		flat_shader.release();
-
-		material_shader.bind();
-		material_shader.set_vec3("light.diffuse", glm::vec3(1.0f,1.0f,1.0f));
-		material_shader.set_vec3("light.ambient", glm::vec3(0.2f,0.2f,0.2f));
-		material_shader.set_vec3("light.position", glm::vec3(0.f,0.f,0.f));
-		material_shader.release();
-
-		texture_shader.bind();
-		texture_shader.set_vec3("light.diffuse", glm::vec3(1.0f,1.0f,1.0f));
-		texture_shader.set_vec3("light.ambient", glm::vec3(0.2f,0.2f,0.2f));
-		texture_shader.set_vec3("light.position", glm::vec3(0.f,0.f,0.f));
-		texture_shader.release();
-
-		return 0;
 	}
 
 	int sim_00_parse_arguments(int argc, char *argv[]) {
@@ -204,7 +203,7 @@ namespace study_cases {
 			glutInit(&_argc, _argv);
 			glutInitDisplayMode(GLUT_DEPTH | GLUT_DOUBLE | GLUT_RGBA);
 			glutInitWindowSize(width, height);
-			window_id = glutCreateWindow("Character animation");
+			window_id = glutCreateWindow("Character animation - Map visualiser");
 
 			GLenum err = glewInit();
 			if (err != 0) {
@@ -215,18 +214,13 @@ namespace study_cases {
 		}
 
 		glEnable(GL_DEPTH_TEST);
-		glEnable(GL_LIGHTING);
+		glDisable(GL_LIGHTING);
 
 		V.get_box().set_min_max(glm::vec3(0,0,0), glm::vec3(20,5,20));
 		V.set_window_dims(width, height);
 		V.init_cameras();
 
-		sim_00_init_sim();
 		sim_00_init_geometry();
-		int r = sim_00_init_shaders_models();
-		if (r != 0) {
-			return 1;
-		}
 
 		return 0;
 	}
@@ -253,7 +247,7 @@ namespace study_cases {
 		}
 
 		atexit(charanim::exit_func);
-		glutDisplayFunc(charanim::full_render);
+		glutDisplayFunc(sim_00_render);
 		glutReshapeFunc(charanim::resize);
 		glutMouseFunc(charanim::mouse_click);
 		glutPassiveMotionFunc(charanim::mouse_passive);
@@ -261,7 +255,7 @@ namespace study_cases {
 		glutSpecialFunc(charanim::special_keys_keyboard);
 		glutKeyboardFunc(sim_00_regular_keys_keyboard);
 
-		glutTimerFunc(1000.0f/charanim::FPS, charanim::timed_refresh, 0);
+		glutTimerFunc(1000.0f/charanim::FPS, sim_00_timed_refresh, 0);
 
 		glutMainLoop();
 	}

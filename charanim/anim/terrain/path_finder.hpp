@@ -40,8 +40,8 @@ class path_finder {
 
 		/// Initialises the path finder structure.
 		virtual void find_path(
-			const point2D& source, const point2D& sink,
-			std::vector<point2D>& segs
+			const vec2& source, const vec2& sink,
+			std::vector<vec2>& segs
 		) = 0;
 
 		/// Returns the type of the path finding representation.

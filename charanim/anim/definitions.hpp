@@ -8,8 +8,8 @@
 
 namespace charanim {
 
-	typedef physim::math::vec2 point2D;
-	typedef std::pair<point2D,point2D> segment;
+	typedef physim::math::vec2 vec2;
+	typedef std::pair<vec2,vec2> segment;
 
 	class latticePoint : std::pair<int,int> {
 		public:
