@@ -2,8 +2,7 @@ TEMPLATE = subdirs
 
 SUBDIRS += \
     render \
-	anim \
-    map-designer
+	anim
 
 DISTFILES += \
 	shaders/flat.frag \
