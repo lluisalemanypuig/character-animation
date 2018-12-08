@@ -53,6 +53,13 @@ class regular_grid : public path_finder {
 		void clear();
 
 		/**
+		 * @brief Rasterises the segment into the grid.
+		 *
+		 * Each cell of the rasterised segment is assigned value 0.
+		 */
+		void rasterise_segment(const segment& s);
+
+		/**
 		 * @brief Computes the distance function of every cell.
 		 *
 		 * With respect to a *rasterised* segment @e s.

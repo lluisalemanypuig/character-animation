@@ -19,8 +19,9 @@ namespace charanim {
 #define get_global(x,y) y*resX + x
 #define  local(g, x,y) x = g%resX; y = g/resX
 
-#define in_box(s,t, p)	\
-	(((s.x <= p.x) and (p.x <= t.x)) and ((s.y <= p.y) and (p.y <= t.y)))
+#define in_box(s,t, p)													\
+	(((std::min(s.x, t.x) <= p.x) and (p.x <= std::max(s.x,t.x))) and	\
+	 ((std::min(s.y, t.y) <= p.y) and (p.y <= std::max(s.y,t.y))))
 
 #define l2(x1,y1, x2,y2) std::sqrt((x2 - x1)*(x2 - x1) + (y2 - y1)*(y2 - y1))
 
@@ -54,32 +55,8 @@ void regular_grid::init(size_t cellsx, size_t cellsy, float dx, float dy) {
 }
 
 void regular_grid::init(const std::vector<segment>& segs) {
-	const float lenX = dimX/resX;
-	const float lenY = dimY/resY;
-
-	// rasterise each segment into the grid
-	ray_rasterize_4_way ray;
 	for (const segment& s : segs) {
-		const vec2& p = s.first;
-		int px = static_cast<int>(p.x/lenX);
-		int py = static_cast<int>(p.y/lenY);
-		const vec2& q = s.second;
-		int qx = static_cast<int>(q.x/lenX);
-		int qy = static_cast<int>(q.y/lenY);
-
-		latticePoint lP(px,py);
-		latticePoint lQ(qx,qy);
-
-		// rasterise the line and set '0' to its grid cells
-		ray.init(lP, lQ);
-		latticePoint grid_cell;
-		size_t g_idx;
-		while (not ray.is_last()) {
-			ray.get_advance(grid_cell);
-			global(grid_cell.x(), grid_cell.y(), g_idx);
-			grid_cells[g_idx] = 0.0f;
-		}
-
+		rasterise_segment(s);
 		expand_function_distance(s);
 	}
 }
@@ -94,13 +71,43 @@ void regular_grid::clear() {
 	}
 }
 
-void regular_grid::expand_function_distance(const segment& seg) {
-	const vec2& s = seg.first;
-	const vec2& t = seg.second;
+void regular_grid::rasterise_segment(const segment& seg) {
 	const float lenX = dimX/resX;
 	const float lenY = dimY/resY;
-	vec2 u = t - s;
 
+	/* ------------------------------- */
+	/* rasterise segment into the grid */
+	ray_rasterize_4_way ray;
+
+	const vec2& s = seg.first;
+	int px = static_cast<int>(s.x/lenX);
+	int py = static_cast<int>(s.y/lenY);
+	const vec2& t = seg.second;
+	int qx = static_cast<int>(t.x/lenX);
+	int qy = static_cast<int>(t.y/lenY);
+
+	latticePoint lP(px,py);
+	latticePoint lQ(qx,qy);
+
+	// rasterise the line and set '0' to its grid cells
+	ray.init(lP, lQ);
+	latticePoint grid_cell;
+	size_t g_idx;
+	while (not ray.is_last()) {
+		ray.get_advance(grid_cell);
+		global(grid_cell.x(), grid_cell.y(), g_idx);
+		grid_cells[g_idx] = 0.0f;
+	}
+}
+
+void regular_grid::expand_function_distance(const segment& seg) {
+	const float lenX = dimX/resX;
+	const float lenY = dimY/resY;
+	const vec2& s = seg.first;
+	const vec2& t = seg.second;
+
+	/* compute distance of every other cell to the segment */
+	vec2 u = t - s;
 	float uu = physim::math::dot(u,u);
 
 	for (size_t cy = 0; cy < resY; ++cy) {
@@ -108,7 +115,7 @@ void regular_grid::expand_function_distance(const segment& seg) {
 
 			// projection of point (cx, cy) onto line
 			// through the segment
-			vec2 p(lenX*cx, lenY*cy);
+			vec2 p(lenX*cx + lenX/2.0f, lenY*cy + lenY/2.0f);
 			vec2 sp = p - s;
 			float l0 = ((physim::math::dot(sp,u))/uu);
 			vec2 proj = s + u*l0;
@@ -116,7 +123,7 @@ void regular_grid::expand_function_distance(const segment& seg) {
 			// distance from point (cx,cy) to the segment
 			float D;
 
-			if (in_box(s,t, proj) or in_box(t,s, proj)) {
+			if (in_box(s,t, proj)) {
 				D = physim::math::dist(p, proj);
 			}
 			else {
