@@ -249,13 +249,21 @@ namespace study_cases {
 
 	void add_segment() {
 		vec2 A, B;
-		cin >> A.x >> A.y >> B.x >> B.y;
+		cout << "Input two points:" << endl;
+		cout << "    Point A:" << endl;
+		cout << "    x:"; cin >> A.x;
+		cout << "    y:"; cin >> A.y;
+		cout << "    Point B:" << endl;
+		cout << "    x:"; cin >> B.x;
+		cout << "    y:"; cin >> B.y;
 
 		segment s(A,B);
 		path_finder *pf = sim_00_T.get_path_finder();
 		if (pf->get_type() == path_finder_type::regular_grid) {
-			static_cast<regular_grid *>(pf)->rasterise_segment(s);
-			static_cast<regular_grid *>(pf)->expand_function_distance(s);
+			regular_grid *rg = static_cast<regular_grid *>(pf);
+			rg->rasterise_segment(s);
+			rg->expand_function_distance(s);
+			rg->make_final_state();
 		}
 
 		rplane *pl = new rplane();
