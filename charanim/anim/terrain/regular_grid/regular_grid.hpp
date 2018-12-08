@@ -39,14 +39,29 @@ class regular_grid : public path_finder {
 		/// Maximum value in the cells.
 		float max_dist;
 
+		/**
+		 * @brief Finds the (at most) 8 neighbours of the grid cell p.
+		 * @param[in] p A valid grid cell.
+		 * @param[in] R The minimum distance between a neighbour and the
+		 * closest obstacle.
+		 * @param[out] n Validity of each neighbour.
+		 * @param[out] ns Valid neighbouring grid cells.
+		 */
+		void make_neighbours
+		(const latticePoint& p, float R, bool v[8], latticePoint ns[8]) const;
+
 	public:
+		/// Default constructor.
 		regular_grid();
+		/// Destructor.
 		~regular_grid();
 
 		// MODIFIERS
 
 		/// Initialises the grid with cellsx x cellsy cells.
 		void init(size_t cellsx, size_t cellsy, float dimX, float dimY);
+		/// Raterises the segments in @e segs and updates the distance
+		/// function in the grid's cells.
 		void init(const std::vector<segment>& segs);
 
 		/// Clears the memory occupied by this grid.
@@ -77,7 +92,7 @@ class regular_grid : public path_finder {
 
 		void find_path(
 			const vec2& source, const vec2& sink,
-			std::vector<vec2>& segs
+			float R, std::vector<vec2>& segs
 		);
 
 		path_finder_type get_type() const;

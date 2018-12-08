@@ -16,7 +16,7 @@ using namespace std;
 namespace charanim {
 
 #define global(x,y, g) g = y*resX + x
-#define get_global(x,y) y*resX + x
+#define get_global(x,y) static_cast<size_t>(y)*resX + static_cast<size_t>(x)
 #define  local(g, x,y) x = g%resX; y = g/resX
 
 #define in_box(s,t, p)													\
@@ -26,6 +26,34 @@ namespace charanim {
 #define l2(x1,y1, x2,y2) std::sqrt((x2 - x1)*(x2 - x1) + (y2 - y1)*(y2 - y1))
 
 // PRIVATE
+
+#define make_neighbour(i, cx, cy)							\
+	if (grid_cells[get_global(cx,cy)] < R) {				\
+		v[i] = true; ns[i].x() = cx; ns[i].y() = cy; ++i;	\
+	}
+
+void regular_grid::make_neighbours
+(const latticePoint& p, float R, bool v[8], latticePoint ns[8]) const
+{
+	size_t it = 0;
+	int _resX = static_cast<int>(resX);
+	int _resY = static_cast<int>(resY);
+
+	if (p.y() > 0) {
+		if (p.x() > 0) { make_neighbour(it, p.x() - 1, p.y() - 1) }
+		make_neighbour(it, p.x(), p.y() - 1)
+		if (p.x() < _resX) { make_neighbour(it, p.x() + 1, p.y() - 1) }
+	}
+
+	if (p.x() > 0) { make_neighbour(it, p.x() - 1, p.y()) }
+	if (p.x() < _resX) { make_neighbour(it, p.x() + 1, p.y()) }
+
+	if (p.y() < _resY) {
+		if (p.x() > 0) { make_neighbour(it, p.x() - 1, p.y() + 1) }
+		make_neighbour(it, p.x(), p.y() + 1)
+		if (p.x() < _resX) { make_neighbour(it, p.x() + 1, p.y() + 1) }
+	}
+}
 
 // PUBLIC
 
@@ -127,7 +155,8 @@ void regular_grid::expand_function_distance(const segment& seg) {
 				D = physim::math::dist(p, proj);
 			}
 			else {
-				D = std::min(physim::math::dist(p, s), physim::math::dist(p, t));
+				D = std::min(physim::math::dist(p, s),
+							 physim::math::dist(p, t));
 			}
 
 			grid_cells[get_global(cx,cy)] =
@@ -149,9 +178,30 @@ void regular_grid::make_final_state() {
 
 void regular_grid::find_path(
 	const vec2& source, const vec2& sink,
-	std::vector<vec2>& segs
+	float R, std::vector<vec2>& segs
 )
 {
+	const float lenX = dimX/resX;
+	const float lenY = dimY/resY;
+	const latticePoint start(
+		static_cast<int>(source.x/lenX),
+		static_cast<int>(source.y/lenY));
+	const latticePoint goal(
+		static_cast<int>(sink.x/lenX),
+		static_cast<int>(sink.y/lenY));
+
+	bool v[8] = {false,false,false,false,false,false,false,false};
+	latticePoint ns[8];
+
+	// came_from[i] = (cx,cy) <-> cell i is reached via cell (cx,cy)
+	//		remember that i-th cell can be obtained via division and modulus:
+	//		ix = i%resX
+	//		iy = i/resX
+	vector<latticePoint> came_from(resX*resY);
+
+	// length_so_far[i] = d <-> the length of the shortest path from
+	//		the source to the i-th cell is 'd'.
+	vector<float> length_so_far(resX*resY, 0.0f);
 
 }
 
