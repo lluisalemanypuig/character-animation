@@ -137,6 +137,7 @@ void regular_grid::expand_function_distance(const segment& seg) {
 }
 
 void regular_grid::make_final_state() {
+	max_dist = 0.0f;
 	for (size_t cy = 0; cy < resY; ++cy) {
 		for (size_t cx = 0; cx < resX; ++cx) {
 			max_dist = std::max(max_dist, grid_cells[get_global(cx,cy)]);
