@@ -20,7 +20,7 @@ typedef glm::vec3 gvec3;
 #include <physim/math/vec3.hpp>
 using namespace physim::init;
 using namespace physim::particles;
-using namespace physim::geom;
+using namespace physim::geometry;
 
 // charanim includes
 #include <render/include_gl.hpp>
