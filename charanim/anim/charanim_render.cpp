@@ -32,7 +32,7 @@ namespace charanim {
 	void base_render() {
 		/* draw particles/spheres/models of characters */
 		const vector<sized_particle *>& ps = S.get_sized_particles();
-		if (draw_base_spheres) {
+		if (draw_base_spheres and ps.size() > 0) {
 			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
 			glm::mat4 projection(1.0f), view(1.0f);
@@ -77,7 +77,7 @@ namespace charanim {
 			}
 		}
 
-		if (not draw_base_spheres) {
+		if (not draw_base_spheres and ps.size() > 0) {
 			glPointSize(3.0f);
 			glBegin(GL_POINTS);
 			glColor3f(0.0f,0.0f,1.0f);
