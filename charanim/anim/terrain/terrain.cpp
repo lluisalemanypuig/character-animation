@@ -42,6 +42,10 @@ const std::vector<segment>& terrain::get_segments() const {
 	return sgs;
 }
 
+path_finder *terrain::get_path_finder() {
+	return pf;
+}
+
 const path_finder *terrain::get_path_finder() const {
 	return pf;
 }
@@ -115,10 +119,10 @@ bool terrain::read_map(const string& filename) {
 	}
 
 	// make walls of the quadrilateral
-	segment wall1(vec2(-1,-1), vec2(dimX, -1));
-	segment wall2(vec2(-1,-1), vec2(-1, dimY));
-	segment wall3(vec2(dimX,-1), vec2(dimX, dimY));
-	segment wall4(vec2(-1,dimY), vec2(dimX, dimY));
+	segment wall1(vec2(0,0), vec2(dimX-1,0));
+	segment wall2(vec2(0,0), vec2(0, dimY-1));
+	segment wall3(vec2(dimX-1,0), vec2(dimX-1, dimY-1));
+	segment wall4(vec2(0,dimY-1), vec2(dimX-1, dimY-1));
 
 	if (pf_type == path_finder_type::regular_grid) {
 		if (not res_read) {
@@ -136,10 +140,10 @@ bool terrain::read_map(const string& filename) {
 		regular_grid *rg = static_cast<regular_grid *>(pf);
 		rg->init(resX, resY, dimX, dimY);
 		rg->init(sgs);
-		rg->expand_function_distance(wall1);
-		rg->expand_function_distance(wall2);
-		rg->expand_function_distance(wall3);
-		rg->expand_function_distance(wall4);
+		rg->expand_function_distance(segment(vec2(-1,-1), vec2(dimX, -1)));
+		rg->expand_function_distance(segment(vec2(-1,-1), vec2(-1, dimY)));
+		rg->expand_function_distance(segment(vec2(dimX,-1), vec2(dimX, dimY)));
+		rg->expand_function_distance(segment(vec2(-1,dimY), vec2(dimX, dimY)));
 
 		rg->make_final_state();
 	}
