@@ -37,7 +37,17 @@ namespace study_cases {
 	static terrain sim_00_T;
 
 	void sim_00_usage() {
-
+		cout << "Simulation 00: for map editing and inspection" << endl;
+		cout << endl;
+		cout << "Specify a map file as parameter to visualise it." << endl;
+		cout << "    --help : show the usage." << endl;
+		cout << "    --map f: specify map file." << endl;
+		cout << endl;
+		cout << "Keyboard keys:" << endl;
+		cout << "    h: show the usage" << endl;
+		cout << "    r: reset simulation" << endl;
+		cout << "    a: add segment. Input 4 values (two 2d points)" << endl;
+		cout << endl;
 	}
 
 	void render_regular_grid(const regular_grid *r) {
@@ -52,6 +62,13 @@ namespace study_cases {
 
 		const float lX = dX/rX;
 		const float lY = dY/rY;
+
+		glColor3f(0,1,0);
+		glBegin(GL_TRIANGLES);
+			glVertex3f(0.0f, 0.0f, 0.0f);
+			glVertex3f(5.0f, 0.0f, 0.0f);
+			glVertex3f(0.0f, 0.0f, 5.0f);
+		glEnd();
 
 		float col;
 		for (size_t cy = 0; cy < rY; ++cy) {
@@ -208,7 +225,7 @@ namespace study_cases {
 			glutInit(&_argc, _argv);
 			glutInitDisplayMode(GLUT_DEPTH | GLUT_DOUBLE | GLUT_RGBA);
 			glutInitWindowSize(width, height);
-			window_id = glutCreateWindow("Character animation - Map visualiser");
+			window_id = glutCreateWindow("Character animation - Map editor and visualiser");
 
 			GLenum err = glewInit();
 			if (err != 0) {
@@ -230,6 +247,32 @@ namespace study_cases {
 		return 0;
 	}
 
+	void add_segment() {
+		vec2 A, B;
+		cin >> A.x >> A.y >> B.x >> B.y;
+
+		segment s(A,B);
+		path_finder *pf = sim_00_T.get_path_finder();
+		if (pf->get_type() == path_finder_type::regular_grid) {
+			static_cast<regular_grid *>(pf)->rasterise_segment(s);
+			static_cast<regular_grid *>(pf)->expand_function_distance(s);
+		}
+
+		rplane *pl = new rplane();
+
+		glm_vec3 p1( A.x, 0.0f,  A.y);
+		glm_vec3 p2( B.x, 0.0f,  B.y);
+		glm_vec3 p3(p2.x, 2.0f, p2.z);
+		glm_vec3 p4(p1.x, 2.0f, p1.z);
+		pl->set_points(p1, p2, p3, p4);
+		geometry.push_back(pl);
+
+		V.get_box().enlarge_box(p1);
+		V.get_box().enlarge_box(p2);
+		V.get_box().enlarge_box(p3);
+		V.get_box().enlarge_box(p4);
+	}
+
 	void sim_00_regular_keys_keyboard(unsigned char c, int x, int y) {
 		charanim::regular_keys_keyboard(c, x, y);
 		switch (c) {
@@ -239,6 +282,9 @@ namespace study_cases {
 		case 'r':
 			exit_func();
 			charanim_00(false);
+			break;
+		case 'a':
+			add_segment();
 			break;
 		}
 	}
