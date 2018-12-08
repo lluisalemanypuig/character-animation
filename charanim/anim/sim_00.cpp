@@ -162,11 +162,16 @@ namespace study_cases {
 			}
 		}
 
-		if (map_file != "none") {
-			bool r = sim_00_T.read_map(map_file);
-			if (not r) {
-				return 1;
-			}
+		if (map_file == "none") {
+			cerr << "Error: no map file specified. Use" << endl;
+			cerr << "    ./anim 00 --help" << endl;
+			cerr << "to see the usage" << endl;
+			return 1;
+		}
+
+		bool r = sim_00_T.read_map(map_file);
+		if (not r) {
+			return 1;
 		}
 		return 0;
 	}
