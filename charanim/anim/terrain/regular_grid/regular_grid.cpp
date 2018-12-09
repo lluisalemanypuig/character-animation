@@ -221,7 +221,9 @@ void regular_grid::find_path(
 	};
 
 	priority_queue<node> Q;
-	Q.push(node(-0.0f, start));
+	Q.push(node(-0.0, start));
+	valid_cost[global(start.x(), start.y())] = true;
+	cost_so_far[global(start.x(), start.y())] = 0.0;
 	bool reached_goal = false;
 
 	while (not Q.empty() and not reached_goal) {
