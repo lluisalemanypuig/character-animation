@@ -16,10 +16,22 @@ namespace charanim {
 			latticePoint() : std::pair<int,int>() {}
 			latticePoint(int x, int y) : std::pair<int,int>(x,y) {}
 			~latticePoint() {}
-			int x() const { return first; }
-			int& x() { return first; }
-			int y() const { return second; }
-			int& y() { return second; }
+			inline int x() const { return first; }
+			inline int& x() { return first; }
+			inline int y() const { return second; }
+			inline int& y() { return second; }
+			inline bool operator< (const latticePoint& lp) const {
+				if (x() == lp.x()) {
+					return y() < lp.y();
+				}
+				return x() < lp.x();
+			}
+			inline bool operator== (const latticePoint& lp) const {
+				return (x() == lp.x()) and (y() == lp.y());
+			}
+			inline bool operator!= (const latticePoint& lp) const {
+				return (x() != lp.x()) or (y() != lp.y());
+			}
 	};
 
 

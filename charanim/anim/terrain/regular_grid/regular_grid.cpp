@@ -4,7 +4,9 @@
 #include <stdlib.h>
 
 // C++ includes
-#include <iomanip>
+#include <algorithm>
+#include <utility>
+#include <queue>
 using namespace std;
 
 // physim includes
@@ -23,17 +25,34 @@ namespace charanim {
 	(((std::min(s.x, t.x) <= p.x) and (p.x <= std::max(s.x,t.x))) and	\
 	 ((std::min(s.y, t.y) <= p.y) and (p.y <= std::max(s.y,t.y))))
 
-#define l2(x1,y1, x2,y2) std::sqrt((x2 - x1)*(x2 - x1) + (y2 - y1)*(y2 - y1))
+#define charanim_l1(x1,y1, x2,y2) std::abs(x2 - x1) + std::abs(y2 - y1)
+#define l1(c1, c2) charanim_l1(c1.x(), c1.y(), c2.x(), c2.y())
+#define charanim_l2(x1,y1, x2,y2) std::sqrt((x2 - x1)*(x2 - x1) + (y2 - y1)*(y2 - y1))
+#define l2(c1, c2) charanim_l2(c1.x(), c1.y(), c2.x(), c2.y())
 
 // PRIVATE
 
-#define make_neighbour(i, cx, cy)							\
-	if (grid_cells[get_global(cx,cy)] < R) {				\
-		v[i] = true; ns[i].x() = cx; ns[i].y() = cy; ++i;	\
+#define make_neighbour(i, cx, cy)				\
+	if (grid_cells[get_global(cx,cy)] >= R) {	\
+		ns[i].x() = cx; ns[i].y() = cy; ++i;	\
 	}
 
-void regular_grid::make_neighbours
-(const latticePoint& p, float R, bool v[8], latticePoint ns[8]) const
+latticePoint regular_grid::from_vec2_to_latPoint(const vec2& v) const {
+	int px = static_cast<int>(v.x/lenX);
+	int py = static_cast<int>(v.y/lenY);
+	return latticePoint(px,py);
+}
+
+vec2 regular_grid::from_latPoint_to_vec2(const latticePoint& v) const {
+	return vec2(lenX*v.x() + lenX/2.0f, lenY*v.y() + lenY/2.0f);
+}
+
+vec2 regular_grid::from_latPoint_to_vec2(size_t x, size_t y) const {
+	return vec2(lenX*x + lenX/2.0f, lenY*y + lenY/2.0f);
+}
+
+size_t regular_grid::make_neighbours
+(const latticePoint& p, float R, latticePoint ns[8]) const
 {
 	size_t it = 0;
 	int _resX = static_cast<int>(resX);
@@ -53,6 +72,8 @@ void regular_grid::make_neighbours
 		make_neighbour(it, p.x(), p.y() + 1)
 		if (p.x() < _resX) { make_neighbour(it, p.x() + 1, p.y() + 1) }
 	}
+
+	return it;
 }
 
 // PUBLIC
@@ -75,6 +96,8 @@ void regular_grid::init(size_t cellsx, size_t cellsy, float dx, float dy) {
 	resY = cellsy;
 	dimX = dx;
 	dimY = dy;
+	lenX = dimX/resX;
+	lenY = dimY/resY;
 	max_dist = 0.0f;
 	grid_cells = static_cast<float *>(malloc(resX*resY*sizeof(float)));
 	for (size_t i = 0; i < resX*resY; ++i) {
@@ -100,22 +123,15 @@ void regular_grid::clear() {
 }
 
 void regular_grid::rasterise_segment(const segment& seg) {
-	const float lenX = dimX/resX;
-	const float lenY = dimY/resY;
-
 	/* ------------------------------- */
 	/* rasterise segment into the grid */
 	ray_rasterize_4_way ray;
 
 	const vec2& s = seg.first;
-	int px = static_cast<int>(s.x/lenX);
-	int py = static_cast<int>(s.y/lenY);
 	const vec2& t = seg.second;
-	int qx = static_cast<int>(t.x/lenX);
-	int qy = static_cast<int>(t.y/lenY);
 
-	latticePoint lP(px,py);
-	latticePoint lQ(qx,qy);
+	latticePoint lP = from_vec2_to_latPoint(s);
+	latticePoint lQ = from_vec2_to_latPoint(t);
 
 	// rasterise the line and set '0' to its grid cells
 	ray.init(lP, lQ);
@@ -129,8 +145,6 @@ void regular_grid::rasterise_segment(const segment& seg) {
 }
 
 void regular_grid::expand_function_distance(const segment& seg) {
-	const float lenX = dimX/resX;
-	const float lenY = dimY/resY;
 	const vec2& s = seg.first;
 	const vec2& t = seg.second;
 
@@ -143,7 +157,7 @@ void regular_grid::expand_function_distance(const segment& seg) {
 
 			// projection of point (cx, cy) onto line
 			// through the segment
-			vec2 p(lenX*cx + lenX/2.0f, lenY*cy + lenY/2.0f);
+			vec2 p = from_latPoint_to_vec2(cx,cy);
 			vec2 sp = p - s;
 			float l0 = ((physim::math::dot(sp,u))/uu);
 			vec2 proj = s + u*l0;
@@ -181,28 +195,93 @@ void regular_grid::find_path(
 	float R, std::vector<vec2>& segs
 )
 {
-	const float lenX = dimX/resX;
-	const float lenY = dimY/resY;
-	const latticePoint start(
-		static_cast<int>(source.x/lenX),
-		static_cast<int>(source.y/lenY));
-	const latticePoint goal(
-		static_cast<int>(sink.x/lenX),
-		static_cast<int>(sink.y/lenY));
+	typedef double pct;
+	typedef pair<pct, latticePoint> node;
+	const latticePoint start = from_vec2_to_latPoint(source);
+	const latticePoint goal = from_vec2_to_latPoint(sink);
 
-	bool v[8] = {false,false,false,false,false,false,false,false};
 	latticePoint ns[8];
 
-	// came_from[i] = (cx,cy) <-> cell i is reached via cell (cx,cy)
-	//		remember that i-th cell can be obtained via division and modulus:
-	//		ix = i%resX
-	//		iy = i/resX
-	vector<latticePoint> came_from(resX*resY);
+	// came_from[i] = (cx,cy) <-> cell i is reached via cell (cx,cy).
+	vector<latticePoint> came_from(resX*resY, latticePoint(0,0));
+	// cost_so_far[i] = d <-> cell i is reached with cost d.
+	vector<pct> cost_so_far(resX*resY, numeric_limits<pct>::max());
+	// seen[i] = true <-> cell i has been visited at some point.
+	vector<bool> seen(resX*resY, false);
 
-	// length_so_far[i] = d <-> the length of the shortest path from
-	//		the source to the i-th cell is 'd'.
-	vector<float> length_so_far(resX*resY, 0.0f);
+	// function to estimate the cost of going from a
+	// cell 'C' to another cell 'G'
+	auto heuristic =
+	[](const latticePoint& cell, const latticePoint& G) {
+		return l2(cell, G);
+	};
 
+	priority_queue<node> Q;
+	Q.push(node(-0.0f, start));
+
+	bool reached_goal = false;
+	while (not Q.empty() and not reached_goal) {
+		node top = Q.top();
+		Q.pop();
+
+		cout << "Current cell: "
+			 << top.second.x() << "," << top.second.y()
+			 << endl;
+
+		// if we have reached the goal then
+		// go to the end of the while loop
+		if (top.second == goal) {
+			cout << "    reached goal" << endl;
+			reached_goal = true;
+			continue;
+		}
+
+		pct cur_cost = -top.first;
+		assert(cur_cost >= static_cast<pct>(0.0));
+		const latticePoint& cur_cell = top.second;
+
+		// obtain the valid neighbours around the current cell
+		size_t n = make_neighbours(cur_cell, R, ns);
+
+		// iterate through the neighbours and add them
+		// to the priority queue if needed
+		for (size_t i = 0; i < n; ++i) {
+			const latticePoint& neigh = ns[i];
+			size_t neigh_idx = get_global(neigh.x(), neigh.y());
+
+			pct new_cost =
+				cur_cost +				// cost of going from start to current cell
+				l1(cur_cell, ns[i]);	// cost of going from current cell to neighbour
+
+			if (not seen[neigh_idx] or new_cost < cost_so_far[neigh_idx]) {
+
+				seen[neigh_idx] = true;
+				cost_so_far[neigh_idx] = new_cost;
+				came_from[neigh_idx] = cur_cell;
+
+				// approximate cost of going from the
+				// neighbour to the goal.
+				pct H = heuristic(neigh, goal);
+				// actual priority of neighbour
+				pct priority = new_cost + H;
+				// add to queue
+				Q.push(node(-priority, neigh));
+			}
+		}
+	}
+
+	cout << "Making path..." << endl;
+
+	latticePoint lp = goal;
+	while (seen[get_global(lp.x(), lp.y())] and lp != start) {
+		cout << lp.x() << "," << lp.y() << endl;
+		segs.push_back(from_latPoint_to_vec2(lp));
+		lp = came_from[get_global(lp.x(), lp.y())];
+	}
+
+	cout << "reversing..." << endl;
+
+	std::reverse(segs.begin(), segs.end());
 }
 
 path_finder_type regular_grid::get_type() const {
@@ -232,16 +311,5 @@ float regular_grid::get_max_dist() const {
 }
 
 // OTHERS
-
-void regular_grid::inspect() {
-	cout.setf(ios::fixed);
-	cout.precision(2);
-	for (size_t i = 0; i < resY; ++i) {
-		for (size_t j = 0; j < resX; ++j) {
-			cout << setw(5) << grid_cells[get_global(j,i)] << " ";
-		}
-		cout << endl;
-	}
-}
 
 } // -- namespace charanim

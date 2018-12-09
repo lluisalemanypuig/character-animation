@@ -36,19 +36,33 @@ class regular_grid : public path_finder {
 		/// Continuous dimension in the y-axis
 		float dimY;
 
+		/// Length of every cell in the x-axis.
+		float lenX;
+		/// Length of every cell in the y-axis.
+		float lenY;
+
 		/// Maximum value in the cells.
 		float max_dist;
+
+	private:
+
+		/// Convert a vec2 to a lattice point.
+		latticePoint from_vec2_to_latPoint(const vec2& v) const;
+		/// Convert a lattice point to a vec2.
+		vec2 from_latPoint_to_vec2(const latticePoint& v) const;
+		/// Convert a lattice point to a vec2.
+		vec2 from_latPoint_to_vec2(size_t x, size_t y) const;
 
 		/**
 		 * @brief Finds the (at most) 8 neighbours of the grid cell p.
 		 * @param[in] p A valid grid cell.
 		 * @param[in] R The minimum distance between a neighbour and the
 		 * closest obstacle.
-		 * @param[out] n Validity of each neighbour.
 		 * @param[out] ns Valid neighbouring grid cells.
+		 * @return Returns the amount of valid neighbours in @e ns.
 		 */
-		void make_neighbours
-		(const latticePoint& p, float R, bool v[8], latticePoint ns[8]) const;
+		size_t make_neighbours
+		(const latticePoint& p, float R, latticePoint ns[8]) const;
 
 	public:
 		/// Default constructor.
@@ -114,9 +128,6 @@ class regular_grid : public path_finder {
 		float get_max_dist() const;
 
 		// OTHERS
-
-		/// Prints to standard output the contents of the grid.
-		void inspect();
 };
 
 } // -- namespace charanim

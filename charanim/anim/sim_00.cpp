@@ -35,6 +35,8 @@ namespace charanim {
 namespace study_cases {
 
 	static terrain sim_00_T;
+	static vec2 sim_00_start, sim_00_goal;
+	static vector<vec2> sim_00_a_star_path;
 
 	void sim_00_usage() {
 		cout << "Simulation 00: for map editing and inspection" << endl;
@@ -44,9 +46,10 @@ namespace study_cases {
 		cout << "    --map f: specify map file." << endl;
 		cout << endl;
 		cout << "Keyboard keys:" << endl;
-		cout << "    h: show the usage" << endl;
-		cout << "    r: reset simulation" << endl;
-		cout << "    a: add segment. Input 4 values (two 2d points)" << endl;
+		cout << "    h: show the usage." << endl;
+		cout << "    r: reset simulation." << endl;
+		cout << "    a: add segment." << endl;
+		cout << "    p: find path between two 2d points." << endl;
 		cout << endl;
 	}
 
@@ -63,11 +66,11 @@ namespace study_cases {
 		const float lX = dX/rX;
 		const float lY = dY/rY;
 
-		glColor3f(0,1,0);
+		glColor3f(1.0f,1.0f,0.0f);
 		glBegin(GL_TRIANGLES);
-			glVertex3f(0.0f, 0.0f, 0.0f);
-			glVertex3f(5.0f, 0.0f, 0.0f);
-			glVertex3f(0.0f, 0.0f, 5.0f);
+			glVertex3f(0.0f, 0.5f, 0.0f);
+			glVertex3f(5.0f, 0.5f, 0.0f);
+			glVertex3f(0.0f, 0.5f, 5.0f);
 		glEnd();
 
 		float col;
@@ -104,6 +107,18 @@ namespace study_cases {
 				}
 
 			}
+		}
+
+		if (sim_00_a_star_path.size() > 1) {
+			glBegin(GL_LINES);
+			glColor3f(0.0f, 1.0f, 0.0f);
+			for (size_t i = 0; i < sim_00_a_star_path.size() - 1; ++i) {
+				const vec2& p = sim_00_a_star_path[i];
+				const vec2& q = sim_00_a_star_path[i + 1];
+				glVertex3f(p.x, 1.0f, p.y);
+				glVertex3f(q.x, 1.0f, q.y);
+			}
+			glEnd();
 		}
 	}
 
@@ -249,15 +264,18 @@ namespace study_cases {
 		return 0;
 	}
 
+#define input_2_points(p,q)					\
+	cout << "Input two points:" << endl;	\
+	cout << "    Point A:" << endl;			\
+	cout << "        x:"; cin >> p.x;		\
+	cout << "        y:"; cin >> p.y;		\
+	cout << "    Point B:" << endl;			\
+	cout << "        x:"; cin >> q.x;		\
+	cout << "        y:"; cin >> q.y;
+
 	void add_segment() {
 		vec2 A, B;
-		cout << "Input two points:" << endl;
-		cout << "    Point A:" << endl;
-		cout << "    x:"; cin >> A.x;
-		cout << "    y:"; cin >> A.y;
-		cout << "    Point B:" << endl;
-		cout << "    x:"; cin >> B.x;
-		cout << "    y:"; cin >> B.y;
+		input_2_points(A,B);
 
 		segment s(A,B);
 		path_finder *pf = sim_00_T.get_path_finder();
@@ -283,6 +301,21 @@ namespace study_cases {
 		V.get_box().enlarge_box(p4);
 	}
 
+	void compute_path() {
+		input_2_points(sim_00_start,sim_00_goal);
+		float R;
+		cout << "Input radius: "; cin >> R;
+
+		path_finder *pf = sim_00_T.get_path_finder();
+
+		timing::time_point begin = timing::now();
+		pf->find_path(sim_00_start, sim_00_goal, R, sim_00_a_star_path);
+		timing::time_point end = timing::now();
+
+		cout << "Path computed in " << timing::elapsed_seconds(begin, end)
+			 << " seconds" << endl;
+	}
+
 	void sim_00_regular_keys_keyboard(unsigned char c, int x, int y) {
 		charanim::regular_keys_keyboard(c, x, y);
 		switch (c) {
@@ -295,6 +328,9 @@ namespace study_cases {
 			break;
 		case 'a':
 			add_segment();
+			break;
+		case 'p':
+			compute_path();
 			break;
 		}
 	}
