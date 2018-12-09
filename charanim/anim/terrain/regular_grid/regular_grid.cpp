@@ -195,7 +195,12 @@ void regular_grid::find_path(
 )
 {
 	/* This algorithm can be optimised a lot but I'm
-	 * running out of time...
+	 * running out of time. For example, the priority queue
+	 * can be optimised to have a single instance of each node
+	 * (identified by lattice point). To do this we would have
+	 * to change a node's priority and remake the heap, instead
+	 * of adding it again with a different priority (as it is
+	 * done now).
 	 */
 
 	typedef double pct;
@@ -216,8 +221,8 @@ void regular_grid::find_path(
 	// function to estimate the cost of going from a
 	// cell 'C' to another cell 'G'
 	auto heuristic =
-	[](const latticePoint& cell, const latticePoint& G) {
-		return l2(cell, G);
+	[&](const latticePoint& cell) {
+		return l2(cell, goal);
 	};
 
 	priority_queue<node> Q;
@@ -264,7 +269,7 @@ void regular_grid::find_path(
 
 				// approximate cost of going from the
 				// neighbour to the goal.
-				pct H = heuristic(neigh, goal);
+				pct H = heuristic(neigh);
 				// actual priority of neighbour
 				pct priority = new_cost + H;
 				// add to queue
@@ -273,16 +278,11 @@ void regular_grid::find_path(
 		}
 	}
 
-	cout << "Making path..." << endl;
-
 	latticePoint lp = goal;
 	while (lp != start) {
 		segs.push_back(from_latPoint_to_vec2(lp));
 		lp = came_from[global(lp.x(), lp.y())];
 	}
-
-	cout << "reversing..." << endl;
-
 	std::reverse(segs.begin(), segs.end());
 }
 
