@@ -37,6 +37,8 @@ namespace study_cases {
 	static terrain sim_00_T;
 	static vec2 sim_00_start, sim_00_goal;
 	static vector<vec2> sim_00_a_star_path;
+	static bool sim_00_dist_func = false;
+	static bool sim_00_grid = false;
 
 	void sim_00_usage() {
 		cout << "Simulation 00: for map editing and inspection" << endl;
@@ -50,6 +52,8 @@ namespace study_cases {
 		cout << "    r: reset simulation." << endl;
 		cout << "    a: add segment." << endl;
 		cout << "    p: find path between two 2d points." << endl;
+		cout << "    d: render distance function for obstacle avoidance" << endl;
+		cout << "    g: render grid for path finding" << endl;
 		cout << endl;
 	}
 
@@ -73,39 +77,55 @@ namespace study_cases {
 			glVertex3f(0.0f, 0.5f, 5.0f);
 		glEnd();
 
-		float col;
-		for (size_t cy = 0; cy < rY; ++cy) {
-			for (size_t cx = 0; cx < rX; ++cx) {
-				if (cy + 1 < rY and cx + 1 < rX) {
-					// draw triangles
-					glBegin(GL_TRIANGLES);
-						col = cells[cy*rX + cx]/max_dist;
-						glColor3f(col,col,col);
-						glVertex3f(cx*lX, 0.0f, cy*lY);
+		if (sim_00_grid) {
+			glBegin(GL_LINES);
+			glColor3f(0.0f, 0.0f, 0.0f);
+			for (size_t x = 0; x < rX; ++x) {
+				for (size_t y = 0; y < rY; ++y) {
+					glVertex3f(x*lX, 0.1f, 0.0f);
+					glVertex3f(x*lX, 0.1f, dY);
 
-						col = cells[cy*rX + cx + 1]/max_dist;
-						glColor3f(col,col,col);
-						glVertex3f((cx + 1)*lX, 0.0f, cy*lY);
-
-						col = cells[(cy + 1)*rX + cx + 1]/max_dist;
-						glColor3f(col,col,col);
-						glVertex3f((cx + 1)*lX, 0.0f, (cy + 1)*lY);
-					glEnd();
-					glBegin(GL_TRIANGLES);
-						col = cells[cy*rX + cx]/max_dist;
-						glColor3f(col,col,col);
-						glVertex3f(cx*lX, 0.0f, cy*lY);
-
-						col = cells[(cy + 1)*rX + cx + 1]/max_dist;
-						glColor3f(col,col,col);
-						glVertex3f((cx + 1)*lX, 0.0f, (cy + 1)*lY);
-
-						col = cells[(cy + 1)*rX + cx]/max_dist;
-						glColor3f(col,col,col);
-						glVertex3f(cx*lX, 0.0f, (cy + 1)*lY);
-					glEnd();
+					glVertex3f(0.0f, 0.1f, y*lY);
+					glVertex3f(dX, 0.1f, y*lY);
 				}
+			}
+			glEnd();
+		}
 
+		if (sim_00_dist_func) {
+			float col;
+			for (size_t cy = 0; cy < rY; ++cy) {
+				for (size_t cx = 0; cx < rX; ++cx) {
+					if (cy + 1 < rY and cx + 1 < rX) {
+						// draw triangles
+						glBegin(GL_TRIANGLES);
+							col = cells[cy*rX + cx]/max_dist;
+							glColor3f(col,col,col);
+							glVertex3f(cx*lX, 0.0f, cy*lY);
+
+							col = cells[cy*rX + cx + 1]/max_dist;
+							glColor3f(col,col,col);
+							glVertex3f((cx + 1)*lX, 0.0f, cy*lY);
+
+							col = cells[(cy + 1)*rX + cx + 1]/max_dist;
+							glColor3f(col,col,col);
+							glVertex3f((cx + 1)*lX, 0.0f, (cy + 1)*lY);
+						glEnd();
+						glBegin(GL_TRIANGLES);
+							col = cells[cy*rX + cx]/max_dist;
+							glColor3f(col,col,col);
+							glVertex3f(cx*lX, 0.0f, cy*lY);
+
+							col = cells[(cy + 1)*rX + cx + 1]/max_dist;
+							glColor3f(col,col,col);
+							glVertex3f((cx + 1)*lX, 0.0f, (cy + 1)*lY);
+
+							col = cells[(cy + 1)*rX + cx]/max_dist;
+							glColor3f(col,col,col);
+							glVertex3f(cx*lX, 0.0f, (cy + 1)*lY);
+						glEnd();
+					}
+				}
 			}
 		}
 
@@ -125,6 +145,26 @@ namespace study_cases {
 	void sim_00_render() {
 		glClearColor(bgd_color.x, bgd_color.y, bgd_color.z, 1.0);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+		// no shader for all
+		glMatrixMode(GL_PROJECTION);
+		glLoadIdentity();
+		V.apply_projection();
+
+		glMatrixMode(GL_MODELVIEW);
+		glLoadIdentity();
+		V.apply_view();
+
+		glTranslatef(move_x, 0.0f, move_z);
+
+		glBegin(GL_LINES);
+			glColor3f(0.0f, 1.0f, 0.0f);
+			glVertex3f(-200.0f, 0.0f,    0.0f);
+			glVertex3f( 200.0f, 0.0f,    0.0f);
+			glColor3f(1.0f, 0.0f, 0.0f);
+			glVertex3f(   0.0f, 0.0f, -200.0f);
+			glVertex3f(   0.0f, 0.0f,  200.0f);
+		glEnd();
 
 		base_render();
 
@@ -155,7 +195,7 @@ namespace study_cases {
 			sec = timing::now();
 		}
 
-		glutTimerFunc(1000.0f/FPS, sim_00_timed_refresh, v);
+		glutTimerFunc(1000/FPS, sim_00_timed_refresh, v);
 	}
 
 	void sim_00_init_geometry() {
@@ -222,6 +262,8 @@ namespace study_cases {
 		special_key_pressed = latticePoint(0,0);
 		regular_key_pressed = latticePoint(0,0);
 
+		move_x = 0.0f;
+		move_z = 0.0f;
 		bgd_color = glm::vec3(0.8f,0.8f,0.8f);
 
 		FPS = 60;
@@ -229,6 +271,7 @@ namespace study_cases {
 		display_fps = false;
 		sec = timing::now();
 
+		window_id = -1;
 		draw_base_spheres = false;
 
 		/* PARSE ARGUMENTS */
@@ -319,19 +362,12 @@ namespace study_cases {
 	void sim_00_regular_keys_keyboard(unsigned char c, int x, int y) {
 		charanim::regular_keys_keyboard(c, x, y);
 		switch (c) {
-		case 'h':
-			sim_00_usage();
-			break;
-		case 'r':
-			exit_func();
-			charanim_00(false);
-			break;
-		case 'a':
-			add_segment();
-			break;
-		case 'p':
-			compute_path();
-			break;
+		case 'h': sim_00_usage(); break;
+		case 'r':  exit_func(); charanim_00(false); break;
+		case 'a': add_segment(); break;
+		case 'p': compute_path(); break;
+		case 'd': sim_00_dist_func = not sim_00_dist_func; break;
+		case 'g': sim_00_grid = not sim_00_grid; break;
 		}
 	}
 

@@ -49,8 +49,8 @@ namespace charanim {
 	extern glm::vec3 bgd_color;
 
 	/* animation control variables */
-	extern int FPS;
-	extern int fps_count;
+	extern unsigned int FPS;
+	extern unsigned int fps_count;
 	extern bool display_fps;
 	extern timing::time_point sec;
 
@@ -58,6 +58,9 @@ namespace charanim {
 
 	/* view control */
 	extern viewer V;
+	extern float move_x;
+	extern float move_z;
+	/* geometry (planes, triangles, rectangles, ...) */
 	extern std::vector<rgeom *> geometry;
 	/* sphere mesh */
 	extern rendered_triangle_mesh *sphere;

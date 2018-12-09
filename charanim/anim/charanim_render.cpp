@@ -21,6 +21,15 @@ using namespace physim::particles;
 
 namespace charanim {
 
+	static const double PI_1_4 = 1.0/4.0*M_PI;
+	static const double PI_1_2 = 1.0/2.0*M_PI;
+	static const double PI_3_4 = 3.0/4.0*M_PI;
+	static const double PI_1_1 = M_PI;
+	static const double PI_5_4 = 5.0/4.0*M_PI;
+	static const double PI_3_2 = 3.0/2.0*M_PI;
+	static const double PI_7_4 = 7.0/4.0*M_PI;
+	static const double PI_2_1 = 2.0*M_PI;
+
 	static inline
 	bool inside_window(int x, int y) {
 		int w = V.window_width();
@@ -38,6 +47,7 @@ namespace charanim {
 			glm::mat4 projection(1.0f), view(1.0f);
 			V.make_projection_matrix(projection);
 			V.make_view_matrix(view);
+			view = glm::translate(view, glm::vec3(move_x, 0.0f, move_z));
 
 			flat_shader.bind();
 			flat_shader.set_vec3("view_pos", glm::vec3(0.f,0.f,0.f));
@@ -58,15 +68,6 @@ namespace charanim {
 
 			flat_shader.release();
 		}
-
-		// no shader for all
-		glMatrixMode(GL_PROJECTION);
-		glLoadIdentity();
-		V.apply_projection();
-
-		glMatrixMode(GL_MODELVIEW);
-		glLoadIdentity();
-		V.apply_view();
 
 		/* draw walls and stuff */
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
@@ -95,6 +96,17 @@ namespace charanim {
 		for (int i = 0; i < 10; ++i) {
 			S.apply_time_step();
 		}
+
+		// no shader for all
+		glMatrixMode(GL_PROJECTION);
+		glLoadIdentity();
+		V.apply_projection();
+
+		glMatrixMode(GL_MODELVIEW);
+		glLoadIdentity();
+		V.apply_view();
+
+		glTranslatef(move_x, 0.0f, move_z);
 
 		base_render();
 
@@ -167,14 +179,56 @@ namespace charanim {
 		int dy = y - last_mouse_moved.y();
 		last_mouse_moved = latticePoint(x,y);
 
+		double fov_deg = static_cast<double>(V.get_perspective_camera().get_FOV());
+		double fov_rad = (M_PI/180.0)*fov_deg;
+		double F = std::cos(fov_rad/2.0)/2.0;
+
+		double psi_rad = (M_PI/180.0)*static_cast<double>(V.get_psi());
+		if (psi_rad < 0.0) {
+			psi_rad += 2*M_PI;
+		}
+		psi_rad = 2*M_PI - psi_rad;
+
 		if (mouse_button == GLUT_LEFT_BUTTON) {
-			if (V.is_inspecting()) {
-				V.increment_psi(-0.3f*dx);
-				V.increment_theta(0.3f*dy);
-			}
+			V.increment_psi(-F*dx);
+			V.increment_theta(F*dy);
 		}
 		else if (mouse_button == GLUT_RIGHT_BUTTON) {
-			V.increment_zoom(0.75f*dy);
+			V.increment_zoom(F*dy);
+		}
+		else if (mouse_button == GLUT_MIDDLE_BUTTON) {
+			if (0 <= psi_rad and psi_rad < PI_1_4) {
+				move_x += F*dx;
+				move_z += F*dy;
+			}
+			else if (PI_1_4 <= psi_rad and psi_rad < PI_1_2) {
+				move_x -= F*dy;
+				move_z += F*dx;
+			}
+			else if (PI_1_2 <= psi_rad and psi_rad < PI_3_4) {
+				move_x -= F*dy;
+				move_z += F*dx;
+			}
+			else if (PI_3_4 <= psi_rad and psi_rad < PI_1_1) {
+				move_x -= F*dx;
+				move_z -= F*dy;
+			}
+			else if (PI_1_1 <= psi_rad and psi_rad < PI_5_4) {
+				move_x -= F*dx;
+				move_z -= F*dy;
+			}
+			else if (PI_5_4 <= psi_rad and psi_rad < PI_3_2) {
+				move_x += F*dy;
+				move_z -= F*dx;
+			}
+			else if (PI_3_2 <= psi_rad and psi_rad < PI_7_4) {
+				move_x += F*dy;
+				move_z -= F*dx;
+			}
+			else if (PI_7_4 <= psi_rad and psi_rad < PI_2_1) {
+				move_x += F*dx;
+				move_z += F*dy;
+			}
 		}
 	}
 
