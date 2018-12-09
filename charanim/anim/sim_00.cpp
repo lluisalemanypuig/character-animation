@@ -121,7 +121,9 @@ namespace study_cases {
 			);
 		}
 
-		glutSwapBuffers();
+		if (window_id != -1) {
+			glutSwapBuffers();
+		}
 	}
 
 	void sim_00_timed_refresh(int v) {

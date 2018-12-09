@@ -98,7 +98,9 @@ namespace charanim {
 
 		base_render();
 
-		glutSwapBuffers();
+		if (window_id != -1) {
+			glutSwapBuffers();
+		}
 	}
 
 	void timed_refresh(int v) {
@@ -136,6 +138,7 @@ namespace charanim {
 		texture_shader.clear();
 
 		S.clear_simulation();
+		window_id = -1;
 	}
 
 	void special_keys_keyboard(int key, int x, int y) {
