@@ -36,9 +36,14 @@ namespace study_cases {
 
 	static terrain sim_00_T;
 	static vec2 sim_00_start, sim_00_goal;
+	static double sim_00_R;
 	static vector<vec2> sim_00_a_star_path;
-	static bool sim_00_dist_func = false;
-	static bool sim_00_grid = false;
+
+	static bool sim_00_render_dist_func = false;
+	static bool sim_00_render_grid = false;
+	static bool sim_00_render_circles = false;
+
+	static GLUquadric *sim_00_disk = nullptr;
 
 	void sim_00_usage() {
 		cout << "Simulation 00: for map editing and inspection" << endl;
@@ -52,6 +57,7 @@ namespace study_cases {
 		cout << "    r: reset simulation." << endl;
 		cout << "    a: add segment." << endl;
 		cout << "    p: find path between two 2d points." << endl;
+		cout << "    c: render circles around path vertices." << endl;
 		cout << "    d: render distance function for obstacle avoidance" << endl;
 		cout << "    g: render grid for path finding" << endl;
 		cout << endl;
@@ -77,7 +83,7 @@ namespace study_cases {
 			glVertex3f(0.0f, 0.5f, 5.0f);
 		glEnd();
 
-		if (sim_00_grid) {
+		if (sim_00_render_grid) {
 			glBegin(GL_LINES);
 			glColor3f(0.0f, 0.0f, 0.0f);
 			for (size_t x = 0; x < rX; ++x) {
@@ -91,8 +97,17 @@ namespace study_cases {
 			}
 			glEnd();
 		}
+		else {
+			glColor3f(0.0f,0.0f,0.0f);
+			glBegin(GL_QUADS);
+				glVertex3f(0.0f, 0.0f, 0.0f);
+				glVertex3f(dX, 0.0f, 0.0f);
+				glVertex3f(dX, 0.0f, dY);
+				glVertex3f(0.0f, 0.0f, dY);
+			glEnd();
+		}
 
-		if (sim_00_dist_func) {
+		if (sim_00_render_dist_func) {
 			float col;
 			for (size_t cy = 0; cy < rY; ++cy) {
 				for (size_t cx = 0; cx < rX; ++cx) {
@@ -128,18 +143,6 @@ namespace study_cases {
 				}
 			}
 		}
-
-		if (sim_00_a_star_path.size() > 1) {
-			glBegin(GL_LINES);
-			glColor3f(0.0f, 1.0f, 0.0f);
-			for (size_t i = 0; i < sim_00_a_star_path.size() - 1; ++i) {
-				const vec2& p = sim_00_a_star_path[i];
-				const vec2& q = sim_00_a_star_path[i + 1];
-				glVertex3f(p.x, 1.0f, p.y);
-				glVertex3f(q.x, 1.0f, q.y);
-			}
-			glEnd();
-		}
 	}
 
 	void sim_00_render() {
@@ -157,15 +160,6 @@ namespace study_cases {
 
 		glTranslatef(move_x, 0.0f, move_z);
 
-		glBegin(GL_LINES);
-			glColor3f(0.0f, 1.0f, 0.0f);
-			glVertex3f(-200.0f, 0.0f,    0.0f);
-			glVertex3f( 200.0f, 0.0f,    0.0f);
-			glColor3f(1.0f, 0.0f, 0.0f);
-			glVertex3f(   0.0f, 0.0f, -200.0f);
-			glVertex3f(   0.0f, 0.0f,  200.0f);
-		glEnd();
-
 		base_render();
 
 		// render path finder (on the xy plane)
@@ -174,6 +168,29 @@ namespace study_cases {
 			render_regular_grid(
 				static_cast<const regular_grid *>(pf)
 			);
+		}
+
+		if (sim_00_a_star_path.size() > 1) {
+			glBegin(GL_LINES);
+			glColor3f(1.0f, 0.0f, 0.0f);
+			for (size_t i = 0; i < sim_00_a_star_path.size() - 1; ++i) {
+				const vec2& p = sim_00_a_star_path[i];
+				const vec2& q = sim_00_a_star_path[i + 1];
+				glVertex3f(p.x, 1.0f, p.y);
+				glVertex3f(q.x, 1.0f, q.y);
+			}
+			glEnd();
+			if (sim_00_render_circles) {
+				glColor3f(0.0f, 1.0f, 0.0f);
+				for (size_t i = 0; i < sim_00_a_star_path.size() - 1; ++i) {
+					const vec2& p = sim_00_a_star_path[i];
+					glPushMatrix();
+						glTranslatef(p.x, 1.0f, p.y);
+						glRotatef(-90.0f, 1.0f,0.0f,0.0f);
+						gluDisk(sim_00_disk, sim_00_R - 0.1, sim_00_R, 20, 20);
+					glPopMatrix();
+				}
+			}
 		}
 
 		if (window_id != -1) {
@@ -346,13 +363,16 @@ namespace study_cases {
 
 	void compute_path() {
 		input_2_points(sim_00_start,sim_00_goal);
-		float R;
-		cout << "Input radius: "; cin >> R;
+		cout << "Input radius: "; cin >> sim_00_R;
 
+		if (sim_00_disk == nullptr) {
+			sim_00_disk = gluNewQuadric();
+		}
+
+		sim_00_a_star_path.clear();
 		path_finder *pf = sim_00_T.get_path_finder();
-
 		timing::time_point begin = timing::now();
-		pf->find_path(sim_00_start, sim_00_goal, R, sim_00_a_star_path);
+		pf->find_path(sim_00_start, sim_00_goal, sim_00_R, sim_00_a_star_path);
 		timing::time_point end = timing::now();
 
 		cout << "Path computed in " << timing::elapsed_seconds(begin, end)
@@ -366,8 +386,17 @@ namespace study_cases {
 		case 'r':  exit_func(); charanim_00(false); break;
 		case 'a': add_segment(); break;
 		case 'p': compute_path(); break;
-		case 'd': sim_00_dist_func = not sim_00_dist_func; break;
-		case 'g': sim_00_grid = not sim_00_grid; break;
+		case 'c': sim_00_render_circles = not sim_00_render_circles; break;
+		case 'd': sim_00_render_dist_func = not sim_00_render_dist_func; break;
+		case 'g': sim_00_render_grid = not sim_00_render_grid; break;
+		}
+	}
+
+	void sim_00_exit() {
+		exit_func();
+
+		if (sim_00_disk != nullptr) {
+			gluDeleteQuadric(sim_00_disk);
 		}
 	}
 
@@ -379,7 +408,7 @@ namespace study_cases {
 			return;
 		}
 
-		atexit(charanim::exit_func);
+		atexit(sim_00_exit);
 		glutDisplayFunc(sim_00_render);
 		glutReshapeFunc(charanim::resize);
 		glutMouseFunc(charanim::mouse_click);
