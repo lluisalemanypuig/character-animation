@@ -7,7 +7,6 @@ HEADERS += \
     charanim.hpp \
     utils.hpp \
     vec_helper.hpp \
-    study_cases.hpp \
     terrain/terrain.hpp \
     definitions.hpp \
     terrain/regular_grid.hpp \
@@ -18,7 +17,6 @@ SOURCES += main.cpp \
     utils.cpp \
     charanim_variables.cpp \
     charanim_render.cpp \
-    study_cases.cpp \
     sim_00.cpp \
     terrain/terrain.cpp \
     terrain/regular_grid.cpp \

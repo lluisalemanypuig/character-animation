@@ -5,8 +5,13 @@
 #include <iostream>
 using namespace std;
 
-// Custom includes
-#include <anim/study_cases.hpp>
+namespace charanim {
+namespace study_cases {
+
+	void sim_00(int argc, char *argv[]);
+
+} // -- namespace study_cases
+} // -- namespace charanim
 
 void list_all_cases() {
 	cout << "Welcome to the particles renderer" << endl;
@@ -31,6 +36,13 @@ int main(int argc, char *argv[]) {
 		return 0;
 	}
 
-	charanim::study_cases::choose_case(argc, argv);
+	if (strcmp(argv[1], "00") == 0) {
+		charanim::study_cases::sim_00(argc, argv);
+	}
+	else {
+		cerr << "Unknown case '" << string(argv[1]) << "'." << endl;
+		cerr << "    Use './anim --list' to see all cases" << endl;
+	}
+
 	return 0;
 }
