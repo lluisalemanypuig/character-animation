@@ -103,9 +103,19 @@ class regular_grid {
 
 		// GETTERS
 
+		/**
+		 * @brief Fins a path between two points.
+		 * @param[in] source Starting point.
+		 * @param[in] sink Goal point.
+		 * @param[in] R Minimum distance between the path and fixed obstacles.
+		 * @param[out] path Non-refined path.
+		 * @param[out] smooth_path Refined path.
+		 */
 		void find_path(
 			const vec2& source, const vec2& sink,
-			float R, std::vector<vec2>& segs
+			float R,
+			std::vector<vec2>& path,
+			std::vector<vec2>& smoothed_path
 		);
 
 		/// Returns the cells of the grid.

@@ -38,6 +38,7 @@ namespace study_cases {
 	static vec2 sim_00_start, sim_00_goal;
 	static float sim_00_R;
 	static vector<vec2> sim_00_a_star_path;
+	static vector<vec2> sim_00_smoothed_path;
 
 	static bool sim_00_render_dist_func = false;
 	static bool sim_00_render_grid = false;
@@ -145,6 +146,29 @@ namespace study_cases {
 		}
 	}
 
+	void sim_00_render_a_path(const vector<vec2>& apath, const glm::vec3& col) {
+		glBegin(GL_LINES);
+		glColor3f(col.x, col.y, col.z);
+		for (size_t i = 0; i < apath.size() - 1; ++i) {
+			const vec2& p = apath[i];
+			const vec2& q = apath[i + 1];
+			glVertex3f(p.x, 1.0f, p.y);
+			glVertex3f(q.x, 1.0f, q.y);
+		}
+		glEnd();
+		if (sim_00_render_circles) {
+			glColor3f(0.0f, 1.0f, 0.0f);
+			for (size_t i = 0; i < apath.size() - 1; ++i) {
+				const vec2& p = apath[i];
+				glPushMatrix();
+					glTranslatef(p.x, 1.0f, p.y);
+					glRotatef(-90.0f, 1.0f,0.0f,0.0f);
+					gluDisk(sim_00_disk, sim_00_R - 0.1, sim_00_R, 20, 20);
+				glPopMatrix();
+			}
+		}
+	}
+
 	void sim_00_render() {
 		glClearColor(bgd_color.x, bgd_color.y, bgd_color.z, 1.0);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -167,26 +191,10 @@ namespace study_cases {
 		render_regular_grid(rg);
 
 		if (sim_00_a_star_path.size() > 1) {
-			glBegin(GL_LINES);
-			glColor3f(1.0f, 0.0f, 0.0f);
-			for (size_t i = 0; i < sim_00_a_star_path.size() - 1; ++i) {
-				const vec2& p = sim_00_a_star_path[i];
-				const vec2& q = sim_00_a_star_path[i + 1];
-				glVertex3f(p.x, 1.0f, p.y);
-				glVertex3f(q.x, 1.0f, q.y);
-			}
-			glEnd();
-			if (sim_00_render_circles) {
-				glColor3f(0.0f, 1.0f, 0.0f);
-				for (size_t i = 0; i < sim_00_a_star_path.size() - 1; ++i) {
-					const vec2& p = sim_00_a_star_path[i];
-					glPushMatrix();
-						glTranslatef(p.x, 1.0f, p.y);
-						glRotatef(-90.0f, 1.0f,0.0f,0.0f);
-						gluDisk(sim_00_disk, sim_00_R - 0.1, sim_00_R, 20, 20);
-					glPopMatrix();
-				}
-			}
+			sim_00_render_a_path(sim_00_a_star_path, glm::vec3(1.0f,0.0f,0.0f));
+		}
+		if (sim_00_smoothed_path.size() > 1) {
+			sim_00_render_a_path(sim_00_smoothed_path, glm::vec3(0.0f,0.0f,1.0f));
 		}
 
 		if (window_id != -1) {
@@ -363,9 +371,13 @@ namespace study_cases {
 		}
 
 		sim_00_a_star_path.clear();
+		sim_00_smoothed_path.clear();
 		regular_grid *rg = sim_00_T.get_regular_grid();
 		timing::time_point begin = timing::now();
-		rg->find_path(sim_00_start, sim_00_goal, sim_00_R, sim_00_a_star_path);
+		rg->find_path(
+			sim_00_start, sim_00_goal, sim_00_R,
+			sim_00_a_star_path, sim_00_smoothed_path
+		);
 		timing::time_point end = timing::now();
 
 		cout << "Path computed in " << timing::elapsed_seconds(begin, end)

@@ -17,6 +17,20 @@ using namespace std;
 
 namespace charanim {
 
+static inline
+float dist_point_to_rect(const vec2& p1, const vec2& p2, const vec2& pm) {
+	float x1 = p1.x;
+	float y1 = p1.y;
+	float x2 = p2.x;
+	float y2 = p2.y;
+	float xm = pm.x;
+	float ym = pm.y;
+
+	float num = std::abs( (y2 - y1)*xm - (x2 - x1)*ym + x2*y1 - y2*x1 );
+	float den = std::sqrt( (y2 - y1)*(y2 - y1) + (x2 - x1)*(x2 - x1) );
+	return num/den;
+}
+
 #define global(x,y) static_cast<size_t>(y)*resX + static_cast<size_t>(x)
 #define  local(g, x,y) x = g%resX; y = g/resX
 
@@ -29,12 +43,12 @@ namespace charanim {
 #define charanim_l2(x1,y1, x2,y2) std::sqrt((x2 - x1)*(x2 - x1) + (y2 - y1)*(y2 - y1))
 #define l2(c1, c2) charanim_l2(c1.x(),c1.y(), c2.x(),c2.y())
 
-// PRIVATE
-
 #define make_neighbour(i, cx, cy)				\
 	if (grid_cells[global(cx,cy)] >= R) {	\
 		ns[i].x() = cx; ns[i].y() = cy; ++i;	\
 	}
+
+// PRIVATE
 
 latticePoint regular_grid::from_vec2_to_latPoint(const vec2& v) const {
 	int px = static_cast<int>(v.x/lenX);
@@ -191,7 +205,9 @@ void regular_grid::make_final_state() {
 
 void regular_grid::find_path(
 	const vec2& source, const vec2& sink,
-	float R, std::vector<vec2>& segs
+	float R,
+	vector<vec2>& path,
+	vector<vec2>& smoothed_path
 )
 {
 	/* This algorithm can be optimised a lot but I'm
@@ -222,7 +238,7 @@ void regular_grid::find_path(
 	// cell 'C' to another cell 'G'
 	auto heuristic =
 	[&](const latticePoint& cell) {
-		return std::pow(1.1f, l2(cell, goal));
+		return l2(cell, goal)*0.5;
 	};
 
 	priority_queue<node> Q;
@@ -278,12 +294,36 @@ void regular_grid::find_path(
 		}
 	}
 
+	// make path from goal to start and reverse
 	latticePoint lp = goal;
 	while (lp != start) {
-		segs.push_back(from_latPoint_to_vec2(lp));
+		path.push_back(from_latPoint_to_vec2(lp));
 		lp = came_from[global(lp.x(), lp.y())];
 	}
-	std::reverse(segs.begin(), segs.end());
+	std::reverse(path.begin(), path.end());
+
+	// refine path using polylines
+	if (path.size() <= 2) {
+		smoothed_path = path;
+		return;
+	}
+
+	smoothed_path.push_back(path[0]);
+	const float tol = 0.5f;
+
+	unsigned int i0 = 0;
+	unsigned int i1 = 1;
+	while (i1 + 1 < path.size()) {
+		float d = dist_point_to_rect(smoothed_path[i0], path[i1 + 1], path[i1]);
+		cout << "d= " << d << endl;
+		if (d > tol) {
+			smoothed_path.push_back(path[i1]);
+			++i0;
+		}
+
+		++i1;
+	}
+	smoothed_path.push_back(path[i1]);
 }
 
 const float *regular_grid::get_grid() const {

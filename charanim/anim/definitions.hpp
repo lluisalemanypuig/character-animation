@@ -26,6 +26,12 @@ namespace charanim {
 				}
 				return x() < lp.x();
 			}
+			inline bool operator<= (const latticePoint& lp) const {
+				if (x() == lp.x()) {
+					return y() <= lp.y();
+				}
+				return x() <= lp.x();
+			}
 			inline bool operator== (const latticePoint& lp) const {
 				return (x() == lp.x()) and (y() == lp.y());
 			}
