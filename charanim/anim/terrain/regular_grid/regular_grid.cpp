@@ -222,7 +222,7 @@ void regular_grid::find_path(
 	// cell 'C' to another cell 'G'
 	auto heuristic =
 	[&](const latticePoint& cell) {
-		return l2(cell, goal);
+		return std::pow(1.1f, l2(cell, goal));
 	};
 
 	priority_queue<node> Q;
