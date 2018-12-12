@@ -6,7 +6,7 @@
 using namespace std;
 
 // Custom includes
-#include <anim/terrain/regular_grid/ray_rasterize.hpp>
+#include <anim/terrain/ray_rasterize.hpp>
 #include <anim/definitions.hpp>
 
 namespace charanim {

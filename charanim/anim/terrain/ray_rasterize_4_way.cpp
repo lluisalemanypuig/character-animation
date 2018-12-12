@@ -1,4 +1,4 @@
-#include "ray_rasterize_4_way.hpp"
+#include <anim/terrain/ray_rasterize_4_way.hpp>
 
 // Non-class private
 

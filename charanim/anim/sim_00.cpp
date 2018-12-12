@@ -29,14 +29,14 @@ using namespace physim::geometry;
 #include <anim/charanim.hpp>
 #include <anim/vec_helper.hpp>
 #include <anim/terrain/terrain.hpp>
-#include <anim/terrain/regular_grid/regular_grid.hpp>
+#include <anim/terrain/regular_grid.hpp>
 
 namespace charanim {
 namespace study_cases {
 
 	static terrain sim_00_T;
 	static vec2 sim_00_start, sim_00_goal;
-	static double sim_00_R;
+	static float sim_00_R;
 	static vector<vec2> sim_00_a_star_path;
 
 	static bool sim_00_render_dist_func = false;
@@ -163,12 +163,8 @@ namespace study_cases {
 		base_render();
 
 		// render path finder (on the xy plane)
-		const path_finder *pf = sim_00_T.get_path_finder();
-		if (pf->get_type() == path_finder_type::regular_grid) {
-			render_regular_grid(
-				static_cast<const regular_grid *>(pf)
-			);
-		}
+		const regular_grid *rg = sim_00_T.get_regular_grid();
+		render_regular_grid(rg);
 
 		if (sim_00_a_star_path.size() > 1) {
 			glBegin(GL_LINES);
@@ -338,13 +334,10 @@ namespace study_cases {
 		input_2_points(A,B);
 
 		segment s(A,B);
-		path_finder *pf = sim_00_T.get_path_finder();
-		if (pf->get_type() == path_finder_type::regular_grid) {
-			regular_grid *rg = static_cast<regular_grid *>(pf);
-			rg->rasterise_segment(s);
-			rg->expand_function_distance(s);
-			rg->make_final_state();
-		}
+		regular_grid *rg = sim_00_T.get_regular_grid();
+		rg->rasterise_segment(s);
+		rg->expand_function_distance(s);
+		rg->make_final_state();
 
 		rplane *pl = new rplane();
 
@@ -370,9 +363,9 @@ namespace study_cases {
 		}
 
 		sim_00_a_star_path.clear();
-		path_finder *pf = sim_00_T.get_path_finder();
+		regular_grid *rg = sim_00_T.get_regular_grid();
 		timing::time_point begin = timing::now();
-		pf->find_path(sim_00_start, sim_00_goal, sim_00_R, sim_00_a_star_path);
+		rg->find_path(sim_00_start, sim_00_goal, sim_00_R, sim_00_a_star_path);
 		timing::time_point end = timing::now();
 
 		cout << "Path computed in " << timing::elapsed_seconds(begin, end)

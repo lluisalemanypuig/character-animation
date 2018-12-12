@@ -7,9 +7,17 @@
 
 // anim includes
 #include <anim/definitions.hpp>
-#include <anim/terrain/path_finder.hpp>
+#include <anim/terrain/regular_grid.hpp>
 
 namespace charanim {
+
+/// The different types of path finders
+enum class path_finder_type : int8_t {
+	/// Null type
+	none = 0,
+	/// Regular grid, see @ref regular_grid.
+	regular_grid
+};
 
 /**
  * @brief Simple class for 2D terrains.
@@ -25,7 +33,7 @@ class terrain {
 		float dimY;
 
 		/// Underlying data structure for path finding.
-		path_finder *pf;
+		regular_grid *rg;
 
 	public:
 		/// Default constructor.
@@ -54,9 +62,9 @@ class terrain {
 		const std::vector<segment>& get_segments() const;
 
 		/// Returns the underlying path finder.
-		path_finder *get_path_finder();
+		regular_grid *get_regular_grid();
 		/// Returns the underlying path finder.
-		const path_finder *get_path_finder() const;
+		const regular_grid *get_regular_grid() const;
 
 		// I/O
 

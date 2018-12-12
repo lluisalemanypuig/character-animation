@@ -5,9 +5,6 @@
 #include <fstream>
 using namespace std;
 
-// charanim includes
-#include <anim/terrain/regular_grid/regular_grid.hpp>
-
 namespace charanim {
 
 // PRIVATE
@@ -16,7 +13,7 @@ namespace charanim {
 
 terrain::terrain() {
 	dimX = dimY = 0.0f;
-	pf = nullptr;
+	rg = nullptr;
 }
 
 terrain::~terrain() {
@@ -27,10 +24,10 @@ terrain::~terrain() {
 
 void terrain::clear() {
 	sgs.clear();
-	if (pf != nullptr) {
-		pf->clear();
-		delete pf;
-		pf = nullptr;
+	if (rg != nullptr) {
+		rg->clear();
+		delete rg;
+		rg = nullptr;
 	}
 }
 
@@ -42,12 +39,12 @@ const std::vector<segment>& terrain::get_segments() const {
 	return sgs;
 }
 
-path_finder *terrain::get_path_finder() {
-	return pf;
+regular_grid *terrain::get_regular_grid() {
+	return rg;
 }
 
-const path_finder *terrain::get_path_finder() const {
-	return pf;
+const regular_grid *terrain::get_regular_grid() const {
+	return rg;
 }
 
 // I/O
@@ -76,9 +73,6 @@ bool terrain::read_map(const string& filename) {
 			fin >> keyword;
 			if (keyword == "regular_grid") {
 				pf_type = path_finder_type::regular_grid;
-			}
-			else if (keyword == "visibility_graph") {
-				pf_type = path_finder_type::visibility_graph;
 			}
 			else {
 				cerr << "terrain::read_map - Error (" << __LINE__ << "):" << endl;
@@ -135,9 +129,7 @@ bool terrain::read_map(const string& filename) {
 			return false;
 		}
 
-		pf = new regular_grid();
-
-		regular_grid *rg = static_cast<regular_grid *>(pf);
+		rg = new regular_grid();
 		rg->init(resX, resY, dimX, dimY);
 		rg->init(sgs);
 		rg->expand_function_distance(segment(vec2(-1,-1), vec2(dimX, -1)));
@@ -147,15 +139,11 @@ bool terrain::read_map(const string& filename) {
 
 		rg->make_final_state();
 	}
-	else if (pf_type == path_finder_type::visibility_graph) {
-
-	}
 
 	sgs.push_back(wall1);
 	sgs.push_back(wall2);
 	sgs.push_back(wall3);
 	sgs.push_back(wall4);
-
 	return true;
 }
 

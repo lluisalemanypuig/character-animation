@@ -6,11 +6,10 @@
 
 // charanim includes
 #include <anim/definitions.hpp>
-#include <anim/terrain/path_finder.hpp>
 
 namespace charanim {
 
-class regular_grid : public path_finder {
+class regular_grid {
 	private:
 		/**
 		 * @brief Cells of the grid.
@@ -108,8 +107,6 @@ class regular_grid : public path_finder {
 			const vec2& source, const vec2& sink,
 			float R, std::vector<vec2>& segs
 		);
-
-		path_finder_type get_type() const;
 
 		/// Returns the cells of the grid.
 		const float *get_grid() const;

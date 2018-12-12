@@ -1,4 +1,4 @@
-#include <anim/terrain/regular_grid/regular_grid.hpp>
+#include <anim/terrain/regular_grid.hpp>
 
 // C includes
 #include <stdlib.h>
@@ -13,7 +13,7 @@ using namespace std;
 #include <physim/math/vec2.hpp>
 
 // charanim includes
-#include <anim/terrain/regular_grid/ray_rasterize_4_way.hpp>
+#include <anim/terrain/ray_rasterize_4_way.hpp>
 
 namespace charanim {
 
@@ -77,7 +77,7 @@ size_t regular_grid::make_neighbours
 
 // PUBLIC
 
-regular_grid::regular_grid() : path_finder() {
+regular_grid::regular_grid() {
 	resX = resY = 0;
 	dimX = dimY = 0.0f;
 	max_dist = 0.0f;
@@ -284,10 +284,6 @@ void regular_grid::find_path(
 		lp = came_from[global(lp.x(), lp.y())];
 	}
 	std::reverse(segs.begin(), segs.end());
-}
-
-path_finder_type regular_grid::get_type() const {
-	return path_finder_type::regular_grid;
 }
 
 const float *regular_grid::get_grid() const {
