@@ -315,7 +315,6 @@ void regular_grid::find_path(
 	unsigned int i1 = 1;
 	while (i1 + 1 < path.size()) {
 		float d = dist_point_to_rect(smoothed_path[i0], path[i1 + 1], path[i1]);
-		cout << "d= " << d << endl;
 		if (d > tol) {
 			smoothed_path.push_back(path[i1]);
 			++i0;
