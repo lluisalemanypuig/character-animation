@@ -23,28 +23,30 @@ float dist_point_to_rect(const vec2& p1, const vec2& p2, const vec2& pm) {
 	float y1 = p1.y;
 	float x2 = p2.x;
 	float y2 = p2.y;
-	float xm = pm.x;
-	float ym = pm.y;
+	float x0 = pm.x;
+	float y0 = pm.y;
 
-	float num = std::abs( (y2 - y1)*xm - (x2 - x1)*ym + x2*y1 - y2*x1 );
+	float num = std::abs( (y2 - y1)*x0 - (x2 - x1)*y0 + x2*y1 - y2*x1 );
 	float den = std::sqrt( (y2 - y1)*(y2 - y1) + (x2 - x1)*(x2 - x1) );
 	return num/den;
 }
 
-#define global(x,y) static_cast<size_t>(y)*resX + static_cast<size_t>(x)
+#define global_xy(x,y) static_cast<size_t>(y)*resX + static_cast<size_t>(x)
+#define global_latpoint(C) static_cast<size_t>(C.y())*resX + static_cast<size_t>(C.x())
 #define  local(g, x,y) x = g%resX; y = g/resX
+#define cell_out(c) "(" << c.x << "," << c.y << ")"
 
 #define in_box(s,t, p)													\
 	(((std::min(s.x, t.x) <= p.x) and (p.x <= std::max(s.x,t.x))) and	\
 	 ((std::min(s.y, t.y) <= p.y) and (p.y <= std::max(s.y,t.y))))
 
-#define charanim_l1(x1,y1, x2,y2) std::abs(x2 - x1) + std::abs(y2 - y1)
+#define charanim_l1(x1,y1, x2,y2) (std::abs(x2 - x1) + std::abs(y2 - y1))
 #define l1(c1, c2) charanim_l1(c1.x(),c1.y(), c2.x(),c2.y())
-#define charanim_l2(x1,y1, x2,y2) std::sqrt((x2 - x1)*(x2 - x1) + (y2 - y1)*(y2 - y1))
+#define charanim_l2(x1,y1, x2,y2) (std::sqrt((x2 - x1)*(x2 - x1) + (y2 - y1)*(y2 - y1)))
 #define l2(c1, c2) charanim_l2(c1.x(),c1.y(), c2.x(),c2.y())
 
 #define make_neighbour(i, cx, cy)				\
-	if (grid_cells[global(cx,cy)] >= R) {	\
+	if (grid_cells[global_xy(cx,cy)] >= R) {		\
 		ns[i].x() = cx; ns[i].y() = cy; ++i;	\
 	}
 
@@ -152,7 +154,7 @@ void regular_grid::rasterise_segment(const segment& seg) {
 	size_t g_idx;
 	while (not ray.is_last()) {
 		ray.get_advance(grid_cell);
-		g_idx = global(grid_cell.x(), grid_cell.y());
+		g_idx = global_xy(grid_cell.x(), grid_cell.y());
 		grid_cells[g_idx] = 0.0f;
 	}
 }
@@ -186,8 +188,8 @@ void regular_grid::expand_function_distance(const segment& seg) {
 							 physim::math::dist(p, t));
 			}
 
-			grid_cells[global(cx,cy)] =
-				std::min(grid_cells[global(cx,cy)], D);
+			grid_cells[global_xy(cx,cy)] =
+				std::min(grid_cells[global_xy(cx,cy)], D);
 		}
 	}
 }
@@ -196,7 +198,7 @@ void regular_grid::make_final_state() {
 	max_dist = 0.0f;
 	for (size_t cy = 0; cy < resY; ++cy) {
 		for (size_t cx = 0; cx < resX; ++cx) {
-			max_dist = std::max(max_dist, grid_cells[global(cx,cy)]);
+			max_dist = std::max(max_dist, grid_cells[global_xy(cx,cy)]);
 		}
 	}
 }
@@ -238,13 +240,15 @@ void regular_grid::find_path(
 	// cell 'C' to another cell 'G'
 	auto heuristic =
 	[&](const latticePoint& cell) {
-		return l2(cell, goal)*0.5;
+		// distance to closest obstacle
+		double dist_closest = double(grid_cells[global_xy(cell.x(),cell.y())]);
+		return l2(cell, goal)*1.1 - dist_closest*0.5;
 	};
 
 	priority_queue<node> Q;
 	Q.push(node(-0.0, start));
-	valid_cost[global(start.x(), start.y())] = true;
-	cost_so_far[global(start.x(), start.y())] = 0.0;
+	valid_cost[global_xy(start.x(), start.y())] = true;
+	cost_so_far[global_xy(start.x(), start.y())] = 0.0;
 	bool reached_goal = false;
 
 	while (not Q.empty() and not reached_goal) {
@@ -258,7 +262,7 @@ void regular_grid::find_path(
 		}
 
 		const latticePoint& cur_cell = top.second;
-		size_t cur_idx = global(cur_cell.x(), cur_cell.y());
+		size_t cur_idx = global_latpoint(cur_cell);
 		pct cur_cost = cost_so_far[cur_idx];
 
 		// obtain the valid neighbours around the current cell
@@ -268,7 +272,7 @@ void regular_grid::find_path(
 		// to the priority queue if needed
 		for (size_t i = 0; i < n; ++i) {
 			const latticePoint& neigh = ns[i];
-			size_t neigh_idx = global(neigh.x(), neigh.y());
+			size_t neigh_idx = global_xy(neigh.x(), neigh.y());
 
 			pct new_cost =
 				cur_cost +			// cost of going from start to current cell
@@ -276,7 +280,7 @@ void regular_grid::find_path(
 
 			if (
 				(not valid_cost[neigh_idx]) or
-				(valid_cost[neigh_idx] and new_cost < cost_so_far[neigh_idx])
+				(new_cost < cost_so_far[neigh_idx])
 			)
 			{
 				valid_cost[neigh_idx] = true;
@@ -298,7 +302,7 @@ void regular_grid::find_path(
 	latticePoint lp = goal;
 	while (lp != start) {
 		path.push_back(from_latPoint_to_vec2(lp));
-		lp = came_from[global(lp.x(), lp.y())];
+		lp = came_from[global_latpoint(lp)];
 	}
 	std::reverse(path.begin(), path.end());
 
@@ -309,20 +313,37 @@ void regular_grid::find_path(
 	}
 
 	smoothed_path.push_back(path[0]);
-	const float tol = 0.5f;
+	const float max_dist_allowed = 0.5f;
 
-	unsigned int i0 = 0;
-	unsigned int i1 = 1;
-	while (i1 + 1 < path.size()) {
-		float d = dist_point_to_rect(smoothed_path[i0], path[i1 + 1], path[i1]);
-		if (d > tol) {
-			smoothed_path.push_back(path[i1]);
-			++i0;
+	size_t smooth_it = 0;
+	size_t path_it = 1;
+	size_t watch_it = path.size() + 1;
+	while (path_it + 1 < path.size()) {
+
+		if (watch_it > path.size()) {
+			float d = dist_point_to_rect
+			(smoothed_path[smooth_it], path[path_it + 1], path[path_it]);
+			if (d > 0.0f) {
+				// watch this cell closely to avoid
+				// underfitting smooth paths
+				watch_it = path_it;
+			}
 		}
 
-		++i1;
+		if (watch_it < path.size()) {
+			float wd = dist_point_to_rect
+			(smoothed_path[smooth_it], path[path_it], path[watch_it]);
+			if (wd > max_dist_allowed) {
+				// smooth path must have this node.
+				// procedure must then start here
+				smoothed_path.push_back(path[watch_it]);
+				++smooth_it;
+				watch_it = path.size() + 1;
+			}
+		}
+		++path_it;
 	}
-	smoothed_path.push_back(path[i1]);
+	smoothed_path.push_back(path[path_it]);
 }
 
 const float *regular_grid::get_grid() const {

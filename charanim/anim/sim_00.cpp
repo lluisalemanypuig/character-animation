@@ -86,20 +86,20 @@ namespace study_cases {
 
 		if (sim_00_render_grid) {
 			glBegin(GL_LINES);
-			glColor3f(0.0f, 0.0f, 0.0f);
+			glColor3f(0.7f, 0.7f, 0.7f);
 			for (size_t x = 0; x < rX; ++x) {
 				for (size_t y = 0; y < rY; ++y) {
-					glVertex3f(x*lX, 0.1f, 0.0f);
-					glVertex3f(x*lX, 0.1f, dY);
+					glVertex3f(x*lX, 0.2f, 0.0f);
+					glVertex3f(x*lX, 0.2f, dY);
 
-					glVertex3f(0.0f, 0.1f, y*lY);
-					glVertex3f(dX, 0.1f, y*lY);
+					glVertex3f(0.0f, 0.2f, y*lY);
+					glVertex3f(dX, 0.2f, y*lY);
 				}
 			}
 			glEnd();
 		}
 		else {
-			glColor3f(0.0f,0.0f,0.0f);
+			glColor3f(0.2f,0.2f,0.2f);
 			glBegin(GL_QUADS);
 				glVertex3f(0.0f, 0.0f, 0.0f);
 				glVertex3f(dX, 0.0f, 0.0f);
@@ -117,28 +117,28 @@ namespace study_cases {
 						glBegin(GL_TRIANGLES);
 							col = cells[cy*rX + cx]/max_dist;
 							glColor3f(col,col,col);
-							glVertex3f(cx*lX, 0.0f, cy*lY);
+							glVertex3f(cx*lX, 0.1f, cy*lY);
 
 							col = cells[cy*rX + cx + 1]/max_dist;
 							glColor3f(col,col,col);
-							glVertex3f((cx + 1)*lX, 0.0f, cy*lY);
+							glVertex3f((cx + 1)*lX, 0.1f, cy*lY);
 
 							col = cells[(cy + 1)*rX + cx + 1]/max_dist;
 							glColor3f(col,col,col);
-							glVertex3f((cx + 1)*lX, 0.0f, (cy + 1)*lY);
+							glVertex3f((cx + 1)*lX, 0.1f, (cy + 1)*lY);
 						glEnd();
 						glBegin(GL_TRIANGLES);
 							col = cells[cy*rX + cx]/max_dist;
 							glColor3f(col,col,col);
-							glVertex3f(cx*lX, 0.0f, cy*lY);
+							glVertex3f(cx*lX, 0.1f, cy*lY);
 
 							col = cells[(cy + 1)*rX + cx + 1]/max_dist;
 							glColor3f(col,col,col);
-							glVertex3f((cx + 1)*lX, 0.0f, (cy + 1)*lY);
+							glVertex3f((cx + 1)*lX, 0.1f, (cy + 1)*lY);
 
 							col = cells[(cy + 1)*rX + cx]/max_dist;
 							glColor3f(col,col,col);
-							glVertex3f(cx*lX, 0.0f, (cy + 1)*lY);
+							glVertex3f(cx*lX, 0.1f, (cy + 1)*lY);
 						glEnd();
 					}
 				}
@@ -147,9 +147,11 @@ namespace study_cases {
 	}
 
 	void sim_00_render_a_path
-	(const vector<vec2>& apath, const glm::vec3& col, float yoff) {
+	(const vector<vec2>& apath, const glm::vec3& pcol,
+	 const glm::vec3& ccol, float yoff)
+	{
 		glBegin(GL_LINES);
-		glColor3f(col.x, col.y, col.z);
+		glColor3f(pcol.x, pcol.y, pcol.z);
 		for (size_t i = 0; i < apath.size() - 1; ++i) {
 			const vec2& p = apath[i];
 			const vec2& q = apath[i + 1];
@@ -158,13 +160,13 @@ namespace study_cases {
 		}
 		glEnd();
 		if (sim_00_render_circles) {
-			glColor3f(0.0f, 1.0f, 0.0f);
-			for (size_t i = 0; i < apath.size() - 1; ++i) {
+			glColor3f(ccol.x, ccol.y, ccol.z);
+			for (size_t i = 0; i < apath.size(); ++i) {
 				const vec2& p = apath[i];
 				glPushMatrix();
 					glTranslatef(p.x, yoff, p.y);
-					//glRotatef(-90.0f, 1.0f,0.0f,0.0f);
-					gluDisk(sim_00_disk, sim_00_R - 0.1, sim_00_R, 20, 20);
+					glRotatef(-90.0f, 1.0f,0.0f,0.0f);
+					gluDisk(sim_00_disk, double(sim_00_R)*0.9, double(sim_00_R), 20, 20);
 				glPopMatrix();
 			}
 		}
@@ -192,10 +194,14 @@ namespace study_cases {
 		render_regular_grid(rg);
 
 		if (sim_00_a_star_path.size() > 1) {
-			sim_00_render_a_path(sim_00_a_star_path, glm::vec3(1.0f,0.0f,0.0f), 1.0f);
+			sim_00_render_a_path
+			(sim_00_a_star_path, glm::vec3(1.0f,0.0f,0.0f),
+			 glm::vec3(0.0f,1.0f,0.0f), 1.0f);
 		}
 		if (sim_00_smoothed_path.size() > 1) {
-			sim_00_render_a_path(sim_00_smoothed_path, glm::vec3(0.0f,0.0f,1.0f), 2.0f);
+			sim_00_render_a_path
+			(sim_00_smoothed_path, glm::vec3(0.0f,0.0f,1.0f),
+			 glm::vec3(0.0f,1.0f,1.0f), 2.0f);
 		}
 
 		if (window_id != -1) {

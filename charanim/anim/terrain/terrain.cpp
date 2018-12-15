@@ -108,7 +108,6 @@ bool terrain::read_map(const string& filename) {
 		cerr << "        type TYPE" << endl;
 		cerr << "    where TYPE is one of the following:" << endl;
 		cerr << "        regular_grid" << endl;
-		cerr << "        visibility_graph" << endl;
 		return false;
 	}
 
