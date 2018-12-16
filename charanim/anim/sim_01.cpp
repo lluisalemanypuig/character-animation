@@ -134,6 +134,31 @@ namespace study_cases {
 			sim_01_render_a_path
 			(sim_01_smoothed_path, glm::vec3(0.0f,0.0f,1.0f),
 			 glm::vec3(0.0f,1.0f,1.0f), 2.0f);
+
+			// render attractor
+			if (sim_01_what_attractor < sim_01_smoothed_path.size()) {
+				flat_shader.bind();
+				flat_shader.set_vec4("colour", glm::vec4(1.0f,0.0f,0.0f,1.0f));
+
+				glm::mat4 projection(1.0f), view(1.0f);
+				V.make_projection_matrix(projection);
+				V.make_view_matrix(view);
+				view = glm::translate(view, glm::vec3(move_x, 0.0f, move_z));
+
+				const vec2& att = sim_01_smoothed_path[sim_01_what_attractor];
+
+				glm::mat4 model(1.0f);
+				model = glm::translate(model, glm::vec3(att.x, 1.0f, att.y));
+				model = glm::scale(model, glm::vec3(3.0f, 3.0f, 3.0f));
+
+				glm::mat4 modelview = view*model;
+				glm::mat3 normal_matrix = glm::inverseTranspose(glm::mat3(modelview));
+
+				flat_shader.set_mat4("modelview", modelview);
+				flat_shader.set_mat3("normal_matrix", normal_matrix);
+				sphere->render();
+				flat_shader.release();
+			}
 		}
 
 		// simulate agents only if we have a path
@@ -151,7 +176,7 @@ namespace study_cases {
 					sim_01_agent->attractor.y = 1.0f;
 					sim_01_agent->attractor.z = sim_01_smoothed_path[attr].y;
 
-					float mv = sim_01_agent->max_vel;
+					float mv = sim_01_agent->desired_vel;
 					sim_01_agent->cur_vel =
 						(sim_01_agent->attractor - sim_01_agent->cur_pos)*mv;
 
@@ -197,7 +222,7 @@ namespace study_cases {
 		sim_01_agent->lifetime = 9999.0f; // immortal agent
 		sim_01_agent->R = 1.0f;
 		sim_01_agent->cur_pos = vec3(5.0f,1.0f,5.0f);
-		sim_01_agent->max_vel = 2.0f;
+		sim_01_agent->desired_vel = 10.0f;
 		S.add_agent_particle(sim_01_agent);
 
 		// set time step and collision checking
@@ -333,7 +358,7 @@ namespace study_cases {
 		sim_01_agent->attractor.z = sim_01_smoothed_path[1].y;
 		sim_01_what_attractor = 1;
 
-		float mv = sim_01_agent->max_vel;
+		float mv = sim_01_agent->desired_vel;
 		sim_01_agent->cur_vel =
 			(sim_01_agent->attractor - sim_01_agent->cur_pos)*mv;
 
@@ -343,7 +368,7 @@ namespace study_cases {
 			 << sim_01_agent->attractor.z << ")" << endl;
 
 		// 3. set maximum desired velocity
-		sim_01_agent->attractor_acceleration = 1.0f; // 1 m/s^2
+		sim_01_agent->attractor_acceleration = 5.0f;
 	}
 
 	void sim_01_exit() {
@@ -379,6 +404,8 @@ namespace study_cases {
 		draw_base_spheres = true;
 		render_grid = false;
 		render_dist_func = false;
+
+		sim_01_what_attractor = 1000;
 
 		/* PARSE ARGUMENTS */
 		int arg_parse = sim_01_parse_arguments(_argc, _argv);

@@ -47,7 +47,8 @@ namespace charanim {
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
 		flat_shader.bind();
-		flat_shader.set_vec3("view_pos", glm::vec3(0.f,0.f,0.f));
+		flat_shader.set_vec3("view_pos", glm::vec3(0.0f,0.0f,0.0f));
+		flat_shader.set_vec4("colour", glm::vec4(0.0f,0.0f,1.0f,1.0f));
 		flat_shader.set_mat4("projection", projection);
 
 		/* draw sized particles */
