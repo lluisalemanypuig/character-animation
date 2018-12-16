@@ -12,11 +12,7 @@ using namespace std;
 typedef glm::vec3 gvec3;
 
 // physim includes
-#include <physim/initialiser/initialiser.hpp>
 #include <physim/particles/sized_particle.hpp>
-#include <physim/geometry/rectangle.hpp>
-#include <physim/geometry/sphere.hpp>
-#include <physim/geometry/plane.hpp>
 #include <physim/math/vec3.hpp>
 using namespace physim::init;
 using namespace physim::particles;
@@ -24,7 +20,6 @@ using namespace physim::geometry;
 
 // charanim includes
 #include <render/include_gl.hpp>
-#include <render/obj_reader.hpp>
 #include <render/geometry/rplane.hpp>
 #include <anim/charanim.hpp>
 #include <anim/vec_helper.hpp>

@@ -17,12 +17,11 @@ typedef glm::vec3 gvec3;
 #include <physim/initialiser/initialiser.hpp>
 #include <physim/particles/agent_particle.hpp>
 #include <physim/geometry/rectangle.hpp>
-#include <physim/geometry/sphere.hpp>
-#include <physim/geometry/plane.hpp>
 #include <physim/math/vec3.hpp>
 using namespace physim::init;
 using namespace physim::particles;
 using namespace physim::geometry;
+using namespace physim::math;
 
 // charanim includes
 #include <render/include_gl.hpp>
@@ -55,6 +54,7 @@ namespace study_cases {
 
 	// only agent in the simulation
 	static agent_particle *sim_01_agent;
+	static size_t sim_01_what_attractor;
 
 	// render stuff
 	static bool sim_01_render_circles = false;
@@ -136,6 +136,39 @@ namespace study_cases {
 			 glm::vec3(0.0f,1.0f,1.0f), 2.0f);
 		}
 
+		// simulate agents only if we have a path
+		if (sim_01_smoothed_path.size() > 0) {
+			for (int i = 0; i < 10; ++i) {
+				S.simulate_agent_particles();
+			}
+
+			if (dist(sim_01_agent->cur_pos, sim_01_agent->attractor) <= 0.1f) {
+				if (sim_01_what_attractor + 1 < sim_01_smoothed_path.size()) {
+					++sim_01_what_attractor;
+
+					size_t attr = sim_01_what_attractor;
+					sim_01_agent->attractor.x = sim_01_smoothed_path[attr].x;
+					sim_01_agent->attractor.y = 1.0f;
+					sim_01_agent->attractor.z = sim_01_smoothed_path[attr].y;
+
+					float mv = sim_01_agent->max_vel;
+					sim_01_agent->cur_vel =
+						(sim_01_agent->attractor - sim_01_agent->cur_pos)*mv;
+
+					cout << "Change of attractor:" << endl;
+					cout << "    Attractor index: " << attr << endl;
+					cout << "    Position: ("
+						 << sim_01_agent->attractor.x << ","
+						 << sim_01_agent->attractor.y << ","
+						 << sim_01_agent->attractor.z << ")" << endl;
+				}
+				else {
+					// agent reached its goal
+					sim_01_agent->cur_vel = vec3(0.0f);
+				}
+			}
+		}
+
 		if (window_id != -1) {
 			glutSwapBuffers();
 		}
@@ -163,7 +196,28 @@ namespace study_cases {
 		sim_01_agent = new agent_particle();
 		sim_01_agent->lifetime = 9999.0f; // immortal agent
 		sim_01_agent->R = 1.0f;
+		sim_01_agent->cur_pos = vec3(5.0f,1.0f,5.0f);
+		sim_01_agent->max_vel = 2.0f;
 		S.add_agent_particle(sim_01_agent);
+
+		// set time step and collision checking
+		S.set_time_step(0.001f);
+		S.set_particle_particle_collisions(true);
+
+		// add geometry
+		const vector<segment>& sgs = sim_01_T.get_segments();
+		for (const segment& s : sgs) {
+			const vec2& A = s.first;
+			const vec2& B = s.second;
+
+			vec3 p1( A.x, 0.0f,  A.y);
+			vec3 p2( B.x, 0.0f,  B.y);
+			vec3 p3(p2.x, 2.0f, p2.z);
+			vec3 p4(p1.x, 2.0f, p1.z);
+
+			rectangle *rl = new rectangle(p1,p2,p3,p4);
+			S.add_geometry(rl);
+		}
 	}
 	void sim_01_init_geometry() {
 		// add the geometry read from the map
@@ -217,6 +271,87 @@ namespace study_cases {
 			return 1;
 		}
 		return 0;
+	}
+
+	void sim_01_add_segment() {
+		vec2 A, B;
+		input_2_points(A,B);
+
+		segment s(A,B);
+		regular_grid *rg = sim_01_T.get_regular_grid();
+		rg->rasterise_segment(s);
+		rg->expand_function_distance(s);
+		rg->make_final_state();
+
+		rplane *pl = new rplane();
+
+		glm_vec3 p1( A.x, 0.0f,  A.y);
+		glm_vec3 p2( B.x, 0.0f,  B.y);
+		glm_vec3 p3(p2.x, 2.0f, p2.z);
+		glm_vec3 p4(p1.x, 2.0f, p1.z);
+		pl->set_points(p1, p2, p3, p4);
+		geometry.push_back(pl);
+
+		V.get_box().enlarge_box(p1);
+		V.get_box().enlarge_box(p2);
+		V.get_box().enlarge_box(p3);
+		V.get_box().enlarge_box(p4);
+	}
+
+	void sim_01_compute_path() {
+		vec2 start, goal;
+		input_2_points(start,goal);
+		cout << "Input radius: "; cin >> sim_01_R;
+
+		if (sim_01_disk == nullptr) {
+			sim_01_disk = gluNewQuadric();
+		}
+
+		sim_01_astar_path.clear();
+		sim_01_smoothed_path.clear();
+		regular_grid *rg = sim_01_T.get_regular_grid();
+		timing::time_point begin = timing::now();
+		rg->find_path(
+			start, goal, sim_01_R,
+			sim_01_astar_path, sim_01_smoothed_path
+		);
+		timing::time_point end = timing::now();
+
+		cout << "Path computed in " << timing::elapsed_seconds(begin, end)
+			 << " seconds" << endl;
+
+		/* initialise agent's movement */
+
+		// 1. set current position
+		sim_01_agent->cur_pos.x = sim_01_smoothed_path[0].x;
+		sim_01_agent->cur_pos.y = 1.0f;
+		sim_01_agent->cur_pos.z = sim_01_smoothed_path[0].y;
+
+		// 2. set first attractor
+		sim_01_agent->attractor.x = sim_01_smoothed_path[1].x;
+		sim_01_agent->attractor.y = 1.0f;
+		sim_01_agent->attractor.z = sim_01_smoothed_path[1].y;
+		sim_01_what_attractor = 1;
+
+		float mv = sim_01_agent->max_vel;
+		sim_01_agent->cur_vel =
+			(sim_01_agent->attractor - sim_01_agent->cur_pos)*mv;
+
+		cout << "First attractor at: ("
+			 << sim_01_agent->attractor.x << ","
+			 << sim_01_agent->attractor.y << ","
+			 << sim_01_agent->attractor.z << ")" << endl;
+
+		// 3. set maximum desired velocity
+		sim_01_agent->attractor_acceleration = 1.0f; // 1 m/s^2
+	}
+
+	void sim_01_exit() {
+		exit_func();
+
+		if (sim_01_disk != nullptr) {
+			gluDeleteQuadric(sim_01_disk);
+		}
 	}
 
 	int charanim_01(bool init_window) {
@@ -292,70 +427,6 @@ namespace study_cases {
 		return 0;
 	}
 
-	void sim_01_add_segment() {
-		vec2 A, B;
-		input_2_points(A,B);
-
-		segment s(A,B);
-		regular_grid *rg = sim_01_T.get_regular_grid();
-		rg->rasterise_segment(s);
-		rg->expand_function_distance(s);
-		rg->make_final_state();
-
-		rplane *pl = new rplane();
-
-		glm_vec3 p1( A.x, 0.0f,  A.y);
-		glm_vec3 p2( B.x, 0.0f,  B.y);
-		glm_vec3 p3(p2.x, 2.0f, p2.z);
-		glm_vec3 p4(p1.x, 2.0f, p1.z);
-		pl->set_points(p1, p2, p3, p4);
-		geometry.push_back(pl);
-
-		V.get_box().enlarge_box(p1);
-		V.get_box().enlarge_box(p2);
-		V.get_box().enlarge_box(p3);
-		V.get_box().enlarge_box(p4);
-	}
-
-	void sim_01_compute_path() {
-		vec2 start, goal;
-		input_2_points(start,goal);
-		cout << "Input radius: "; cin >> sim_01_R;
-
-		if (sim_01_disk == nullptr) {
-			sim_01_disk = gluNewQuadric();
-		}
-
-		sim_01_astar_path.clear();
-		sim_01_smoothed_path.clear();
-		regular_grid *rg = sim_01_T.get_regular_grid();
-		timing::time_point begin = timing::now();
-		rg->find_path(
-			start, goal, sim_01_R,
-			sim_01_astar_path, sim_01_smoothed_path
-		);
-		timing::time_point end = timing::now();
-
-		cout << "Path computed in " << timing::elapsed_seconds(begin, end)
-			 << " seconds" << endl;
-
-		/* initialise agent's movement */
-
-		// 1. set current position
-		sim_01_agent->cur_pos.x = sim_01_smoothed_path[0].x;
-		sim_01_agent->cur_pos.y = 1.0f;
-		sim_01_agent->cur_pos.z = sim_01_smoothed_path[0].y;
-
-		// 2. set first attractor
-		sim_01_agent->attractor.x = sim_01_smoothed_path[1].x;
-		sim_01_agent->attractor.y = 1.0f;
-		sim_01_agent->attractor.z = sim_01_smoothed_path[1].y;
-
-		// 3. set maximum desired velocity
-		sim_01_agent->max_vel = 1.0f; // 1 m/s
-		sim_01_agent->attractor_acceleration = 1.0f; // 1 m/s^2
-	}
-
 	void sim_01_regular_keys_keyboard(unsigned char c, int x, int y) {
 		charanim::regular_keys_keyboard(c, x, y);
 		switch (c) {
@@ -366,14 +437,6 @@ namespace study_cases {
 		case 'c': sim_01_render_circles = not sim_01_render_circles; break;
 		case 'd': render_dist_func = not render_dist_func; break;
 		case 'g': render_grid = not render_grid; break;
-		}
-	}
-
-	void sim_01_exit() {
-		exit_func();
-
-		if (sim_01_disk != nullptr) {
-			gluDeleteQuadric(sim_01_disk);
 		}
 	}
 

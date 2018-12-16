@@ -5,10 +5,12 @@
 
 // physim includes
 #include <physim/math/vec2.hpp>
+#include <physim/math/vec3.hpp>
 
 namespace charanim {
 
 	typedef physim::math::vec2 vec2;
+	typedef physim::math::vec3 vec3;
 	typedef std::pair<vec2,vec2> segment;
 
 	class latticePoint : std::pair<int,int> {
