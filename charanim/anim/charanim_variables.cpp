@@ -48,5 +48,7 @@ namespace charanim {
 
 	/* render control */
 	bool draw_base_spheres;
+	bool render_grid;
+	bool render_dist_func;
 
 } // -- namespace charanim

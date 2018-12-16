@@ -39,24 +39,26 @@ namespace charanim {
 	}
 
 	void base_render() {
-		/* draw particles/spheres/models of characters */
+		glm::mat4 projection(1.0f), view(1.0f);
+		V.make_projection_matrix(projection);
+		V.make_view_matrix(view);
+		view = glm::translate(view, glm::vec3(move_x, 0.0f, move_z));
+
+		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
+		flat_shader.bind();
+		flat_shader.set_vec3("view_pos", glm::vec3(0.f,0.f,0.f));
+		flat_shader.set_mat4("projection", projection);
+
+		/* draw sized particles */
 		const vector<sized_particle *>& ps = S.get_sized_particles();
 		if (draw_base_spheres and ps.size() > 0) {
-			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-
-			glm::mat4 projection(1.0f), view(1.0f);
-			V.make_projection_matrix(projection);
-			V.make_view_matrix(view);
-			view = glm::translate(view, glm::vec3(move_x, 0.0f, move_z));
-
-			flat_shader.bind();
-			flat_shader.set_vec3("view_pos", glm::vec3(0.f,0.f,0.f));
-			flat_shader.set_mat4("projection", projection);
 
 			for (const sized_particle *p : ps) {
 				glm::mat4 model(1.0f);
 				model = glm::translate(model, to_gvec3(p->cur_pos));
-				model = glm::scale(model, glm::vec3(2.0f*p->R, 2.0f*p->R, 2.0f*p->R));
+				float R = 2.0f*p->R;
+				model = glm::scale(model, glm::vec3(R, R, R));
 
 				glm::mat4 modelview = view*model;
 				glm::mat3 normal_matrix = glm::inverseTranspose(glm::mat3(modelview));
@@ -65,9 +67,28 @@ namespace charanim {
 				flat_shader.set_mat3("normal_matrix", normal_matrix);
 				sphere->render();
 			}
-
-			flat_shader.release();
 		}
+
+		/* draw agent particles */
+		const vector<agent_particle *>& as = S.get_agent_particles();
+		if (draw_base_spheres and as.size() > 0) {
+
+			for (const agent_particle *a : as) {
+				glm::mat4 model(1.0f);
+				model = glm::translate(model, to_gvec3(a->cur_pos));
+				float R = 2.0f*a->R;
+				model = glm::scale(model, glm::vec3(R, R, R));
+
+				glm::mat4 modelview = view*model;
+				glm::mat3 normal_matrix = glm::inverseTranspose(glm::mat3(modelview));
+
+				flat_shader.set_mat4("modelview", modelview);
+				flat_shader.set_mat3("normal_matrix", normal_matrix);
+				sphere->render();
+			}
+		}
+
+		flat_shader.release();
 
 		/* draw walls and stuff */
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
@@ -252,6 +273,90 @@ namespace charanim {
 		V.get_orthogonal_camera().set_zoom(ozoom);
 
 		glViewport(0, 0, width, height);
+	}
+
+	/* render non-GLUT */
+
+	void render_regular_grid(const regular_grid *r) {
+
+		const float *cells = r->get_grid();
+		const size_t rX = r->get_resX();
+		const size_t rY = r->get_resY();
+
+		const float dX = r->get_dimX();
+		const float dY = r->get_dimY();
+		const float max_dist = r->get_max_dist();
+
+		const float lX = dX/rX;
+		const float lY = dY/rY;
+
+		glColor3f(1.0f,1.0f,0.0f);
+		glBegin(GL_TRIANGLES);
+			glVertex3f(0.0f, 0.5f, 0.0f);
+			glVertex3f(5.0f, 0.5f, 0.0f);
+			glVertex3f(0.0f, 0.5f, 5.0f);
+		glEnd();
+
+		if (render_grid) {
+			glBegin(GL_LINES);
+			glColor3f(0.7f, 0.7f, 0.7f);
+			for (size_t x = 0; x < rX; ++x) {
+				for (size_t y = 0; y < rY; ++y) {
+					glVertex3f(x*lX, 0.2f, 0.0f);
+					glVertex3f(x*lX, 0.2f, dY);
+
+					glVertex3f(0.0f, 0.2f, y*lY);
+					glVertex3f(dX, 0.2f, y*lY);
+				}
+			}
+			glEnd();
+		}
+		else {
+			glColor3f(0.2f,0.2f,0.2f);
+			glBegin(GL_QUADS);
+				glVertex3f(0.0f, 0.0f, 0.0f);
+				glVertex3f(dX, 0.0f, 0.0f);
+				glVertex3f(dX, 0.0f, dY);
+				glVertex3f(0.0f, 0.0f, dY);
+			glEnd();
+		}
+
+		if (render_dist_func) {
+			float col;
+			for (size_t cy = 0; cy < rY; ++cy) {
+				for (size_t cx = 0; cx < rX; ++cx) {
+					if (cy + 1 < rY and cx + 1 < rX) {
+						// draw triangles
+						glBegin(GL_TRIANGLES);
+							col = cells[cy*rX + cx]/max_dist;
+							glColor3f(col,col,col);
+							glVertex3f(cx*lX, 0.1f, cy*lY);
+
+							col = cells[cy*rX + cx + 1]/max_dist;
+							glColor3f(col,col,col);
+							glVertex3f((cx + 1)*lX, 0.1f, cy*lY);
+
+							col = cells[(cy + 1)*rX + cx + 1]/max_dist;
+							glColor3f(col,col,col);
+							glVertex3f((cx + 1)*lX, 0.1f, (cy + 1)*lY);
+						glEnd();
+						glBegin(GL_TRIANGLES);
+							col = cells[cy*rX + cx]/max_dist;
+							glColor3f(col,col,col);
+							glVertex3f(cx*lX, 0.1f, cy*lY);
+
+							col = cells[(cy + 1)*rX + cx + 1]/max_dist;
+							glColor3f(col,col,col);
+							glVertex3f((cx + 1)*lX, 0.1f, (cy + 1)*lY);
+
+							col = cells[(cy + 1)*rX + cx]/max_dist;
+							glColor3f(col,col,col);
+							glVertex3f(cx*lX, 0.1f, (cy + 1)*lY);
+						glEnd();
+					}
+				}
+			}
+		}
 	}
 
 } // -- namespace charanim

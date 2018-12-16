@@ -8,12 +8,14 @@
 using namespace std;
 
 // glm includes
-#include <glm/vec3.hpp>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_inverse.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 typedef glm::vec3 gvec3;
 
 // physim includes
 #include <physim/initialiser/initialiser.hpp>
-#include <physim/particles/sized_particle.hpp>
+#include <physim/particles/agent_particle.hpp>
 #include <physim/geometry/rectangle.hpp>
 #include <physim/geometry/sphere.hpp>
 #include <physim/geometry/plane.hpp>
@@ -24,7 +26,6 @@ using namespace physim::geometry;
 
 // charanim includes
 #include <render/include_gl.hpp>
-#include <render/obj_reader.hpp>
 #include <render/geometry/rplane.hpp>
 #include <anim/charanim.hpp>
 #include <anim/vec_helper.hpp>
@@ -44,20 +45,22 @@ namespace charanim {
 namespace study_cases {
 
 	// Terrain of the simulation. Loaded from file.
-	static terrain sim_00_T;
+	static terrain sim_01_T;
 
-	// radius of the hypothetic agent
-	static float sim_00_R;
-	// non-smoothed path in the grid
-	static vector<vec2> sim_00_astar_path;
-	// grid's smoothed path (the one supposed to be followed)
-	static vector<vec2> sim_00_smoothed_path;
+	// radius of the only agent.
+	static float sim_01_R;
+	// path of the only agent.
+	static vector<vec2> sim_01_astar_path;
+	static vector<vec2> sim_01_smoothed_path;
+
+	// only agent in the simulation
+	static agent_particle *sim_01_agent;
 
 	// render stuff
-	static bool sim_00_render_circles = false;
-	static GLUquadric *sim_00_disk = nullptr;
+	static bool sim_01_render_circles = false;
+	static GLUquadric *sim_01_disk = nullptr;
 
-	void sim_00_usage() {
+	void sim_01_usage() {
 		cout << "Simulation 00: for map editing and inspection" << endl;
 		cout << endl;
 		cout << "Specify a map file as parameter to visualise it." << endl;
@@ -75,7 +78,7 @@ namespace study_cases {
 		cout << endl;
 	}
 
-	void sim_00_render_a_path
+	void sim_01_render_a_path
 	(const vector<vec2>& apath, const glm::vec3& pcol,
 	 const glm::vec3& ccol, float yoff)
 	{
@@ -88,20 +91,20 @@ namespace study_cases {
 			glVertex3f(q.x, yoff, q.y);
 		}
 		glEnd();
-		if (sim_00_render_circles) {
+		if (sim_01_render_circles) {
 			glColor3f(ccol.x, ccol.y, ccol.z);
 			for (size_t i = 0; i < apath.size(); ++i) {
 				const vec2& p = apath[i];
 				glPushMatrix();
 					glTranslatef(p.x, yoff, p.y);
 					glRotatef(-90.0f, 1.0f,0.0f,0.0f);
-					gluDisk(sim_00_disk, double(sim_00_R)*0.9, double(sim_00_R), 20, 20);
+					gluDisk(sim_01_disk, double(sim_01_R)*0.9, double(sim_01_R), 20, 20);
 				glPopMatrix();
 			}
 		}
 	}
 
-	void sim_00_render() {
+	void sim_01_render() {
 		glClearColor(bgd_color.x, bgd_color.y, bgd_color.z, 1.0);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -119,17 +122,17 @@ namespace study_cases {
 		base_render();
 
 		// render path finder (on the xy plane)
-		const regular_grid *rg = sim_00_T.get_regular_grid();
+		const regular_grid *rg = sim_01_T.get_regular_grid();
 		render_regular_grid(rg);
 
-		if (sim_00_astar_path.size() > 1) {
-			sim_00_render_a_path
-			(sim_00_astar_path, glm::vec3(1.0f,0.0f,0.0f),
+		if (sim_01_astar_path.size() > 1) {
+			sim_01_render_a_path
+			(sim_01_astar_path, glm::vec3(1.0f,0.0f,0.0f),
 			 glm::vec3(0.0f,1.0f,0.0f), 1.0f);
 		}
-		if (sim_00_smoothed_path.size() > 1) {
-			sim_00_render_a_path
-			(sim_00_smoothed_path, glm::vec3(0.0f,0.0f,1.0f),
+		if (sim_01_smoothed_path.size() > 1) {
+			sim_01_render_a_path
+			(sim_01_smoothed_path, glm::vec3(0.0f,0.0f,1.0f),
 			 glm::vec3(0.0f,1.0f,1.0f), 2.0f);
 		}
 
@@ -138,8 +141,8 @@ namespace study_cases {
 		}
 	}
 
-	void sim_00_timed_refresh(int v) {
-		sim_00_render();
+	void sim_01_timed_refresh(int v) {
+		sim_01_render();
 
 		++fps_count;
 		timing::time_point here = timing::now();
@@ -152,13 +155,20 @@ namespace study_cases {
 			sec = timing::now();
 		}
 
-		glutTimerFunc(1000/FPS, sim_00_timed_refresh, v);
+		glutTimerFunc(1000/FPS, sim_01_timed_refresh, v);
 	}
 
-	void sim_00_init_geometry() {
+	void sim_01_init_simulation() {
+		// add agent particles
+		sim_01_agent = new agent_particle();
+		sim_01_agent->lifetime = 9999.0f; // immortal agent
+		sim_01_agent->R = 1.0f;
+		S.add_agent_particle(sim_01_agent);
+	}
+	void sim_01_init_geometry() {
 		// add the geometry read from the map
 
-		const vector<segment>& sgs = sim_00_T.get_segments();
+		const vector<segment>& sgs = sim_01_T.get_segments();
 		for (const segment& s : sgs) {
 			const vec2& A = s.first;
 			const vec2& B = s.second;
@@ -177,14 +187,16 @@ namespace study_cases {
 			V.get_box().enlarge_box(p3);
 			V.get_box().enlarge_box(p4);
 		}
+
+		V.get_box().make_buffers();
 	}
 
-	int sim_00_parse_arguments(int argc, char *argv[]) {
+	int sim_01_parse_arguments(int argc, char *argv[]) {
 		string map_file = "none";
 
 		for (int i = 1; i < argc; ++i) {
 			if (strcmp(argv[i], "--help") == 0) {
-				sim_00_usage();
+				sim_01_usage();
 				return 2;
 			}
 			else if (strcmp(argv[i], "--map") == 0) {
@@ -200,14 +212,14 @@ namespace study_cases {
 			return 1;
 		}
 
-		bool r = sim_00_T.read_map(map_file);
+		bool r = sim_01_T.read_map(map_file);
 		if (not r) {
 			return 1;
 		}
 		return 0;
 	}
 
-	int charanim_00(bool init_window) {
+	int charanim_01(bool init_window) {
 		width = 640;
 		height = 480;
 
@@ -229,12 +241,12 @@ namespace study_cases {
 		sec = timing::now();
 
 		window_id = -1;
-		draw_base_spheres = false;
+		draw_base_spheres = true;
 		render_grid = false;
 		render_dist_func = false;
 
 		/* PARSE ARGUMENTS */
-		int arg_parse = sim_00_parse_arguments(_argc, _argv);
+		int arg_parse = sim_01_parse_arguments(_argc, _argv);
 		if (arg_parse != 0) {
 			return arg_parse;
 		}
@@ -261,17 +273,31 @@ namespace study_cases {
 		V.set_window_dims(width, height);
 		V.init_cameras();
 
-		sim_00_init_geometry();
+		sim_01_init_geometry();
+		sim_01_init_simulation();
+
+		bool success;
+		success = load_shaders();
+		if (not success) {
+			cerr << "Error: error when loading shaders" << endl;
+			return 1;
+		}
+
+		success = load_sphere();
+		if (not success) {
+			cerr << "Error: error when loading sphere" << endl;
+			return 1;
+		}
 
 		return 0;
 	}
 
-	void sim_00_add_segment() {
+	void sim_01_add_segment() {
 		vec2 A, B;
 		input_2_points(A,B);
 
 		segment s(A,B);
-		regular_grid *rg = sim_00_T.get_regular_grid();
+		regular_grid *rg = sim_01_T.get_regular_grid();
 		rg->rasterise_segment(s);
 		rg->expand_function_distance(s);
 		rg->make_final_state();
@@ -291,68 +317,85 @@ namespace study_cases {
 		V.get_box().enlarge_box(p4);
 	}
 
-	void sim_00_compute_path() {
+	void sim_01_compute_path() {
 		vec2 start, goal;
 		input_2_points(start,goal);
-		cout << "Input radius: "; cin >> sim_00_R;
+		cout << "Input radius: "; cin >> sim_01_R;
 
-		if (sim_00_disk == nullptr) {
-			sim_00_disk = gluNewQuadric();
+		if (sim_01_disk == nullptr) {
+			sim_01_disk = gluNewQuadric();
 		}
 
-		sim_00_astar_path.clear();
-		sim_00_smoothed_path.clear();
-		regular_grid *rg = sim_00_T.get_regular_grid();
+		sim_01_astar_path.clear();
+		sim_01_smoothed_path.clear();
+		regular_grid *rg = sim_01_T.get_regular_grid();
 		timing::time_point begin = timing::now();
 		rg->find_path(
-			start, goal, sim_00_R,
-			sim_00_astar_path, sim_00_smoothed_path
+			start, goal, sim_01_R,
+			sim_01_astar_path, sim_01_smoothed_path
 		);
 		timing::time_point end = timing::now();
 
 		cout << "Path computed in " << timing::elapsed_seconds(begin, end)
 			 << " seconds" << endl;
+
+		/* initialise agent's movement */
+
+		// 1. set current position
+		sim_01_agent->cur_pos.x = sim_01_smoothed_path[0].x;
+		sim_01_agent->cur_pos.y = 1.0f;
+		sim_01_agent->cur_pos.z = sim_01_smoothed_path[0].y;
+
+		// 2. set first attractor
+		sim_01_agent->attractor.x = sim_01_smoothed_path[1].x;
+		sim_01_agent->attractor.y = 1.0f;
+		sim_01_agent->attractor.z = sim_01_smoothed_path[1].y;
+
+		// 3. set maximum desired velocity
+		sim_01_agent->max_vel = 1.0f; // 1 m/s
+		sim_01_agent->attractor_acceleration = 1.0f; // 1 m/s^2
 	}
 
-	void sim_00_regular_keys_keyboard(unsigned char c, int x, int y) {
+	void sim_01_regular_keys_keyboard(unsigned char c, int x, int y) {
 		charanim::regular_keys_keyboard(c, x, y);
 		switch (c) {
-		case 'h': sim_00_usage(); break;
-		case 'r': exit_func(); charanim_00(false); break;
-		case 'a': sim_00_add_segment(); break;
-		case 'p': sim_00_compute_path(); break;
-		case 'c': sim_00_render_circles = not sim_00_render_circles; break;
+		case 'h': sim_01_usage(); break;
+		case 'r': exit_func(); charanim_01(false); break;
+		case 'a': sim_01_add_segment(); break;
+		case 'p': sim_01_compute_path(); break;
+		case 'c': sim_01_render_circles = not sim_01_render_circles; break;
 		case 'd': render_dist_func = not render_dist_func; break;
 		case 'g': render_grid = not render_grid; break;
 		}
 	}
 
-	void sim_00_exit() {
+	void sim_01_exit() {
 		exit_func();
 
-		if (sim_00_disk != nullptr) {
-			gluDeleteQuadric(sim_00_disk);
+		if (sim_01_disk != nullptr) {
+			gluDeleteQuadric(sim_01_disk);
 		}
 	}
 
-	void sim_00(int argc, char *argv[]) {
+	void sim_01(int argc, char *argv[]) {
 		_argc = argc;
 		_argv = argv;
-		if (charanim_00(true) != 0) {
+		int r = charanim_01(true);
+		if (r != 0) {
 			cerr << "Error in initialisation of simulation 00" << endl;
 			return;
 		}
 
-		atexit(sim_00_exit);
-		glutDisplayFunc(sim_00_render);
+		atexit(sim_01_exit);
+		glutDisplayFunc(sim_01_render);
 		glutReshapeFunc(charanim::resize);
 		glutMouseFunc(charanim::mouse_click);
 		glutPassiveMotionFunc(charanim::mouse_passive);
 		glutMotionFunc(charanim::mouse_drag);
 		glutSpecialFunc(charanim::special_keys_keyboard);
-		glutKeyboardFunc(sim_00_regular_keys_keyboard);
+		glutKeyboardFunc(sim_01_regular_keys_keyboard);
 
-		glutTimerFunc(1000.0f/charanim::FPS, sim_00_timed_refresh, 0);
+		glutTimerFunc(1000.0f/charanim::FPS, sim_01_timed_refresh, 0);
 
 		glutMainLoop();
 	}

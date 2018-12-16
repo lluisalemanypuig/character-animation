@@ -14,6 +14,7 @@
 #include <render/triangle_mesh/rendered_triangle_mesh.hpp>
 #include <render/geometry/rgeometry.hpp>
 #include <render/shader/shader.hpp>
+#include <anim/terrain/regular_grid.hpp>
 #include <anim/utils.hpp>
 #include <anim/definitions.hpp>
 
@@ -72,16 +73,16 @@ namespace charanim {
 
 	/* render control */
 	extern bool draw_base_spheres;
+	extern bool render_grid;
+	extern bool render_dist_func;
 
 	/* --------- */
 	/* FUNCTIONS */
 
-	/* initialise animation (load models, ...) */
-
-	/// Returns 0 on success, 1 on error, 2 on '--help'
-	int init_anim(bool init_window);
-	/// Returns 0 on success, 1 on error, 2 on '--help'
-	int initialise_animation(int argc, char *argv[]);
+	// Load shaders. Returns true on success, false on error
+	bool load_shaders();
+	// Load sphere model for sized and agent particles
+	bool load_sphere();
 
 	/* rendering functions */
 	void base_render();
@@ -94,5 +95,8 @@ namespace charanim {
 	void mouse_drag(int x, int y);
 	void mouse_click(int b, int s, int x, int y);
 	void resize(int w, int h);
+
+	/* render non-GLUT */
+	void render_regular_grid(const regular_grid *r);
 
 } // -- namespace charanim

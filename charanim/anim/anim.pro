@@ -21,7 +21,9 @@ SOURCES += main.cpp \
     terrain/terrain.cpp \
     terrain/regular_grid.cpp \
     terrain/ray_rasterize.cpp \
-    terrain/ray_rasterize_4_way.cpp
+    terrain/ray_rasterize_4_way.cpp \
+    sim_01.cpp \
+    charanim_init.cpp
 
 # self-includes
 INCLUDEPATH += ../
