@@ -171,8 +171,8 @@ namespace charanim {
 		material_shader.clear();
 		texture_shader.clear();
 
+		V.get_box().clear();
 		S.clear_simulation();
-		window_id = -1;
 	}
 
 	void special_keys_keyboard(int key, int x, int y) {

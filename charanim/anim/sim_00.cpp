@@ -202,7 +202,7 @@ namespace study_cases {
 		return 0;
 	}
 
-	int charanim_00(bool init_window) {
+	int sim_00_init(bool init_window) {
 		width = 640;
 		height = 480;
 
@@ -310,19 +310,6 @@ namespace study_cases {
 			 << " seconds" << endl;
 	}
 
-	void sim_00_regular_keys_keyboard(unsigned char c, int x, int y) {
-		charanim::regular_keys_keyboard(c, x, y);
-		switch (c) {
-		case 'h': sim_00_usage(); break;
-		case 'r': exit_func(); charanim_00(false); break;
-		case 'a': sim_00_add_segment(); break;
-		case 'p': sim_00_compute_path(); break;
-		case 'c': sim_00_render_circles = not sim_00_render_circles; break;
-		case 'd': render_dist_func = not render_dist_func; break;
-		case 'g': render_grid = not render_grid; break;
-		}
-	}
-
 	void sim_00_exit() {
 		exit_func();
 
@@ -331,10 +318,22 @@ namespace study_cases {
 		}
 	}
 
+	void sim_00_regular_keys_keyboard(unsigned char c, int x, int y) {
+		charanim::regular_keys_keyboard(c, x, y);
+		switch (c) {
+		case 'h': sim_00_usage(); break;
+		case 'a': sim_00_add_segment(); break;
+		case 'p': sim_00_compute_path(); break;
+		case 'c': sim_00_render_circles = not sim_00_render_circles; break;
+		case 'd': render_dist_func = not render_dist_func; break;
+		case 'g': render_grid = not render_grid; break;
+		}
+	}
+
 	void sim_00(int argc, char *argv[]) {
 		_argc = argc;
 		_argv = argv;
-		if (charanim_00(true) != 0) {
+		if (sim_00_init(true) != 0) {
 			cerr << "Error in initialisation of simulation 00" << endl;
 			return;
 		}

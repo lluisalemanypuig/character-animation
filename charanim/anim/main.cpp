@@ -9,7 +9,7 @@ namespace charanim {
 namespace study_cases {
 
 	void sim_00(int argc, char *argv[]);
-	void sim_01(int argc, char *argv[]);
+	void sim_01_init(int argc, char *argv[]);
 
 } // -- namespace study_cases
 } // -- namespace charanim
@@ -43,7 +43,7 @@ int main(int argc, char *argv[]) {
 		charanim::study_cases::sim_00(argc, argv);
 	}
 	else if (strcmp(argv[1], "01") == 0) {
-		charanim::study_cases::sim_01(argc, argv);
+		charanim::study_cases::sim_01_init(argc, argv);
 	}
 	else {
 		cerr << "Unknown case '" << string(argv[1]) << "'." << endl;

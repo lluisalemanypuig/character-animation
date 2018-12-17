@@ -167,7 +167,9 @@ namespace study_cases {
 				S.simulate_agent_particles();
 			}
 
-			if (dist(sim_01_agent->cur_pos, sim_01_agent->attractor) <= 0.1f) {
+			// when the agent is 1 meter away from its attractor
+			// move the attractor to the next point
+			if (dist(sim_01_agent->cur_pos, sim_01_agent->attractor) <= 1.0f) {
 				if (sim_01_what_attractor + 1 < sim_01_smoothed_path.size()) {
 					++sim_01_what_attractor;
 
@@ -217,12 +219,16 @@ namespace study_cases {
 	}
 
 	void sim_01_init_simulation() {
+		sim_01_agent = nullptr;
+
 		// add agent particles
 		sim_01_agent = new agent_particle();
 		sim_01_agent->lifetime = 9999.0f; // immortal agent
 		sim_01_agent->R = 1.0f;
 		sim_01_agent->cur_pos = vec3(5.0f,1.0f,5.0f);
 		sim_01_agent->desired_vel = 10.0f;
+		sim_01_agent->bouncing = 0.3f;
+		sim_01_agent->friction = 0.6f;
 		S.add_agent_particle(sim_01_agent);
 
 		// set time step and collision checking
@@ -291,6 +297,7 @@ namespace study_cases {
 			return 1;
 		}
 
+		sim_01_T.clear();
 		bool r = sim_01_T.read_map(map_file);
 		if (not r) {
 			return 1;
@@ -374,12 +381,16 @@ namespace study_cases {
 	void sim_01_exit() {
 		exit_func();
 
+		sim_01_astar_path.clear();
+		sim_01_smoothed_path.clear();
+
 		if (sim_01_disk != nullptr) {
 			gluDeleteQuadric(sim_01_disk);
 		}
+		sim_01_agent = nullptr;
 	}
 
-	int charanim_01(bool init_window) {
+	int sim_01_init(bool init_window) {
 		width = 640;
 		height = 480;
 
@@ -400,7 +411,6 @@ namespace study_cases {
 		display_fps = false;
 		sec = timing::now();
 
-		window_id = -1;
 		draw_base_spheres = true;
 		render_grid = false;
 		render_dist_func = false;
@@ -418,7 +428,7 @@ namespace study_cases {
 			glutInit(&_argc, _argv);
 			glutInitDisplayMode(GLUT_DEPTH | GLUT_DOUBLE | GLUT_RGBA);
 			glutInitWindowSize(width, height);
-			window_id = glutCreateWindow("Character animation - Map editor and visualiser");
+			window_id = glutCreateWindow("Character animation - Movement inspection");
 
 			GLenum err = glewInit();
 			if (err != 0) {
@@ -429,14 +439,12 @@ namespace study_cases {
 		}
 
 		glEnable(GL_DEPTH_TEST);
-		glDisable(GL_LIGHTING);
-
-		V.get_box().set_min_max(glm::vec3(0,0,0), glm::vec3(20,5,20));
-		V.set_window_dims(width, height);
-		V.init_cameras();
 
 		sim_01_init_geometry();
 		sim_01_init_simulation();
+
+		V.set_window_dims(width, height);
+		V.init_cameras();
 
 		bool success;
 		success = load_shaders();
@@ -458,7 +466,7 @@ namespace study_cases {
 		charanim::regular_keys_keyboard(c, x, y);
 		switch (c) {
 		case 'h': sim_01_usage(); break;
-		case 'r': exit_func(); charanim_01(false); break;
+		case 'r': sim_01_exit(); sim_01_init(false); break;
 		case 'a': sim_01_add_segment(); break;
 		case 'p': sim_01_compute_path(); break;
 		case 'c': sim_01_render_circles = not sim_01_render_circles; break;
@@ -467,10 +475,10 @@ namespace study_cases {
 		}
 	}
 
-	void sim_01(int argc, char *argv[]) {
+	void sim_01_init(int argc, char *argv[]) {
 		_argc = argc;
 		_argv = argv;
-		int r = charanim_01(true);
+		int r = sim_01_init(true);
 		if (r != 0) {
 			cerr << "Error in initialisation of simulation 00" << endl;
 			return;
