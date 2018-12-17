@@ -257,6 +257,7 @@ namespace study_cases {
 		V.init_cameras();
 
 		sim_00_init_geometry();
+		load_shaders();
 
 		return 0;
 	}

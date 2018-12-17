@@ -313,24 +313,24 @@ void regular_grid::find_path(
 	}
 
 	smoothed_path.push_back(path[0]);
-	const float max_dist_allowed = 0.5f;
+	const float max_dist_allowed = 0.5f*std::sqrt(lenX*lenX + lenY*lenY)/2.0f;
 
 	size_t smooth_it = 0;
 	size_t path_it = 1;
 	size_t watch_it = path.size() + 1;
-	while (path_it + 1 < path.size()) {
 
+	while (path_it + 1 < path.size()) {
 		if (watch_it > path.size()) {
 			float d = dist_point_to_rect
 			(smoothed_path[smooth_it], path[path_it + 1], path[path_it]);
+
 			if (d > 0.0f) {
 				// watch this cell closely to avoid
 				// underfitting smooth paths
 				watch_it = path_it;
 			}
 		}
-
-		if (watch_it < path.size()) {
+		else {
 			float wd = dist_point_to_rect
 			(smoothed_path[smooth_it], path[path_it], path[watch_it]);
 			if (wd > max_dist_allowed) {
