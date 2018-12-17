@@ -47,8 +47,10 @@ namespace charanim {
 	shader texture_shader;
 
 	/* render control */
-	bool draw_base_spheres;
+	bool render_base_spheres;
 	bool render_grid;
 	bool render_dist_func;
+	bool render_velocity_vector;
+	bool render_attractor_vector;
 
 } // -- namespace charanim

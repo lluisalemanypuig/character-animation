@@ -38,6 +38,34 @@ namespace charanim {
 		   and ((0 <= y) and (y <= h));
 	}
 
+	void render_agent_vectors() {
+		const vector<agent_particle *>& as = S.get_agent_particles();
+		for (const agent_particle *a : as) {
+			if (render_velocity_vector) {
+				glDisable(GL_LIGHTING);
+				glColor3f(0.0f,1.0f,0.0f);
+				glBegin(GL_LINES);
+					glVertex3f(
+						a->cur_pos.x,
+						a->cur_pos.y + 0.5f,
+						a->cur_pos.z);
+					glVertex3f(
+						a->cur_pos.x + a->cur_vel.x,
+						a->cur_pos.y + a->cur_vel.y + 0.5f,
+						a->cur_pos.z + a->cur_vel.z);
+				glEnd();
+			}
+			if (render_attractor_vector) {
+				glDisable(GL_LIGHTING);
+				glColor3f(0.0f,1.0f,1.0f);
+				glBegin(GL_LINES);
+					glVertex3f(a->cur_pos.x, a->cur_pos.y, a->cur_pos.z);
+					glVertex3f(a->attractor.x, a->attractor.y, a->attractor.z);
+				glEnd();
+			}
+		}
+	}
+
 	void base_render() {
 		glm::mat4 projection(1.0f), view(1.0f);
 		V.make_projection_matrix(projection);
@@ -53,7 +81,7 @@ namespace charanim {
 
 		/* draw sized particles */
 		const vector<sized_particle *>& ps = S.get_sized_particles();
-		if (draw_base_spheres and ps.size() > 0) {
+		if (render_base_spheres and ps.size() > 0) {
 
 			for (const sized_particle *p : ps) {
 				glm::mat4 model(1.0f);
@@ -72,8 +100,7 @@ namespace charanim {
 
 		/* draw agent particles */
 		const vector<agent_particle *>& as = S.get_agent_particles();
-		if (draw_base_spheres and as.size() > 0) {
-
+		if (render_base_spheres and as.size() > 0) {
 			for (const agent_particle *a : as) {
 				glm::mat4 model(1.0f);
 				model = glm::translate(model, to_gvec3(a->cur_pos));
@@ -100,7 +127,7 @@ namespace charanim {
 			}
 		}
 
-		if (not draw_base_spheres and ps.size() > 0) {
+		if (not render_base_spheres and ps.size() > 0) {
 			glPointSize(3.0f);
 			glBegin(GL_POINTS);
 			glColor3f(0.0f,0.0f,1.0f);
@@ -184,10 +211,11 @@ namespace charanim {
 		switch (c) {
 		case ESC:
 			glutDestroyWindow(window_id);
+			window_id = -1;
 			break;
 
 		case 's':
-			draw_base_spheres = not draw_base_spheres;
+			render_base_spheres = not render_base_spheres;
 			break;
 		}
 	}

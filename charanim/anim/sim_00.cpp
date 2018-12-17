@@ -223,10 +223,10 @@ namespace study_cases {
 		display_fps = false;
 		sec = timing::now();
 
-		window_id = -1;
-		draw_base_spheres = false;
+		render_base_spheres = false;
 		render_grid = false;
 		render_dist_func = false;
+		render_velocity_vector = false;
 
 		/* PARSE ARGUMENTS */
 		int arg_parse = sim_00_parse_arguments(_argc, _argv);

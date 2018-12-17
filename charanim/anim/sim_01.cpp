@@ -70,11 +70,12 @@ namespace study_cases {
 		cout << "Keyboard keys:" << endl;
 		cout << "    h: show the usage." << endl;
 		cout << "    r: reset simulation." << endl;
-		cout << "    a: add segment." << endl;
 		cout << "    p: find path between two 2d points." << endl;
 		cout << "    c: render circles around path vertices." << endl;
 		cout << "    d: render distance function for obstacle avoidance" << endl;
 		cout << "    g: render grid for path finding" << endl;
+		cout << "    v: render velocity vector" << endl;
+		cout << "    a: render attractor vector" << endl;
 		cout << endl;
 	}
 
@@ -118,6 +119,8 @@ namespace study_cases {
 		V.apply_view();
 
 		glTranslatef(move_x, 0.0f, move_z);
+
+		render_agent_vectors();
 
 		base_render();
 
@@ -305,31 +308,6 @@ namespace study_cases {
 		return 0;
 	}
 
-	void sim_01_add_segment() {
-		vec2 A, B;
-		input_2_points(A,B);
-
-		segment s(A,B);
-		regular_grid *rg = sim_01_T.get_regular_grid();
-		rg->rasterise_segment(s);
-		rg->expand_function_distance(s);
-		rg->make_final_state();
-
-		rplane *pl = new rplane();
-
-		glm_vec3 p1( A.x, 0.0f,  A.y);
-		glm_vec3 p2( B.x, 0.0f,  B.y);
-		glm_vec3 p3(p2.x, 2.0f, p2.z);
-		glm_vec3 p4(p1.x, 2.0f, p1.z);
-		pl->set_points(p1, p2, p3, p4);
-		geometry.push_back(pl);
-
-		V.get_box().enlarge_box(p1);
-		V.get_box().enlarge_box(p2);
-		V.get_box().enlarge_box(p3);
-		V.get_box().enlarge_box(p4);
-	}
-
 	void sim_01_compute_path() {
 		vec2 start, goal;
 		input_2_points(start,goal);
@@ -411,9 +389,11 @@ namespace study_cases {
 		display_fps = false;
 		sec = timing::now();
 
-		draw_base_spheres = true;
+		render_base_spheres = true;
 		render_grid = false;
 		render_dist_func = false;
+		render_velocity_vector = false;
+		render_attractor_vector = false;
 
 		sim_01_what_attractor = 1000;
 
@@ -467,11 +447,12 @@ namespace study_cases {
 		switch (c) {
 		case 'h': sim_01_usage(); break;
 		case 'r': sim_01_exit(); sim_01_init(false); break;
-		case 'a': sim_01_add_segment(); break;
+		case 'a': render_attractor_vector = not render_attractor_vector; break;
 		case 'p': sim_01_compute_path(); break;
 		case 'c': sim_01_render_circles = not sim_01_render_circles; break;
 		case 'd': render_dist_func = not render_dist_func; break;
 		case 'g': render_grid = not render_grid; break;
+		case 'v': render_velocity_vector = not render_velocity_vector; break;
 		}
 	}
 

@@ -72,9 +72,11 @@ namespace charanim {
 	extern shader texture_shader;
 
 	/* render control */
-	extern bool draw_base_spheres;
+	extern bool render_base_spheres;
 	extern bool render_grid;
 	extern bool render_dist_func;
+	extern bool render_velocity_vector;
+	extern bool render_attractor_vector;
 
 	/* --------- */
 	/* FUNCTIONS */
@@ -85,6 +87,7 @@ namespace charanim {
 	bool load_sphere();
 
 	/* rendering functions */
+	void render_agent_vectors();
 	void base_render();
 	void full_render();
 	void timed_refresh(int v);
