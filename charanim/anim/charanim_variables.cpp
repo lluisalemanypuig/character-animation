@@ -50,6 +50,7 @@ namespace charanim {
 	bool render_base_spheres;
 	bool render_grid;
 	bool render_dist_func;
+	bool render_attractors;
 	bool render_velocity_vector;
 	bool render_attractor_vector;
 

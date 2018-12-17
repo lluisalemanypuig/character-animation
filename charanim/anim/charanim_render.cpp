@@ -75,11 +75,12 @@ namespace charanim {
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
 		flat_shader.bind();
+		flat_shader.set_bool("wireframe", false);
 		flat_shader.set_vec3("view_pos", glm::vec3(0.0f,0.0f,0.0f));
 		flat_shader.set_vec4("colour", glm::vec4(0.0f,0.0f,1.0f,1.0f));
 		flat_shader.set_mat4("projection", projection);
 
-		/* draw sized particles */
+		/* render sized particles */
 		const vector<sized_particle *>& ps = S.get_sized_particles();
 		if (render_base_spheres and ps.size() > 0) {
 
@@ -98,14 +99,36 @@ namespace charanim {
 			}
 		}
 
-		/* draw agent particles */
+		/* render agent particles */
 		const vector<agent_particle *>& as = S.get_agent_particles();
 		if (render_base_spheres and as.size() > 0) {
+			flat_shader.set_vec4("colour", glm::vec4(0.0f,0.0f,1.0f,1.0f));
+
 			for (const agent_particle *a : as) {
 				glm::mat4 model(1.0f);
 				model = glm::translate(model, to_gvec3(a->cur_pos));
 				float R = 2.0f*a->R;
 				model = glm::scale(model, glm::vec3(R, R, R));
+
+				glm::mat4 modelview = view*model;
+				glm::mat3 normal_matrix = glm::inverseTranspose(glm::mat3(modelview));
+
+				flat_shader.set_mat4("modelview", modelview);
+				flat_shader.set_mat3("normal_matrix", normal_matrix);
+				sphere->render();
+			}
+		}
+
+		/* render attractors of agent particles */
+		if (render_attractors) {
+			flat_shader.set_vec4("colour", glm::vec4(1.0f,0.0f,0.0f,1.0f));
+
+			for (const agent_particle *a : as) {
+				const vec3& att = a->attractor;
+
+				glm::mat4 model(1.0f);
+				model = glm::translate(model, glm::vec3(att.x, att.y, att.z));
+				model = glm::scale(model, glm::vec3(3.0f, 3.0f, 3.0f));
 
 				glm::mat4 modelview = view*model;
 				glm::mat3 normal_matrix = glm::inverseTranspose(glm::mat3(modelview));

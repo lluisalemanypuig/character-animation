@@ -77,6 +77,7 @@ namespace charanim {
 	extern bool render_dist_func;
 	extern bool render_velocity_vector;
 	extern bool render_attractor_vector;
+	extern bool render_attractors;
 
 	/* --------- */
 	/* FUNCTIONS */

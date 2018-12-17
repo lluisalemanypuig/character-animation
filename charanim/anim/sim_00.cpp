@@ -225,6 +225,7 @@ namespace study_cases {
 
 		render_base_spheres = false;
 		render_grid = false;
+		render_attractors = false;
 		render_dist_func = false;
 		render_velocity_vector = false;
 

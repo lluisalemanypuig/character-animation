@@ -137,31 +137,6 @@ namespace study_cases {
 			sim_01_render_a_path
 			(sim_01_smoothed_path, glm::vec3(0.0f,0.0f,1.0f),
 			 glm::vec3(0.0f,1.0f,1.0f), 2.0f);
-
-			// render attractor
-			if (sim_01_what_attractor < sim_01_smoothed_path.size()) {
-				flat_shader.bind();
-				flat_shader.set_vec4("colour", glm::vec4(1.0f,0.0f,0.0f,1.0f));
-
-				glm::mat4 projection(1.0f), view(1.0f);
-				V.make_projection_matrix(projection);
-				V.make_view_matrix(view);
-				view = glm::translate(view, glm::vec3(move_x, 0.0f, move_z));
-
-				const vec2& att = sim_01_smoothed_path[sim_01_what_attractor];
-
-				glm::mat4 model(1.0f);
-				model = glm::translate(model, glm::vec3(att.x, 1.0f, att.y));
-				model = glm::scale(model, glm::vec3(3.0f, 3.0f, 3.0f));
-
-				glm::mat4 modelview = view*model;
-				glm::mat3 normal_matrix = glm::inverseTranspose(glm::mat3(modelview));
-
-				flat_shader.set_mat4("modelview", modelview);
-				flat_shader.set_mat3("normal_matrix", normal_matrix);
-				sphere->render();
-				flat_shader.release();
-			}
 		}
 
 		// simulate agents only if we have a path
@@ -343,17 +318,21 @@ namespace study_cases {
 		sim_01_agent->attractor.z = sim_01_smoothed_path[1].y;
 		sim_01_what_attractor = 1;
 
+		// 3. set velocity so that the particle can start moving
 		float mv = sim_01_agent->desired_vel;
 		sim_01_agent->cur_vel =
-			(sim_01_agent->attractor - sim_01_agent->cur_pos)*mv;
+			normalise(sim_01_agent->attractor - sim_01_agent->cur_pos)*mv;
+
+		// 4. set attractor acceleration and radius
+		sim_01_agent->attractor_acceleration = 5.0f;
+		sim_01_agent->R = sim_01_R;
+
+		render_attractors = true;
 
 		cout << "First attractor at: ("
 			 << sim_01_agent->attractor.x << ","
 			 << sim_01_agent->attractor.y << ","
 			 << sim_01_agent->attractor.z << ")" << endl;
-
-		// 3. set maximum desired velocity
-		sim_01_agent->attractor_acceleration = 5.0f;
 	}
 
 	void sim_01_exit() {
@@ -392,6 +371,7 @@ namespace study_cases {
 		render_base_spheres = true;
 		render_grid = false;
 		render_dist_func = false;
+		render_attractors = false;
 		render_velocity_vector = false;
 		render_attractor_vector = false;
 
