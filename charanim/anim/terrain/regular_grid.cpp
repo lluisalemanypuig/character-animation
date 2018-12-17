@@ -34,7 +34,8 @@ float dist_point_to_rect(const vec2& p1, const vec2& p2, const vec2& pm) {
 #define global_xy(x,y) static_cast<size_t>(y)*resX + static_cast<size_t>(x)
 #define global_latpoint(C) static_cast<size_t>(C.y())*resX + static_cast<size_t>(C.x())
 #define  local(g, x,y) x = g%resX; y = g/resX
-#define cell_out(c) "(" << c.x << "," << c.y << ")"
+#define vec2_out(c) "(" << c.x << "," << c.y << ")"
+#define latpoint_out(c) "(" << c.x() << "," << c.y() << ")"
 
 #define in_box(s,t, p)													\
 	(((std::min(s.x, t.x) <= p.x) and (p.x <= std::max(s.x,t.x))) and	\
@@ -212,6 +213,27 @@ void regular_grid::find_path(
 	vector<vec2>& smoothed_path
 )
 {
+	// make sure that the particle can start at
+	// 'source' and finish at 'end'
+	const latticePoint start = from_vec2_to_latPoint(source);
+	const latticePoint goal = from_vec2_to_latPoint(sink);
+
+	if (grid_cells[global_latpoint(start)] <= R) {
+		cerr << "Error: a particle of radius " << R
+			 << " can't start at " << latpoint_out(start) << endl;
+		cerr << "    This position is at a distance from a static obstacle"
+			 << " of: " << grid_cells[global_latpoint(start)] << endl;
+		return;
+	}
+	if (grid_cells[global_latpoint(goal)] <= R) {
+		cerr << "Error: a particle of radius " << R
+			 << " can't finish at " << latpoint_out(goal) << endl;
+		cerr << "    This position is at a distance from a static obstacle"
+			 << " of: " << grid_cells[global_latpoint(goal)] << endl;
+		return;
+	}
+
+
 	/* This algorithm can be optimised a lot but I'm
 	 * running out of time. For example, the priority queue
 	 * can be optimised to have a single instance of each node
@@ -223,8 +245,6 @@ void regular_grid::find_path(
 
 	typedef double pct;
 	typedef pair<pct, latticePoint> node;
-	const latticePoint start = from_vec2_to_latPoint(source);
-	const latticePoint goal = from_vec2_to_latPoint(sink);
 
 	latticePoint ns[8];
 
