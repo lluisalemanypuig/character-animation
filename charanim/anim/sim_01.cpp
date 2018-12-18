@@ -156,10 +156,6 @@ namespace study_cases {
 					sim_01_agent->attractor.y = 1.0f;
 					sim_01_agent->attractor.z = sim_01_smoothed_path[attr].y;
 
-					float mv = sim_01_agent->desired_vel;
-					sim_01_agent->cur_vel =
-						(sim_01_agent->attractor - sim_01_agent->cur_pos)*mv;
-
 					cout << "Change of attractor:" << endl;
 					cout << "    Attractor index: " << attr << endl;
 					cout << "    Position: ("
@@ -204,7 +200,9 @@ namespace study_cases {
 		sim_01_agent->lifetime = 9999.0f; // immortal agent
 		sim_01_agent->R = 1.0f;
 		sim_01_agent->cur_pos = vec3(5.0f,1.0f,5.0f);
-		sim_01_agent->desired_vel = 10.0f;
+		sim_01_agent->max_speed = 10.0f;
+		sim_01_agent->max_force = 10.0f;
+		sim_01_agent->mass = 60.0f;
 		sim_01_agent->bouncing = 0.3f;
 		sim_01_agent->friction = 0.6f;
 		S.add_agent_particle(sim_01_agent);
@@ -319,7 +317,7 @@ namespace study_cases {
 		sim_01_what_attractor = 1;
 
 		// 3. set velocity so that the particle can start moving
-		float mv = sim_01_agent->desired_vel;
+		float mv = sim_01_agent->max_speed;
 		sim_01_agent->cur_vel =
 			normalise(sim_01_agent->attractor - sim_01_agent->cur_pos)*mv;
 
