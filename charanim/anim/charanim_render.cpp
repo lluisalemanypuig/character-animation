@@ -60,7 +60,7 @@ namespace charanim {
 				glColor3f(0.0f,1.0f,1.0f);
 				glBegin(GL_LINES);
 					glVertex3f(a->cur_pos.x, a->cur_pos.y, a->cur_pos.z);
-					glVertex3f(a->attractor.x, a->attractor.y, a->attractor.z);
+					glVertex3f(a->target.x, a->target.y, a->target.z);
 				glEnd();
 			}
 		}
@@ -124,7 +124,7 @@ namespace charanim {
 			flat_shader.set_vec4("colour", glm::vec4(1.0f,0.0f,0.0f,1.0f));
 
 			for (const agent_particle *a : as) {
-				const vec3& att = a->attractor;
+				const vec3& att = a->target;
 
 				glm::mat4 model(1.0f);
 				model = glm::translate(model, glm::vec3(att.x, att.y, att.z));

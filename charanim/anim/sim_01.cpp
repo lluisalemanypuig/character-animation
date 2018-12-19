@@ -147,21 +147,21 @@ namespace study_cases {
 
 			// when the agent is 1 meter away from its attractor
 			// move the attractor to the next point
-			if (dist(sim_01_agent->cur_pos, sim_01_agent->attractor) <= 1.0f) {
-				if (sim_01_what_attractor + 1 < sim_01_smoothed_path.size()) {
-					++sim_01_what_attractor;
+			if (dist(sim_01_agent->cur_pos, sim_01_agent->target) <= 1.0f) {
+				++sim_01_what_attractor;
+				if (sim_01_what_attractor < sim_01_smoothed_path.size()) {
 
 					size_t attr = sim_01_what_attractor;
-					sim_01_agent->attractor.x = sim_01_smoothed_path[attr].x;
-					sim_01_agent->attractor.y = 1.0f;
-					sim_01_agent->attractor.z = sim_01_smoothed_path[attr].y;
+					sim_01_agent->target.x = sim_01_smoothed_path[attr].x;
+					sim_01_agent->target.y = 1.0f;
+					sim_01_agent->target.z = sim_01_smoothed_path[attr].y;
 
 					cout << "Change of attractor:" << endl;
 					cout << "    Attractor index: " << attr << endl;
 					cout << "    Position: ("
-						 << sim_01_agent->attractor.x << ","
-						 << sim_01_agent->attractor.y << ","
-						 << sim_01_agent->attractor.z << ")" << endl;
+						 << sim_01_agent->target.x << ","
+						 << sim_01_agent->target.y << ","
+						 << sim_01_agent->target.z << ")" << endl;
 				}
 				else {
 					// agent reached its goal
@@ -311,26 +311,27 @@ namespace study_cases {
 		sim_01_agent->cur_pos.z = sim_01_smoothed_path[0].y;
 
 		// 2. set first attractor
-		sim_01_agent->attractor.x = sim_01_smoothed_path[1].x;
-		sim_01_agent->attractor.y = 1.0f;
-		sim_01_agent->attractor.z = sim_01_smoothed_path[1].y;
+		sim_01_agent->target.x = sim_01_smoothed_path[1].x;
+		sim_01_agent->target.y = 1.0f;
+		sim_01_agent->target.z = sim_01_smoothed_path[1].y;
 		sim_01_what_attractor = 1;
+
+		sim_01_agent->behaviour = agent_behaviour_type::seek;
 
 		// 3. set velocity so that the particle can start moving
 		float mv = sim_01_agent->max_speed;
 		sim_01_agent->cur_vel =
-			normalise(sim_01_agent->attractor - sim_01_agent->cur_pos)*mv;
+			normalise(sim_01_agent->target - sim_01_agent->cur_pos)*mv;
 
 		// 4. set attractor acceleration and radius
-		sim_01_agent->attractor_acceleration = 5.0f;
 		sim_01_agent->R = sim_01_R;
 
 		render_attractors = true;
 
 		cout << "First attractor at: ("
-			 << sim_01_agent->attractor.x << ","
-			 << sim_01_agent->attractor.y << ","
-			 << sim_01_agent->attractor.z << ")" << endl;
+			 << sim_01_agent->target.x << ","
+			 << sim_01_agent->target.y << ","
+			 << sim_01_agent->target.z << ")" << endl;
 	}
 
 	void sim_01_exit() {
