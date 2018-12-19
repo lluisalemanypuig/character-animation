@@ -14,6 +14,7 @@ using namespace std;
 
 // charanim includes
 #include <anim/terrain/ray_rasterize_4_way.hpp>
+#include <anim/utils/indexed_heap.hpp>
 
 namespace charanim {
 
@@ -47,7 +48,7 @@ float dist_point_to_rect(const vec2& p1, const vec2& p2, const vec2& pm) {
 #define l2(c1, c2) charanim_l2(c1.x(),c1.y(), c2.x(),c2.y())
 
 #define make_neighbour(i, cx, cy)				\
-	if (grid_cells[global_xy(cx,cy)] >= R) {		\
+	if (grid_cells[global_xy(cx,cy)] >= R) {	\
 		ns[i].x() = cx; ns[i].y() = cy; ++i;	\
 	}
 

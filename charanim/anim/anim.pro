@@ -5,16 +5,17 @@ CONFIG -= qt
 
 HEADERS += \
     charanim.hpp \
-    utils.hpp \
     vec_helper.hpp \
     terrain/terrain.hpp \
     definitions.hpp \
     terrain/regular_grid.hpp \
     terrain/ray_rasterize.hpp \
-    terrain/ray_rasterize_4_way.hpp
+    terrain/ray_rasterize_4_way.hpp \
+    utils/indexed_heap.hpp \
+    utils/indexed_heap.cpp \
+    utils/utils.hpp
 
 SOURCES += main.cpp \
-    utils.cpp \
     charanim_variables.cpp \
     charanim_render.cpp \
     sim_00.cpp \
@@ -23,7 +24,8 @@ SOURCES += main.cpp \
     terrain/ray_rasterize.cpp \
     terrain/ray_rasterize_4_way.cpp \
     sim_01.cpp \
-    charanim_init.cpp
+    charanim_init.cpp \
+    utils/utils.cpp
 
 # self-includes
 INCLUDEPATH += ../
