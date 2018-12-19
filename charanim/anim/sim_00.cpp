@@ -8,8 +8,9 @@
 using namespace std;
 
 // glm includes
-#include <glm/vec3.hpp>
-typedef glm::vec3 gvec3;
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_inverse.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 
 // physim includes
 #include <physim/particles/sized_particle.hpp>
@@ -72,7 +73,7 @@ namespace study_cases {
 
 	void sim_00_render_a_path
 	(const vector<vec2>& apath, const glm::vec3& pcol,
-	 const glm::vec3& ccol, float yoff)
+	 const glm::vec3& ccol, float yoff, bool spheres)
 	{
 		glBegin(GL_LINES);
 		glColor3f(pcol.x, pcol.y, pcol.z);
@@ -84,14 +85,46 @@ namespace study_cases {
 		}
 		glEnd();
 		if (sim_00_render_circles) {
-			glColor3f(ccol.x, ccol.y, ccol.z);
-			for (size_t i = 0; i < apath.size(); ++i) {
-				const vec2& p = apath[i];
-				glPushMatrix();
-					glTranslatef(p.x, yoff, p.y);
-					glRotatef(-90.0f, 1.0f,0.0f,0.0f);
-					gluDisk(sim_00_disk, double(sim_00_R)*0.9, double(sim_00_R), 20, 20);
-				glPopMatrix();
+			if (not spheres) {
+				glColor3f(ccol.x, ccol.y, ccol.z);
+				for (size_t i = 0; i < apath.size(); ++i) {
+					const vec2& p = apath[i];
+					glPushMatrix();
+						glTranslatef(p.x, yoff, p.y);
+						glRotatef(-90.0f, 1.0f,0.0f,0.0f);
+						gluDisk(sim_00_disk, double(sim_00_R)*0.9, double(sim_00_R), 20, 20);
+					glPopMatrix();
+				}
+			}
+			else {
+				glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+				glm::mat4 projection(1.0f), view(1.0f);
+				V.make_projection_matrix(projection);
+				V.make_view_matrix(view);
+				view = glm::translate(view, glm::vec3(move_x, 0.0f, move_z));
+
+				flat_shader.bind();
+				flat_shader.set_vec4("colour", glm::vec4(ccol, 1.0f));
+				flat_shader.set_bool("wireframe", true);
+				flat_shader.set_mat4("projection", projection);
+				flat_shader.set_vec3("view_pos", glm::vec3(0.0f,0.0f,0.0f));
+
+				for (size_t i = 0; i < apath.size(); ++i) {
+					const vec2& p = apath[i];
+
+					glm::mat4 model(1.0f);
+					model = glm::translate(model, glm::vec3(p.x, yoff, p.y));
+					float R = 2.0f*sim_00_R;
+					model = glm::scale(model, glm::vec3(R, R, R));
+
+					glm::mat4 modelview = view*model;
+					glm::mat3 normal_matrix = glm::inverseTranspose(glm::mat3(modelview));
+
+					flat_shader.set_mat4("modelview", modelview);
+					flat_shader.set_mat3("normal_matrix", normal_matrix);
+					sphere->render();
+				}
+				flat_shader.release();
 			}
 		}
 	}
@@ -120,12 +153,12 @@ namespace study_cases {
 		if (sim_00_astar_path.size() > 1) {
 			sim_00_render_a_path
 			(sim_00_astar_path, glm::vec3(1.0f,0.0f,0.0f),
-			 glm::vec3(0.0f,1.0f,0.0f), 1.0f);
+			 glm::vec3(0.0f,1.0f,0.0f), 1.0f, false);
 		}
 		if (sim_00_smoothed_path.size() > 1) {
 			sim_00_render_a_path
 			(sim_00_smoothed_path, glm::vec3(0.0f,0.0f,1.0f),
-			 glm::vec3(0.0f,1.0f,1.0f), 2.0f);
+			 glm::vec3(0.0f,1.0f,1.0f), 2.0f, true);
 		}
 
 		if (window_id != -1) {
@@ -258,7 +291,18 @@ namespace study_cases {
 		V.init_cameras();
 
 		sim_00_init_geometry();
-		load_shaders();
+		bool success;
+		success = load_shaders();
+		if (not success) {
+			cerr << "Error: error when loading shaders" << endl;
+			return 1;
+		}
+
+		success = load_sphere();
+		if (not success) {
+			cerr << "Error: error when loading sphere" << endl;
+			return 1;
+		}
 
 		return 0;
 	}
@@ -309,6 +353,12 @@ namespace study_cases {
 
 		cout << "Path computed in " << timing::elapsed_seconds(begin, end)
 			 << " seconds" << endl;
+
+		cout << "Path found:" << endl;
+		for (size_t i = 0; i < sim_00_smoothed_path.size(); ++i) {
+			const vec2& v = sim_00_smoothed_path[i];
+			cout << "    " << i << ": (" << v.x << ", " << v.y << ")" << endl;
+		}
 	}
 
 	void sim_00_exit() {
