@@ -17,6 +17,7 @@ typedef glm::vec3 gvec3;
 #include <physim/initialiser/initialiser.hpp>
 #include <physim/particles/agent_particle.hpp>
 #include <physim/geometry/rectangle.hpp>
+#include <physim/math/vec2.hpp>
 #include <physim/math/vec3.hpp>
 using namespace physim::init;
 using namespace physim::particles;
@@ -162,6 +163,16 @@ namespace study_cases {
 						 << sim_01_agent->target.x << ","
 						 << sim_01_agent->target.y << ","
 						 << sim_01_agent->target.z << ")" << endl;
+
+					if (sim_01_what_attractor == sim_01_smoothed_path.size() - 1) {
+						cout << "Reached last attractor." << endl;
+						cout << "    Behaviour set to 'arrival'" << endl;
+						sim_01_agent->behaviour = agent_behaviour_type::arrival;
+
+						sim_01_agent->slowing_distance =
+						0.5f*physim::math::dist(sim_01_agent->cur_pos, sim_01_agent->target);
+					}
+
 				}
 				else {
 					// agent reached its goal
