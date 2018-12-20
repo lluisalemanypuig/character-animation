@@ -11,9 +11,9 @@ HEADERS += \
     terrain/regular_grid.hpp \
     terrain/ray_rasterize.hpp \
     terrain/ray_rasterize_4_way.hpp \
-    utils/indexed_heap.hpp \
-    utils/indexed_heap.cpp \
-    utils/utils.hpp
+    utils/utils.hpp \
+    utils/indexed_minheap.hpp \
+    utils/indexed_minheap.cpp
 
 SOURCES += main.cpp \
     charanim_variables.cpp \

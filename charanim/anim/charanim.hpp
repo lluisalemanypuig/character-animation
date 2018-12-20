@@ -15,7 +15,7 @@
 #include <render/geometry/rgeometry.hpp>
 #include <render/shader/shader.hpp>
 #include <anim/terrain/regular_grid.hpp>
-#include <anim/utils.hpp>
+#include <anim/utils/utils.hpp>
 #include <anim/definitions.hpp>
 
 namespace charanim {

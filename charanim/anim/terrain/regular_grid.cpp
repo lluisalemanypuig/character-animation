@@ -14,27 +14,17 @@ using namespace std;
 
 // charanim includes
 #include <anim/terrain/ray_rasterize_4_way.hpp>
-#include <anim/utils/indexed_heap.hpp>
+#include <anim/utils/indexed_minheap.hpp>
 
 namespace charanim {
 
-static inline
-float dist_point_to_rect(const vec2& p1, const vec2& p2, const vec2& pm) {
-	float x1 = p1.x;
-	float y1 = p1.y;
-	float x2 = p2.x;
-	float y2 = p2.y;
-	float x0 = pm.x;
-	float y0 = pm.y;
-
-	float num = std::abs( (y2 - y1)*x0 - (x2 - x1)*y0 + x2*y1 - y2*x1 );
-	float den = std::sqrt( (y2 - y1)*(y2 - y1) + (x2 - x1)*(x2 - x1) );
-	return num/den;
-}
-
+#define MAX_FINF numeric_limits<float>::max()
+#define MAX_DINF numeric_limits<double>::max()
+#define NO_LIST		0x00
+#define OPEN_LIST	0x01
+#define CLOSED_LIST 0x02
 #define global_xy(x,y) static_cast<size_t>(y)*resX + static_cast<size_t>(x)
 #define global_latpoint(C) static_cast<size_t>(C.y())*resX + static_cast<size_t>(C.x())
-#define  local(g, x,y) x = g%resX; y = g/resX
 #define vec2_out(c) "(" << c.x << "," << c.y << ")"
 #define latpoint_out(c) "(" << c.x() << "," << c.y() << ")"
 
@@ -51,6 +41,59 @@ float dist_point_to_rect(const vec2& p1, const vec2& p2, const vec2& pm) {
 	if (grid_cells[global_xy(cx,cy)] >= R) {	\
 		ns[i].x() = cx; ns[i].y() = cy; ++i;	\
 	}
+
+struct node {
+	latticePoint latpoint;
+	double priority;
+	char LIST;
+
+	node() {
+		LIST = NO_LIST;
+	}
+	node(char l, double p, const latticePoint& lp) {
+		LIST = l;
+		priority = p;
+		latpoint = lp;
+	}
+
+	inline bool in_none() const {
+		return LIST == NO_LIST;
+	}
+	inline bool in_closed() const {
+		return (LIST & CLOSED_LIST) != 0;
+	}
+	inline bool in_open() const {
+		return (LIST & OPEN_LIST) != 0;
+	}
+
+	inline bool operator< (const node& n) const {
+		// if this node is not the queue it should have lowest priority
+		if (not in_open()) {
+			return false;
+		}
+		// if parameter node is not the queue it should have lowest priority
+		if (not n.in_open()) {
+			return true;
+		}
+
+		// if both nodes are in the queue then compare priorities
+		return priority < n.priority;
+	}
+};
+
+static inline
+float dist_point_to_rect(const vec2& p1, const vec2& p2, const vec2& pm) {
+	float x1 = p1.x;
+	float y1 = p1.y;
+	float x2 = p2.x;
+	float y2 = p2.y;
+	float x0 = pm.x;
+	float y0 = pm.y;
+
+	float num = std::abs( (y2 - y1)*x0 - (x2 - x1)*y0 + x2*y1 - y2*x1 );
+	float den = std::sqrt( (y2 - y1)*(y2 - y1) + (x2 - x1)*(x2 - x1) );
+	return num/den;
+}
 
 // PRIVATE
 
@@ -76,18 +119,30 @@ size_t regular_grid::make_neighbours
 	int _resY = static_cast<int>(resY);
 
 	if (p.y() > 0) {
-		if (p.x() > 0) { make_neighbour(it, p.x() - 1, p.y() - 1) }
+		if (p.x() > 0) {
+			make_neighbour(it, p.x() - 1, p.y() - 1)
+		}
 		make_neighbour(it, p.x(), p.y() - 1)
-		if (p.x() < _resX) { make_neighbour(it, p.x() + 1, p.y() - 1) }
+		if (p.x() < _resX) {
+			make_neighbour(it, p.x() + 1, p.y() - 1)
+		}
 	}
 
-	if (p.x() > 0) { make_neighbour(it, p.x() - 1, p.y()) }
-	if (p.x() < _resX) { make_neighbour(it, p.x() + 1, p.y()) }
+	if (p.x() > 0) {
+		make_neighbour(it, p.x() - 1, p.y())
+	}
+	if (p.x() < _resX) {
+		make_neighbour(it, p.x() + 1, p.y())
+	}
 
 	if (p.y() < _resY) {
-		if (p.x() > 0) { make_neighbour(it, p.x() - 1, p.y() + 1) }
+		if (p.x() > 0) {
+			make_neighbour(it, p.x() - 1, p.y() + 1)
+		}
 		make_neighbour(it, p.x(), p.y() + 1)
-		if (p.x() < _resX) { make_neighbour(it, p.x() + 1, p.y() + 1) }
+		if (p.x() < _resX) {
+			make_neighbour(it, p.x() + 1, p.y() + 1)
+		}
 	}
 
 	return it;
@@ -234,57 +289,75 @@ void regular_grid::find_path(
 		return;
 	}
 
-
-	/* This algorithm can be optimised a lot but I'm
-	 * running out of time. For example, the priority queue
-	 * can be optimised to have a single instance of each node
-	 * (identified by lattice point). To do this we would have
-	 * to change a node's priority and remake the heap, instead
-	 * of adding it again with a different priority (as it is
-	 * done now).
-	 */
-
-	typedef double pct;
-	typedef pair<pct, latticePoint> node;
-
-	latticePoint ns[8];
-
-	// came_from[i] = (cx,cy) <-> cell i is reached via cell (cx,cy).
-	vector<latticePoint> came_from(resX*resY, latticePoint(0,0));
-	// cost_so_far[i] = d <-> cell i is reached with cost d.
-	vector<pct> cost_so_far(resX*resY, 0.0);
-	// cost_is_valid[i] = d <-> cost to reach cell i in 'cost_so_far'
-	//						is valid
-	vector<bool> valid_cost(resX*resY, false);
-
 	// function to estimate the cost of going from a
 	// cell 'C' to another cell 'G'
 	auto heuristic =
 	[&](const latticePoint& cell) {
 		// distance to closest obstacle
 		double dist_closest = double(grid_cells[global_xy(cell.x(),cell.y())]);
-		return l2(cell, goal)*1.1 - dist_closest*0.5;
+		return l2(cell, goal);
 	};
 
-	priority_queue<node> Q;
-	Q.push(node(-0.0, start));
-	valid_cost[global_xy(start.x(), start.y())] = true;
-	cost_so_far[global_xy(start.x(), start.y())] = 0.0;
+	// array of neighbours of a lattice point
+	latticePoint ns[8];
+
+	vector<node> all_nodes(resX*resY);
+	for (size_t x = 0; x < resX; ++x) {
+		for (size_t y = 0; y < resY; ++y) {
+			all_nodes[ global_xy(x,y) ].priority = MAX_DINF;
+			all_nodes[ global_xy(x,y) ].LIST = NO_LIST;
+			all_nodes[ global_xy(x,y) ].latpoint.x() = static_cast<int>(x);
+			all_nodes[ global_xy(x,y) ].latpoint.y() = static_cast<int>(y);
+		}
+	}
+
+	// priority queue for the lattice points
+	indexed_minheap<node> OPEN;
+	OPEN.make_heap(all_nodes);
+
+	// What is the previous cell in the path to cell i?
+	// parent[i] = (x,y) <-> the shortest path goes
+	// first through (x,y) and then through i.
+	// This is used later to reconstruct the path.
+	vector<latticePoint> parent(resX*resY);
+
+	// Actual path cost of going from start to cell i:
+	// cost_so_far[i] = X <-> the cost of going from start
+	// to cell i is equal to X.
+	vector<double> cost_so_far(resX*resY, MAX_DINF);
+
+	// Although we make the heap with all points of
+	// the lattice, none of them is considered to
+	// actually be in the OPEN list
+	vector<char> which_list(resX*resY, NO_LIST);
+
+	// initialise
+	cost_so_far[ global_latpoint(start) ] = 0.0;
+	OPEN.modify_th( global_latpoint(start), node(OPEN_LIST, 0.0, start) );
+	which_list[ global_latpoint(start) ] = OPEN_LIST;
+
 	bool reached_goal = false;
 
-	while (not Q.empty() and not reached_goal) {
-		node top = Q.top();
-		Q.pop();
+	while (not reached_goal) {
+		const node& top = OPEN.top();
 
 		// if we have reached the goal then
 		// go to the end of the while loop
-		if (top.second == goal) {
+		if (top.latpoint == goal) {
 			reached_goal = true;
+
+			break;
 		}
 
-		const latticePoint& cur_cell = top.second;
+		assert(top.LIST == OPEN_LIST);
+
+		latticePoint cur_cell = top.latpoint;
 		size_t cur_idx = global_latpoint(cur_cell);
-		pct cur_cost = cost_so_far[cur_idx];
+		double cur_cost = cost_so_far[cur_idx];
+
+		// remove current from OPEN
+		which_list[cur_idx] = CLOSED_LIST;
+		OPEN.modify_th(cur_idx, node(CLOSED_LIST, top.priority, cur_cell));
 
 		// obtain the valid neighbours around the current cell
 		size_t n = make_neighbours(cur_cell, R, ns);
@@ -295,35 +368,63 @@ void regular_grid::find_path(
 			const latticePoint& neigh = ns[i];
 			size_t neigh_idx = global_xy(neigh.x(), neigh.y());
 
-			pct new_cost =
-				cur_cost +			// cost of going from start to current cell
-				l2(cur_cell, neigh);// cost of going from current cell to neighbour
+			// cost of reaching neighbour
+			// =
+			// cost of going from start to current cell
+			// +
+			// cost of going from current cell to neighbour
+			double neigh_cost = cur_cost + l2(cur_cell, neigh);
 
-			if (
-				(not valid_cost[neigh_idx]) or
-				(new_cost < cost_so_far[neigh_idx])
-			)
-			{
-				valid_cost[neigh_idx] = true;
-				cost_so_far[neigh_idx] = new_cost;
-				came_from[neigh_idx] = cur_cell;
+			// approximate cost of going from the neighbour to the goal
+			double h = heuristic(neigh);
+			// actual priority of neighbour
+			double f = neigh_cost + h;
 
-				// approximate cost of going from the
-				// neighbour to the goal.
-				pct H = heuristic(neigh);
-				// actual priority of neighbour
-				pct priority = new_cost + H;
-				// add to queue
-				Q.push(node(-priority, neigh));
+			if (which_list[neigh_idx] == OPEN_LIST) {
+				// lattice point was added at some point
+				// to the priority queue
+				if (neigh_cost < cost_so_far[neigh_idx]) {
+					// the cost of reaching neighbour via another
+					// path is less than the current cost
+					OPEN.modify_th(neigh_idx, node(NO_LIST, f, neigh));
+					which_list[neigh_idx] = NO_LIST;
+				}
+			}
+
+			if (which_list[neigh_idx] == CLOSED_LIST) {
+				// lattice point is considered candidate for path
+				if (neigh_cost < cost_so_far[neigh_idx]) {
+					// but if the cost of reaching neighbour via
+					// another path is less than the current cost
+					// do not do it
+					OPEN.modify_th(neigh_idx, node(NO_LIST, f, neigh));
+					which_list[neigh_idx] = NO_LIST;
+				}
+			}
+
+			if (which_list[neigh_idx] == NO_LIST) {
+				// Lattice point was never added to the heap,
+				// or was added and then removed in one of the
+				// two previous steps
+
+				OPEN.modify_th(neigh_idx, node(OPEN_LIST, f, neigh));
+				cost_so_far[neigh_idx] = neigh_cost;
+				parent[neigh_idx] = cur_cell;
+				which_list[neigh_idx] = OPEN_LIST;
 			}
 		}
 	}
 
+	cout << "Path found!" << endl;
+
 	// make path from goal to start and reverse
 	latticePoint lp = goal;
 	while (lp != start) {
+
+		cout << "backtrack from: " << latpoint_out(lp) << endl;
+
 		path.push_back(from_latPoint_to_vec2(lp));
-		lp = came_from[global_latpoint(lp)];
+		lp = parent[global_latpoint(lp)];
 	}
 	std::reverse(path.begin(), path.end());
 

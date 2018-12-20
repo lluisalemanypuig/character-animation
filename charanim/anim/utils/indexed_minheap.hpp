@@ -7,7 +7,7 @@
 // This is an implementation of an indexed min-heap-0
 
 template<class T, class Allocator = std::allocator<T> >
-class indexed_heap {
+class indexed_minheap {
 	private:
 	
 		class core_elem {
@@ -51,8 +51,8 @@ class indexed_heap {
 		void blind_make_float(size_t p);
 		
 	public:
-		indexed_heap<T, Allocator>();
-		~indexed_heap<T, Allocator>();
+		indexed_minheap<T, Allocator>();
+		~indexed_minheap<T, Allocator>();
 		
 		// non-blind operations:
 		
@@ -108,5 +108,5 @@ class indexed_heap {
 		bool is_blind() const;
 };
 
-#include <anim/utils/indexed_heap.cpp>
+#include <anim/utils/indexed_minheap.cpp>
 

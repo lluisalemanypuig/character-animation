@@ -17,7 +17,7 @@ using namespace std;
 #include <physim/math/vec3.hpp>
 using namespace physim::init;
 using namespace physim::particles;
-using namespace physim::geometry;
+using namespace physim::geometric;
 
 // charanim includes
 #include <render/include_gl.hpp>

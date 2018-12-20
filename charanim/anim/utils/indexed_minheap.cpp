@@ -1,4 +1,4 @@
-#include <anim/utils/indexed_heap.hpp>
+#include <anim/utils/indexed_minheap.hpp>
 
 /// Private
 
@@ -7,7 +7,7 @@
 #define __ih_parent(i) ((i & 0x1) == 0 ? (i >> 1) - 1 : i >> 1)
 
 template<class T, class Allocator>
-void indexed_heap<T, Allocator>::sink(size_t p) {
+void indexed_minheap<T, Allocator>::sink(size_t p) {
 	size_t c = __ih_left_child(p);
 	
 	bool last = false;
@@ -30,7 +30,7 @@ void indexed_heap<T, Allocator>::sink(size_t p) {
 }
 
 template<class T, class Allocator>
-void indexed_heap<T, Allocator>::make_float(size_t p) {
+void indexed_minheap<T, Allocator>::make_float(size_t p) {
 	while (p != 0 and t[p] < t[__ih_parent(p)]) {
 		swap(where_is[t[p].index], where_is[t[__ih_parent(p)].index]);
 		swap(t[p], t[__ih_parent(p)]);
@@ -39,7 +39,7 @@ void indexed_heap<T, Allocator>::make_float(size_t p) {
 }
 
 template<class T, class Allocator>
-void indexed_heap<T, Allocator>::blind_sink(size_t p) {
+void indexed_minheap<T, Allocator>::blind_sink(size_t p) {
 	size_t c = __ih_left_child(p);
 	
 	bool last = false;
@@ -59,7 +59,7 @@ void indexed_heap<T, Allocator>::blind_sink(size_t p) {
 }
 
 template<class T, class Allocator>
-void indexed_heap<T, Allocator>::blind_make_float(size_t p) {
+void indexed_minheap<T, Allocator>::blind_make_float(size_t p) {
 	while (p != 0 and t[p] < t[__ih_parent(p)]) {
 		swap(t[p], t[__ih_parent(p)]);
 		p = __ih_parent(p);
@@ -69,17 +69,17 @@ void indexed_heap<T, Allocator>::blind_make_float(size_t p) {
 /// Public
 
 template<class T, class Allocator>
-indexed_heap<T, Allocator>::indexed_heap() {
+indexed_minheap<T, Allocator>::indexed_minheap() {
 	j = 0;
 	max_index = 0;
 	blind = false;
 }
 
 template<class T, class Allocator>
-indexed_heap<T, Allocator>::~indexed_heap() { }
+indexed_minheap<T, Allocator>::~indexed_minheap() { }
 
 template<class T, class Allocator>
-size_t indexed_heap<T, Allocator>::push(const T& x) {
+size_t indexed_minheap<T, Allocator>::push(const T& x) {
 	if (blind) construct_where_is();
 	
 	if (j < t.size()) {
@@ -98,7 +98,7 @@ size_t indexed_heap<T, Allocator>::push(const T& x) {
 }
 
 template<class T, class Allocator>
-void indexed_heap<T, Allocator>::pop() {
+void indexed_minheap<T, Allocator>::pop() {
 	if (blind) construct_where_is();
 	
 	where_is[t[j - 1].index] = 0;
@@ -109,10 +109,13 @@ void indexed_heap<T, Allocator>::pop() {
 }
 
 template<class T, class Allocator>
-void indexed_heap<T, Allocator>::modify_th(size_t i, const T& x) {
-	if (blind) construct_where_is();
+void indexed_minheap<T, Allocator>::modify_th(size_t i, const T& x) {
+	if (blind) {
+		construct_where_is();
+	}
 	
 	size_t p = where_is[i];
+
 	t[p].value = x;
 	
 	if (p > 0 and x < t[__ih_parent(p)].value) {
@@ -124,7 +127,7 @@ void indexed_heap<T, Allocator>::modify_th(size_t i, const T& x) {
 }
 
 template<class T, class Allocator>
-size_t indexed_heap<T, Allocator>::make_heap
+size_t indexed_minheap<T, Allocator>::make_heap
 (const std::vector<T, Allocator>& elems)
 {
 	size_t first_index = max_index;
@@ -146,7 +149,7 @@ size_t indexed_heap<T, Allocator>::make_heap
 }
 
 template<class T, class Allocator>
-size_t indexed_heap<T, Allocator>::blind_push(const T& x) {
+size_t indexed_minheap<T, Allocator>::blind_push(const T& x) {
 	blind = true;
 	
 	if (j < t.size()) {
@@ -165,7 +168,7 @@ size_t indexed_heap<T, Allocator>::blind_push(const T& x) {
 }
 
 template<class T, class Allocator>
-void indexed_heap<T, Allocator>::blind_pop() {
+void indexed_minheap<T, Allocator>::blind_pop() {
 	blind = true;
 	
 	t[0] = t[j - 1];
@@ -174,7 +177,7 @@ void indexed_heap<T, Allocator>::blind_pop() {
 }
 
 template<class T, class Allocator>
-size_t indexed_heap<T, Allocator>::blind_make_heap
+size_t indexed_minheap<T, Allocator>::blind_make_heap
 (const std::vector<T, Allocator>& elems)
 {
 	blind = true;
@@ -195,14 +198,14 @@ size_t indexed_heap<T, Allocator>::blind_make_heap
 }
 
 template<class T, class Allocator>
-void indexed_heap<T, Allocator>::flush() {
+void indexed_minheap<T, Allocator>::flush() {
 	max_index = 0;
 	j = 0;
 	where_is.clear();
 }
 
 template<class T, class Allocator>
-void indexed_heap<T, Allocator>::force_flush() {
+void indexed_minheap<T, Allocator>::force_flush() {
 	std::vector<T, Allocator>().swap(t);
 	std::vector<T>().swap(where_is);
 	j = 0;
@@ -210,7 +213,7 @@ void indexed_heap<T, Allocator>::force_flush() {
 }
 
 template<class T, class Allocator>
-void indexed_heap<T, Allocator>::construct_where_is() {
+void indexed_minheap<T, Allocator>::construct_where_is() {
 	blind = false;
 	for (size_t i = 0; i < t.size(); ++i) {
 		where_is[t[i].index] = i;
@@ -218,21 +221,21 @@ void indexed_heap<T, Allocator>::construct_where_is() {
 }
 
 template<class T, class Allocator>
-const T& indexed_heap<T, Allocator>::top() const {
+const T& indexed_minheap<T, Allocator>::top() const {
 	return t[0].value;
 }
 
 template<class T, class Allocator>
-size_t indexed_heap<T, Allocator>::size() const {
+size_t indexed_minheap<T, Allocator>::size() const {
 	return j;
 }
 
 template<class T, class Allocator>
-bool indexed_heap<T, Allocator>::empty() const {
+bool indexed_minheap<T, Allocator>::empty() const {
 	return j == 0;
 }
 
 template<class T, class Allocator>
-bool indexed_heap<T, Allocator>::is_blind() const {
+bool indexed_minheap<T, Allocator>::is_blind() const {
 	return blind;
 }
