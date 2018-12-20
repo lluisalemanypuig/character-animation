@@ -28,7 +28,7 @@ void list_all_cases() {
 	cout << "            Find a path in this map." << endl;
 	cout << "    * 100 : Visualise seek steering behaviour." << endl;
 	cout << "    * 101 : Visualise flee steering behaviour." << endl;
-	cout << "    * 102 : Visualise wander steering behaviour." << endl;
+	cout << "    * 102 : Visualise arrival steering behaviour." << endl;
 	cout << "    * 103 : Visualise obstacle avoidance and seek steering behaviours."
 		<< endl;
 	cout << "    * 200 : visualise any map passed as parameter." << endl;

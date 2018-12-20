@@ -42,20 +42,36 @@ namespace charanim {
 		const vector<agent_particle *>& as = S.get_agent_particles();
 		for (const agent_particle *a : as) {
 			if (render_velocity_vector) {
+				glLineWidth(2.0f);
 				glDisable(GL_LIGHTING);
 				glColor3f(0.0f,1.0f,0.0f);
 				glBegin(GL_LINES);
 					glVertex3f(
 						a->cur_pos.x,
-						a->cur_pos.y + 0.5f,
+						a->cur_pos.y + a->R,
 						a->cur_pos.z);
 					glVertex3f(
 						a->cur_pos.x + a->cur_vel.x,
-						a->cur_pos.y + a->cur_vel.y + 0.5f,
+						a->cur_pos.y + a->cur_vel.y + a->R,
 						a->cur_pos.z + a->cur_vel.z);
 				glEnd();
+
+				glLineWidth(2.0f);
+				glDisable(GL_LIGHTING);
+				glColor3f(1.0f,0.0f,1.0f);
+				glBegin(GL_LINES);
+					glVertex3f(
+						a->cur_pos.x,
+						a->cur_pos.y + a->R,
+						a->cur_pos.z);
+					glVertex3f(
+						a->cur_pos.x + 10.0f*a->cur_vel.x,
+						a->cur_pos.y + 10.0f*a->cur_vel.y + a->R,
+						a->cur_pos.z + 10.0f*a->cur_vel.z);
+				glEnd();
 			}
-			if (render_attractor_vector) {
+			if (render_target_vector) {
+				glLineWidth(5.0f);
 				glDisable(GL_LIGHTING);
 				glColor3f(0.0f,1.0f,1.0f);
 				glBegin(GL_LINES);
@@ -73,6 +89,7 @@ namespace charanim {
 		view = glm::translate(view, glm::vec3(move_x, 0.0f, move_z));
 
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+		glLineWidth(1.0f);
 
 		flat_shader.bind();
 		flat_shader.set_bool("wireframe", false);
@@ -120,7 +137,7 @@ namespace charanim {
 		}
 
 		/* render attractors of agent particles */
-		if (render_attractors) {
+		if (render_targets) {
 			flat_shader.set_vec4("colour", glm::vec4(1.0f,0.0f,0.0f,1.0f));
 
 			for (const agent_particle *a : as) {

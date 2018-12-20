@@ -268,6 +268,9 @@ namespace study_cases {
 		}
 
 		V.get_box().make_buffers();
+
+		V.set_window_dims(width, height);
+		V.init_cameras();
 	}
 
 	int sim_200_parse_arguments(int argc, char *argv[]) {
@@ -344,7 +347,7 @@ namespace study_cases {
 		// 4. set attractor acceleration and radius
 		sim_200_agent->R = sim_200_R;
 
-		render_attractors = true;
+		render_targets = true;
 
 		cout << "First attractor at: ("
 			 << sim_200_agent->target.x << ","
@@ -388,9 +391,9 @@ namespace study_cases {
 		render_base_spheres = true;
 		render_grid = false;
 		render_dist_func = false;
-		render_attractors = false;
+		render_targets = false;
 		render_velocity_vector = false;
-		render_attractor_vector = false;
+		render_target_vector = false;
 
 		sim_200_what_target = 1000;
 
@@ -420,9 +423,6 @@ namespace study_cases {
 		sim_200_init_geometry();
 		sim_200_init_simulation();
 
-		V.set_window_dims(width, height);
-		V.init_cameras();
-
 		bool success;
 		success = load_shaders();
 		if (not success) {
@@ -444,7 +444,7 @@ namespace study_cases {
 		switch (c) {
 		case 'h': sim_200_usage(); break;
 		case 'r': sim_200_exit(); sim_200_init(false); break;
-		case 'a': render_attractor_vector = not render_attractor_vector; break;
+		case 'a': render_target_vector = not render_target_vector; break;
 		case 'p': sim_200_compute_path(); break;
 		case 'c': sim_200_render_circles = not sim_200_render_circles; break;
 		case 'd': render_dist_func = not render_dist_func; break;
