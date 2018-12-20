@@ -45,23 +45,23 @@ namespace charanim {
 namespace study_cases {
 
 	// Terrain of the simulation. Loaded from file.
-	static terrain sim_001_T;
+	static terrain sim_200_T;
 
 	// radius of the only agent.
-	static float sim_001_R;
+	static float sim_200_R;
 	// path of the only agent.
-	static vector<vec2> sim_001_astar_path;
-	static vector<vec2> sim_001_smoothed_path;
+	static vector<vec2> sim_200_astar_path;
+	static vector<vec2> sim_200_smoothed_path;
 
 	// only agent in the simulation
-	static agent_particle *sim_001_agent;
-	static size_t sim_001_what_target;
+	static agent_particle *sim_200_agent;
+	static size_t sim_200_what_target;
 
 	// render stuff
-	static bool sim_001_render_circles = false;
-	static GLUquadric *sim_001_disk = nullptr;
+	static bool sim_200_render_circles = false;
+	static GLUquadric *sim_200_disk = nullptr;
 
-	void sim_001_usage() {
+	void sim_200_usage() {
 		cout << "Simulation 00: for map editing and inspection" << endl;
 		cout << endl;
 		cout << "Specify a map file as parameter to visualise it." << endl;
@@ -80,7 +80,7 @@ namespace study_cases {
 		cout << endl;
 	}
 
-	void sim_001_render_a_path
+	void sim_200_render_a_path
 	(const vector<vec2>& apath, const glm::vec3& pcol,
 	 const glm::vec3& ccol, float yoff)
 	{
@@ -93,20 +93,20 @@ namespace study_cases {
 			glVertex3f(q.x, yoff, q.y);
 		}
 		glEnd();
-		if (sim_001_render_circles) {
+		if (sim_200_render_circles) {
 			glColor3f(ccol.x, ccol.y, ccol.z);
 			for (size_t i = 0; i < apath.size(); ++i) {
 				const vec2& p = apath[i];
 				glPushMatrix();
 					glTranslatef(p.x, yoff, p.y);
 					glRotatef(-90.0f, 1.0f,0.0f,0.0f);
-					gluDisk(sim_001_disk, double(sim_001_R)*0.9, double(sim_001_R), 20, 20);
+					gluDisk(sim_200_disk, double(sim_200_R)*0.9, double(sim_200_R), 20, 20);
 				glPopMatrix();
 			}
 		}
 	}
 
-	void sim_001_render() {
+	void sim_200_render() {
 		glClearColor(bgd_color.x, bgd_color.y, bgd_color.z, 1.0);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -126,61 +126,61 @@ namespace study_cases {
 		base_render();
 
 		// render path finder (on the xy plane)
-		const regular_grid *rg = sim_001_T.get_regular_grid();
+		const regular_grid *rg = sim_200_T.get_regular_grid();
 		render_regular_grid(rg);
 
-		if (sim_001_astar_path.size() > 1) {
-			sim_001_render_a_path
-			(sim_001_astar_path, glm::vec3(1.0f,0.0f,0.0f),
+		if (sim_200_astar_path.size() > 1) {
+			sim_200_render_a_path
+			(sim_200_astar_path, glm::vec3(1.0f,0.0f,0.0f),
 			 glm::vec3(0.0f,1.0f,0.0f), 1.0f);
 		}
-		if (sim_001_smoothed_path.size() > 1) {
-			sim_001_render_a_path
-			(sim_001_smoothed_path, glm::vec3(0.0f,0.0f,1.0f),
+		if (sim_200_smoothed_path.size() > 1) {
+			sim_200_render_a_path
+			(sim_200_smoothed_path, glm::vec3(0.0f,0.0f,1.0f),
 			 glm::vec3(0.0f,1.0f,1.0f), 2.0f);
 		}
 
 		// simulate agents only if we have a path
-		if (sim_001_smoothed_path.size() > 0) {
+		if (sim_200_smoothed_path.size() > 0) {
 			for (int i = 0; i < 10; ++i) {
 				S.simulate_agent_particles();
 			}
 
 			// when the agent is 1 meter away from its attractor
 			// move the attractor to the next point
-			if (dist(sim_001_agent->cur_pos, sim_001_agent->target) <= 1.0f) {
-				++sim_001_what_target;
-				if (sim_001_what_target < sim_001_smoothed_path.size()) {
+			if (dist(sim_200_agent->cur_pos, sim_200_agent->target) <= 1.0f) {
+				++sim_200_what_target;
+				if (sim_200_what_target < sim_200_smoothed_path.size()) {
 
-					size_t attr = sim_001_what_target;
-					sim_001_agent->target.x = sim_001_smoothed_path[attr].x;
-					sim_001_agent->target.y = 1.0f;
-					sim_001_agent->target.z = sim_001_smoothed_path[attr].y;
+					size_t attr = sim_200_what_target;
+					sim_200_agent->target.x = sim_200_smoothed_path[attr].x;
+					sim_200_agent->target.y = 1.0f;
+					sim_200_agent->target.z = sim_200_smoothed_path[attr].y;
 
 					cout << "Change of target:" << endl;
 					cout << "    target index: " << attr << endl;
 					cout << "    Position: ("
-						 << sim_001_agent->target.x << ","
-						 << sim_001_agent->target.y << ","
-						 << sim_001_agent->target.z << ")" << endl;
+						 << sim_200_agent->target.x << ","
+						 << sim_200_agent->target.y << ","
+						 << sim_200_agent->target.z << ")" << endl;
 
-					if (sim_001_what_target == sim_001_smoothed_path.size() - 1) {
+					if (sim_200_what_target == sim_200_smoothed_path.size() - 1) {
 						// agent is about to reach the last target
 
 						cout << "Reaching last target..." << endl;
 						cout << "    Behaviour set to 'arrival'" << endl;
-						sim_001_agent->behaviour = agent_behaviour_type::arrival;
+						sim_200_agent->behaviour = agent_behaviour_type::arrival;
 
-						sim_001_agent->slowing_distance =
+						sim_200_agent->slowing_distance =
 						0.5f*physim::math::dist(
-							sim_001_agent->cur_pos, sim_001_agent->target
+							sim_200_agent->cur_pos, sim_200_agent->target
 						);
 					}
 
 				}
 				else {
 					// agent reached its goal
-					sim_001_agent->cur_vel = vec3(0.0f);
+					sim_200_agent->cur_vel = vec3(0.0f);
 				}
 			}
 		}
@@ -190,8 +190,8 @@ namespace study_cases {
 		}
 	}
 
-	void sim_001_timed_refresh(int v) {
-		sim_001_render();
+	void sim_200_timed_refresh(int v) {
+		sim_200_render();
 
 		++fps_count;
 		timing::time_point here = timing::now();
@@ -204,33 +204,33 @@ namespace study_cases {
 			sec = timing::now();
 		}
 
-		glutTimerFunc(1000/FPS, sim_001_timed_refresh, v);
+		glutTimerFunc(1000/FPS, sim_200_timed_refresh, v);
 	}
 
-	void sim_001_init_simulation() {
-		sim_001_agent = nullptr;
+	void sim_200_init_simulation() {
+		sim_200_agent = nullptr;
 
 		// add agent particles
-		sim_001_agent = new agent_particle();
-		sim_001_agent->lifetime = 9999.0f; // immortal agent
-		sim_001_agent->R = 1.0f;
-		sim_001_agent->cur_pos = vec3(5.0f,1.0f,5.0f);
-		sim_001_agent->max_speed = 10.0f;
-		sim_001_agent->max_force = 10.0f;
-		sim_001_agent->seek_weight = 0.2f;
-		sim_001_agent->flee_weight = 0.3f;
-		sim_001_agent->arrival_weight = 0.3f;
-		sim_001_agent->mass = 60.0f;
-		sim_001_agent->bouncing = 1.0f;
-		sim_001_agent->friction = 0.0f;
-		S.add_agent_particle(sim_001_agent);
+		sim_200_agent = new agent_particle();
+		sim_200_agent->lifetime = 9999.0f; // immortal agent
+		sim_200_agent->R = 1.0f;
+		sim_200_agent->cur_pos = vec3(5.0f,1.0f,5.0f);
+		sim_200_agent->max_speed = 10.0f;
+		sim_200_agent->max_force = 10.0f;
+		sim_200_agent->seek_weight = 0.2f;
+		sim_200_agent->flee_weight = 0.3f;
+		sim_200_agent->arrival_weight = 0.3f;
+		sim_200_agent->mass = 60.0f;
+		sim_200_agent->bouncing = 1.0f;
+		sim_200_agent->friction = 0.0f;
+		S.add_agent_particle(sim_200_agent);
 
 		// set time step and collision checking
-		S.set_time_step(0.001f);
+		S.set_time_step(0.200f);
 		S.set_particle_particle_collisions(true);
 
 		// add geometry
-		const vector<segment>& sgs = sim_001_T.get_segments();
+		const vector<segment>& sgs = sim_200_T.get_segments();
 		for (const segment& s : sgs) {
 			const vec2& A = s.first;
 			const vec2& B = s.second;
@@ -244,10 +244,10 @@ namespace study_cases {
 			S.add_geometry(rl);
 		}
 	}
-	void sim_001_init_geometry() {
+	void sim_200_init_geometry() {
 		// add the geometry read from the map
 
-		const vector<segment>& sgs = sim_001_T.get_segments();
+		const vector<segment>& sgs = sim_200_T.get_segments();
 		for (const segment& s : sgs) {
 			const vec2& A = s.first;
 			const vec2& B = s.second;
@@ -270,12 +270,12 @@ namespace study_cases {
 		V.get_box().make_buffers();
 	}
 
-	int sim_001_parse_arguments(int argc, char *argv[]) {
+	int sim_200_parse_arguments(int argc, char *argv[]) {
 		string map_file = "none";
 
 		for (int i = 1; i < argc; ++i) {
 			if (strcmp(argv[i], "--help") == 0) {
-				sim_001_usage();
+				sim_200_usage();
 				return 2;
 			}
 			else if (strcmp(argv[i], "--map") == 0) {
@@ -291,30 +291,30 @@ namespace study_cases {
 			return 1;
 		}
 
-		sim_001_T.clear();
-		bool r = sim_001_T.read_map(map_file);
+		sim_200_T.clear();
+		bool r = sim_200_T.read_map(map_file);
 		if (not r) {
 			return 1;
 		}
 		return 0;
 	}
 
-	void sim_001_compute_path() {
+	void sim_200_compute_path() {
 		vec2 start, goal;
 		input_2_points(start,goal);
-		cout << "Input radius: "; cin >> sim_001_R;
+		cout << "Input radius: "; cin >> sim_200_R;
 
-		if (sim_001_disk == nullptr) {
-			sim_001_disk = gluNewQuadric();
+		if (sim_200_disk == nullptr) {
+			sim_200_disk = gluNewQuadric();
 		}
 
-		sim_001_astar_path.clear();
-		sim_001_smoothed_path.clear();
-		regular_grid *rg = sim_001_T.get_regular_grid();
+		sim_200_astar_path.clear();
+		sim_200_smoothed_path.clear();
+		regular_grid *rg = sim_200_T.get_regular_grid();
 		timing::time_point begin = timing::now();
 		rg->find_path(
-			start, goal, sim_001_R,
-			sim_001_astar_path, sim_001_smoothed_path
+			start, goal, sim_200_R,
+			sim_200_astar_path, sim_200_smoothed_path
 		);
 		timing::time_point end = timing::now();
 
@@ -324,47 +324,47 @@ namespace study_cases {
 		/* initialise agent's movement */
 
 		// 1. set current position
-		sim_001_agent->cur_pos.x = sim_001_smoothed_path[0].x;
-		sim_001_agent->cur_pos.y = 1.0f;
-		sim_001_agent->cur_pos.z = sim_001_smoothed_path[0].y;
+		sim_200_agent->cur_pos.x = sim_200_smoothed_path[0].x;
+		sim_200_agent->cur_pos.y = 1.0f;
+		sim_200_agent->cur_pos.z = sim_200_smoothed_path[0].y;
 
 		// 2. set first attractor
-		sim_001_agent->target.x = sim_001_smoothed_path[1].x;
-		sim_001_agent->target.y = 1.0f;
-		sim_001_agent->target.z = sim_001_smoothed_path[1].y;
-		sim_001_what_target = 1;
+		sim_200_agent->target.x = sim_200_smoothed_path[1].x;
+		sim_200_agent->target.y = 1.0f;
+		sim_200_agent->target.z = sim_200_smoothed_path[1].y;
+		sim_200_what_target = 1;
 
-		sim_001_agent->behaviour = agent_behaviour_type::seek;
+		sim_200_agent->behaviour = agent_behaviour_type::seek;
 
 		// 3. set velocity so that the particle can start moving
-		float mv = sim_001_agent->max_speed;
-		sim_001_agent->cur_vel =
-			normalise(sim_001_agent->target - sim_001_agent->cur_pos)*mv;
+		float mv = sim_200_agent->max_speed;
+		sim_200_agent->cur_vel =
+			normalise(sim_200_agent->target - sim_200_agent->cur_pos)*mv;
 
 		// 4. set attractor acceleration and radius
-		sim_001_agent->R = sim_001_R;
+		sim_200_agent->R = sim_200_R;
 
 		render_attractors = true;
 
 		cout << "First attractor at: ("
-			 << sim_001_agent->target.x << ","
-			 << sim_001_agent->target.y << ","
-			 << sim_001_agent->target.z << ")" << endl;
+			 << sim_200_agent->target.x << ","
+			 << sim_200_agent->target.y << ","
+			 << sim_200_agent->target.z << ")" << endl;
 	}
 
-	void sim_001_exit() {
+	void sim_200_exit() {
 		exit_func();
 
-		sim_001_astar_path.clear();
-		sim_001_smoothed_path.clear();
+		sim_200_astar_path.clear();
+		sim_200_smoothed_path.clear();
 
-		if (sim_001_disk != nullptr) {
-			gluDeleteQuadric(sim_001_disk);
+		if (sim_200_disk != nullptr) {
+			gluDeleteQuadric(sim_200_disk);
 		}
-		sim_001_agent = nullptr;
+		sim_200_agent = nullptr;
 	}
 
-	int sim_001_init(bool init_window) {
+	int sim_200_init(bool init_window) {
 		width = 640;
 		height = 480;
 
@@ -392,10 +392,10 @@ namespace study_cases {
 		render_velocity_vector = false;
 		render_attractor_vector = false;
 
-		sim_001_what_target = 1000;
+		sim_200_what_target = 1000;
 
 		/* PARSE ARGUMENTS */
-		int arg_parse = sim_001_parse_arguments(_argc, _argv);
+		int arg_parse = sim_200_parse_arguments(_argc, _argv);
 		if (arg_parse != 0) {
 			return arg_parse;
 		}
@@ -417,8 +417,8 @@ namespace study_cases {
 
 		glEnable(GL_DEPTH_TEST);
 
-		sim_001_init_geometry();
-		sim_001_init_simulation();
+		sim_200_init_geometry();
+		sim_200_init_simulation();
 
 		V.set_window_dims(width, height);
 		V.init_cameras();
@@ -439,39 +439,39 @@ namespace study_cases {
 		return 0;
 	}
 
-	void sim_001_regular_keys_keyboard(unsigned char c, int x, int y) {
+	void sim_200_regular_keys_keyboard(unsigned char c, int x, int y) {
 		charanim::regular_keys_keyboard(c, x, y);
 		switch (c) {
-		case 'h': sim_001_usage(); break;
-		case 'r': sim_001_exit(); sim_001_init(false); break;
+		case 'h': sim_200_usage(); break;
+		case 'r': sim_200_exit(); sim_200_init(false); break;
 		case 'a': render_attractor_vector = not render_attractor_vector; break;
-		case 'p': sim_001_compute_path(); break;
-		case 'c': sim_001_render_circles = not sim_001_render_circles; break;
+		case 'p': sim_200_compute_path(); break;
+		case 'c': sim_200_render_circles = not sim_200_render_circles; break;
 		case 'd': render_dist_func = not render_dist_func; break;
 		case 'g': render_grid = not render_grid; break;
 		case 'v': render_velocity_vector = not render_velocity_vector; break;
 		}
 	}
 
-	void sim_001(int argc, char *argv[]) {
+	void sim_200(int argc, char *argv[]) {
 		_argc = argc;
 		_argv = argv;
-		int r = sim_001_init(true);
+		int r = sim_200_init(true);
 		if (r != 0) {
 			cerr << "Error in initialisation of simulation 00" << endl;
 			return;
 		}
 
-		atexit(sim_001_exit);
-		glutDisplayFunc(sim_001_render);
+		atexit(sim_200_exit);
+		glutDisplayFunc(sim_200_render);
 		glutReshapeFunc(charanim::resize);
 		glutMouseFunc(charanim::mouse_click);
 		glutPassiveMotionFunc(charanim::mouse_passive);
 		glutMotionFunc(charanim::mouse_drag);
 		glutSpecialFunc(charanim::special_keys_keyboard);
-		glutKeyboardFunc(sim_001_regular_keys_keyboard);
+		glutKeyboardFunc(sim_200_regular_keys_keyboard);
 
-		glutTimerFunc(1000.0f/charanim::FPS, sim_001_timed_refresh, 0);
+		glutTimerFunc(1000.0f/charanim::FPS, sim_200_timed_refresh, 0);
 
 		glutMainLoop();
 	}

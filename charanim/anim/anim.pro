@@ -25,11 +25,11 @@ SOURCES += main.cpp \
     charanim_init.cpp \
     utils/utils.cpp \
     sim_000.cpp \
-    sim_001.cpp \
     sim_100.cpp \
     sim_101.cpp \
     sim_102.cpp \
-    sim_103.cpp
+    sim_103.cpp \
+    sim_200.cpp
 
 # self-includes
 INCLUDEPATH += ../
