@@ -8,8 +8,13 @@ using namespace std;
 namespace charanim {
 namespace study_cases {
 
-	void sim_00(int argc, char *argv[]);
-	void sim_01_init(int argc, char *argv[]);
+	void sim_000(int argc, char *argv[]);
+	void sim_001(int argc, char *argv[]);
+
+	void sim_100(int argc, char *argv[]);
+	void sim_101(int argc, char *argv[]);
+	void sim_102(int argc, char *argv[]);
+	void sim_103(int argc, char *argv[]);
 
 } // -- namespace study_cases
 } // -- namespace charanim
@@ -18,10 +23,14 @@ void list_all_cases() {
 	cout << "Welcome to the particles renderer" << endl;
 	cout << "The list of simulations available are:" << endl;
 	cout << endl;
-	cout << "    * 00 : visualise any map passed as parameter." << endl;
-	cout << "           Find a path in this map." << endl;
-	cout << "    * 01 : visualise any map passed as parameter." << endl;
-	cout << "           Make an agent particle follow a path." << endl;
+	cout << "    * 000 : visualise any map passed as parameter." << endl;
+	cout << "            Find a path in this map." << endl;
+	cout << "    * 001 : visualise any map passed as parameter." << endl;
+	cout << "            Make an agent particle follow a path." << endl;
+	cout << "    * 100 : Visualise seek steering behaviour." << endl;
+	cout << "    * 101 : Visualise flee steering behaviour." << endl;
+	cout << "    * 102 : Visualise wander steering behaviour." << endl;
+	cout << "    * 103 : Visualise obstacle avoidance and seek steering behaviours." << endl;
 	cout << endl;
 }
 
@@ -39,11 +48,23 @@ int main(int argc, char *argv[]) {
 		return 0;
 	}
 
-	if (strcmp(argv[1], "00") == 0) {
-		charanim::study_cases::sim_00(argc, argv);
+	if (strcmp(argv[1], "000") == 0) {
+		charanim::study_cases::sim_000(argc, argv);
 	}
-	else if (strcmp(argv[1], "01") == 0) {
-		charanim::study_cases::sim_01_init(argc, argv);
+	else if (strcmp(argv[1], "001") == 0) {
+		charanim::study_cases::sim_001(argc, argv);
+	}
+	else if (strcmp(argv[1], "100") == 0) {
+		charanim::study_cases::sim_100(argc, argv);
+	}
+	else if (strcmp(argv[1], "101") == 0) {
+		charanim::study_cases::sim_101(argc, argv);
+	}
+	else if (strcmp(argv[1], "102") == 0) {
+		charanim::study_cases::sim_102(argc, argv);
+	}
+	else if (strcmp(argv[1], "103") == 0) {
+		charanim::study_cases::sim_103(argc, argv);
 	}
 	else {
 		cerr << "Unknown case '" << string(argv[1]) << "'." << endl;

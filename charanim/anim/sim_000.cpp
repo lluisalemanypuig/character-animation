@@ -40,20 +40,20 @@ namespace charanim {
 namespace study_cases {
 
 	// Terrain of the simulation. Loaded from file.
-	static terrain sim_00_T;
+	static terrain sim_000_T;
 
 	// radius of the hypothetic agent
-	static float sim_00_R;
+	static float sim_000_R;
 	// non-smoothed path in the grid
-	static vector<vec2> sim_00_astar_path;
+	static vector<vec2> sim_000_astar_path;
 	// grid's smoothed path (the one supposed to be followed)
-	static vector<vec2> sim_00_smoothed_path;
+	static vector<vec2> sim_000_smoothed_path;
 
 	// render stuff
-	static bool sim_00_render_circles = false;
-	static GLUquadric *sim_00_disk = nullptr;
+	static bool sim_000_render_circles = false;
+	static GLUquadric *sim_000_disk = nullptr;
 
-	void sim_00_usage() {
+	void sim_000_usage() {
 		cout << "Simulation 00: for map editing and inspection" << endl;
 		cout << endl;
 		cout << "Specify a map file as parameter to visualise it." << endl;
@@ -71,7 +71,7 @@ namespace study_cases {
 		cout << endl;
 	}
 
-	void sim_00_render_a_path
+	void sim_000_render_a_path
 	(const vector<vec2>& apath, const glm::vec3& pcol,
 	 const glm::vec3& ccol, float yoff, bool spheres)
 	{
@@ -84,7 +84,7 @@ namespace study_cases {
 			glVertex3f(q.x, yoff, q.y);
 		}
 		glEnd();
-		if (sim_00_render_circles) {
+		if (sim_000_render_circles) {
 			if (not spheres) {
 				glColor3f(ccol.x, ccol.y, ccol.z);
 				for (size_t i = 0; i < apath.size(); ++i) {
@@ -92,7 +92,7 @@ namespace study_cases {
 					glPushMatrix();
 						glTranslatef(p.x, yoff, p.y);
 						glRotatef(-90.0f, 1.0f,0.0f,0.0f);
-						gluDisk(sim_00_disk, double(sim_00_R)*0.9, double(sim_00_R), 20, 20);
+						gluDisk(sim_000_disk, double(sim_000_R)*0.9, double(sim_000_R), 20, 20);
 					glPopMatrix();
 				}
 			}
@@ -114,7 +114,7 @@ namespace study_cases {
 
 					glm::mat4 model(1.0f);
 					model = glm::translate(model, glm::vec3(p.x, yoff, p.y));
-					float R = 2.0f*sim_00_R;
+					float R = 2.0f*sim_000_R;
 					model = glm::scale(model, glm::vec3(R, R, R));
 
 					glm::mat4 modelview = view*model;
@@ -129,7 +129,7 @@ namespace study_cases {
 		}
 	}
 
-	void sim_00_render() {
+	void sim_000_render() {
 		glClearColor(bgd_color.x, bgd_color.y, bgd_color.z, 1.0);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -147,17 +147,17 @@ namespace study_cases {
 		base_render();
 
 		// render path finder (on the xy plane)
-		const regular_grid *rg = sim_00_T.get_regular_grid();
+		const regular_grid *rg = sim_000_T.get_regular_grid();
 		render_regular_grid(rg);
 
-		if (sim_00_astar_path.size() > 1) {
-			sim_00_render_a_path
-			(sim_00_astar_path, glm::vec3(1.0f,0.0f,0.0f),
+		if (sim_000_astar_path.size() > 1) {
+			sim_000_render_a_path
+			(sim_000_astar_path, glm::vec3(1.0f,0.0f,0.0f),
 			 glm::vec3(0.0f,1.0f,0.0f), 1.0f, false);
 		}
-		if (sim_00_smoothed_path.size() > 1) {
-			sim_00_render_a_path
-			(sim_00_smoothed_path, glm::vec3(0.0f,0.0f,1.0f),
+		if (sim_000_smoothed_path.size() > 1) {
+			sim_000_render_a_path
+			(sim_000_smoothed_path, glm::vec3(0.0f,0.0f,1.0f),
 			 glm::vec3(0.0f,1.0f,1.0f), 2.0f, true);
 		}
 
@@ -166,8 +166,8 @@ namespace study_cases {
 		}
 	}
 
-	void sim_00_timed_refresh(int v) {
-		sim_00_render();
+	void sim_000_timed_refresh(int v) {
+		sim_000_render();
 
 		++fps_count;
 		timing::time_point here = timing::now();
@@ -180,13 +180,13 @@ namespace study_cases {
 			sec = timing::now();
 		}
 
-		glutTimerFunc(1000/FPS, sim_00_timed_refresh, v);
+		glutTimerFunc(1000/FPS, sim_000_timed_refresh, v);
 	}
 
-	void sim_00_init_geometry() {
+	void sim_000_init_geometry() {
 		// add the geometry read from the map
 
-		const vector<segment>& sgs = sim_00_T.get_segments();
+		const vector<segment>& sgs = sim_000_T.get_segments();
 		for (const segment& s : sgs) {
 			const vec2& A = s.first;
 			const vec2& B = s.second;
@@ -207,12 +207,12 @@ namespace study_cases {
 		}
 	}
 
-	int sim_00_parse_arguments(int argc, char *argv[]) {
+	int sim_000_parse_arguments(int argc, char *argv[]) {
 		string map_file = "none";
 
 		for (int i = 1; i < argc; ++i) {
 			if (strcmp(argv[i], "--help") == 0) {
-				sim_00_usage();
+				sim_000_usage();
 				return 2;
 			}
 			else if (strcmp(argv[i], "--map") == 0) {
@@ -228,14 +228,14 @@ namespace study_cases {
 			return 1;
 		}
 
-		bool r = sim_00_T.read_map(map_file);
+		bool r = sim_000_T.read_map(map_file);
 		if (not r) {
 			return 1;
 		}
 		return 0;
 	}
 
-	int sim_00_init(bool init_window) {
+	int sim_000_init(bool init_window) {
 		width = 640;
 		height = 480;
 
@@ -263,7 +263,7 @@ namespace study_cases {
 		render_velocity_vector = false;
 
 		/* PARSE ARGUMENTS */
-		int arg_parse = sim_00_parse_arguments(_argc, _argv);
+		int arg_parse = sim_000_parse_arguments(_argc, _argv);
 		if (arg_parse != 0) {
 			return arg_parse;
 		}
@@ -290,7 +290,7 @@ namespace study_cases {
 		V.set_window_dims(width, height);
 		V.init_cameras();
 
-		sim_00_init_geometry();
+		sim_000_init_geometry();
 		bool success;
 		success = load_shaders();
 		if (not success) {
@@ -307,12 +307,12 @@ namespace study_cases {
 		return 0;
 	}
 
-	void sim_00_add_segment() {
+	void sim_000_add_segment() {
 		vec2 A, B;
 		input_2_points(A,B);
 
 		segment s(A,B);
-		regular_grid *rg = sim_00_T.get_regular_grid();
+		regular_grid *rg = sim_000_T.get_regular_grid();
 		rg->rasterise_segment(s);
 		rg->expand_function_distance(s);
 		rg->make_final_state();
@@ -332,22 +332,22 @@ namespace study_cases {
 		V.get_box().enlarge_box(p4);
 	}
 
-	void sim_00_compute_path() {
+	void sim_000_compute_path() {
 		vec2 start, goal;
 		input_2_points(start,goal);
-		cout << "Input radius: "; cin >> sim_00_R;
+		cout << "Input radius: "; cin >> sim_000_R;
 
-		if (sim_00_disk == nullptr) {
-			sim_00_disk = gluNewQuadric();
+		if (sim_000_disk == nullptr) {
+			sim_000_disk = gluNewQuadric();
 		}
 
-		sim_00_astar_path.clear();
-		sim_00_smoothed_path.clear();
-		regular_grid *rg = sim_00_T.get_regular_grid();
+		sim_000_astar_path.clear();
+		sim_000_smoothed_path.clear();
+		regular_grid *rg = sim_000_T.get_regular_grid();
 		timing::time_point begin = timing::now();
 		rg->find_path(
-			start, goal, sim_00_R,
-			sim_00_astar_path, sim_00_smoothed_path
+			start, goal, sim_000_R,
+			sim_000_astar_path, sim_000_smoothed_path
 		);
 		timing::time_point end = timing::now();
 
@@ -355,50 +355,50 @@ namespace study_cases {
 			 << " seconds" << endl;
 
 		cout << "Path found:" << endl;
-		for (size_t i = 0; i < sim_00_smoothed_path.size(); ++i) {
-			const vec2& v = sim_00_smoothed_path[i];
+		for (size_t i = 0; i < sim_000_smoothed_path.size(); ++i) {
+			const vec2& v = sim_000_smoothed_path[i];
 			cout << "    " << i << ": (" << v.x << ", " << v.y << ")" << endl;
 		}
 	}
 
-	void sim_00_exit() {
+	void sim_000_exit() {
 		exit_func();
 
-		if (sim_00_disk != nullptr) {
-			gluDeleteQuadric(sim_00_disk);
+		if (sim_000_disk != nullptr) {
+			gluDeleteQuadric(sim_000_disk);
 		}
 	}
 
-	void sim_00_regular_keys_keyboard(unsigned char c, int x, int y) {
+	void sim_000_regular_keys_keyboard(unsigned char c, int x, int y) {
 		charanim::regular_keys_keyboard(c, x, y);
 		switch (c) {
-		case 'h': sim_00_usage(); break;
-		case 'a': sim_00_add_segment(); break;
-		case 'p': sim_00_compute_path(); break;
-		case 'c': sim_00_render_circles = not sim_00_render_circles; break;
+		case 'h': sim_000_usage(); break;
+		case 'a': sim_000_add_segment(); break;
+		case 'p': sim_000_compute_path(); break;
+		case 'c': sim_000_render_circles = not sim_000_render_circles; break;
 		case 'd': render_dist_func = not render_dist_func; break;
 		case 'g': render_grid = not render_grid; break;
 		}
 	}
 
-	void sim_00(int argc, char *argv[]) {
+	void sim_000(int argc, char *argv[]) {
 		_argc = argc;
 		_argv = argv;
-		if (sim_00_init(true) != 0) {
+		if (sim_000_init(true) != 0) {
 			cerr << "Error in initialisation of simulation 00" << endl;
 			return;
 		}
 
-		atexit(sim_00_exit);
-		glutDisplayFunc(sim_00_render);
+		atexit(sim_000_exit);
+		glutDisplayFunc(sim_000_render);
 		glutReshapeFunc(charanim::resize);
 		glutMouseFunc(charanim::mouse_click);
 		glutPassiveMotionFunc(charanim::mouse_passive);
 		glutMotionFunc(charanim::mouse_drag);
 		glutSpecialFunc(charanim::special_keys_keyboard);
-		glutKeyboardFunc(sim_00_regular_keys_keyboard);
+		glutKeyboardFunc(sim_000_regular_keys_keyboard);
 
-		glutTimerFunc(1000.0f/charanim::FPS, sim_00_timed_refresh, 0);
+		glutTimerFunc(1000.0f/charanim::FPS, sim_000_timed_refresh, 0);
 
 		glutMainLoop();
 	}

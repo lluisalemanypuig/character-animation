@@ -18,14 +18,18 @@ HEADERS += \
 SOURCES += main.cpp \
     charanim_variables.cpp \
     charanim_render.cpp \
-    sim_00.cpp \
     terrain/terrain.cpp \
     terrain/regular_grid.cpp \
     terrain/ray_rasterize.cpp \
     terrain/ray_rasterize_4_way.cpp \
-    sim_01.cpp \
     charanim_init.cpp \
-    utils/utils.cpp
+    utils/utils.cpp \
+    sim_000.cpp \
+    sim_001.cpp \
+    sim_100.cpp \
+    sim_101.cpp \
+    sim_102.cpp \
+    sim_103.cpp
 
 # self-includes
 INCLUDEPATH += ../
@@ -61,11 +65,11 @@ unix {
 
 # cal3d
 unix {
-	exists(/usr/lib/cal3d) {
+    exists(/usr/include/cal3d) {
 		LIBS += -lcal3d
 	}
 	else {
-		LIBS += -L../../../cal3d/lib64/libcal3d.la
+        LIBS += -L../../../cal3d/lib64 -llibcal3d
 		INCLUDEPATH += -I ../../../cal3d/include
 	}
 }
