@@ -27,38 +27,23 @@ using namespace physim::math;
 // render includes
 #include <render/geometry/rplane.hpp>
 
+// custom includes
+#include <anim/sim_1xx.hpp>
+
 namespace charanim {
+using namespace sim_1xx;
+
 namespace study_cases {
 
-	// only agent in the simulation
-	static agent_particle *sim_101_agent;
-
-	static vec3 sim_101_ini_pos;
-	static vec3 sim_101_ini_vel;
-	static vec3 sim_101_target;
-
-	static float sim_101_max_speed;
-	static float sim_101_max_force;
-	static float sim_101_seek_weight;
-	static float sim_101_flee_weight;
-	static float sim_101_arrival_weight;
-	static float sim_101_coll_avoid_weight;
-	static float sim_101_mass;
-
 	void sim_101_usage() {
-		cout << "Simulation 00: for map editing and inspection" << endl;
+		cout << "Simulation 101: validation of flee behaviour" << endl;
 		cout << endl;
 		cout << "Specify a map file as parameter to visualise it." << endl;
 		cout << "    --help : show the usage." << endl;
-		cout << "    --map f: specify map file." << endl;
 		cout << endl;
 		cout << "Keyboard keys:" << endl;
 		cout << "    h: show the usage." << endl;
 		cout << "    r: reset simulation." << endl;
-		cout << "    p: find path between two 2d points." << endl;
-		cout << "    c: render circles around path vertices." << endl;
-		cout << "    d: render distance function for obstacle avoidance" << endl;
-		cout << "    g: render grid for path finding" << endl;
 		cout << "    v: render velocity vector" << endl;
 		cout << "    a: render attractor vector" << endl;
 		cout << endl;
@@ -110,32 +95,34 @@ namespace study_cases {
 	}
 
 	void sim_101_init_simulation() {
-		sim_101_agent = nullptr;
+		sim_1xx_agent = nullptr;
 
 		// add agent particles
-		sim_101_agent = new agent_particle();
-		sim_101_agent->lifetime = 9999.0f; // immortal agent
-		sim_101_agent->R = 1.0f;
+		sim_1xx_agent = new agent_particle();
+		sim_1xx_agent->lifetime = 9999.0f; // immortal agent
+		sim_1xx_agent->R = 1.0f;
 
-		sim_101_agent->target = sim_101_target;
+		sim_1xx_agent->target = sim_1xx_target;
 
-		sim_101_agent->cur_pos = sim_101_ini_pos;
-		sim_101_agent->cur_vel = sim_101_ini_vel;
+		sim_1xx_agent->cur_pos = sim_1xx_ini_pos;
+		sim_1xx_agent->cur_vel = sim_1xx_ini_vel;
 
-		sim_101_agent->max_speed = sim_101_max_speed;
-		sim_101_agent->max_force = sim_101_max_force;
-		sim_101_agent->seek_weight = sim_101_seek_weight;
-		sim_101_agent->flee_weight = sim_101_flee_weight;
-		sim_101_agent->arrival_weight = sim_101_arrival_weight;
+		sim_1xx_agent->max_speed = sim_1xx_max_speed;
+		sim_1xx_agent->max_force = sim_1xx_max_force;
+		sim_1xx_agent->seek_weight = sim_1xx_seek_weight;
+		sim_1xx_agent->flee_weight = sim_1xx_flee_weight;
+		sim_1xx_agent->arrival_weight = sim_1xx_arrival_weight;
 
-		sim_101_agent->mass = sim_101_mass;
-		sim_101_agent->bouncing = 1.0f;
-		sim_101_agent->friction = 0.0f;
+		sim_1xx_agent->mass = sim_1xx_mass;
+		sim_1xx_agent->bouncing = 1.0f;
+		sim_1xx_agent->friction = 0.0f;
 
-		sim_101_agent->unset_all_behaviours();
-		sim_101_agent->set_behaviour(agent_behaviour_type::flee);
+		sim_1xx_agent->unset_all_behaviours();
+		sim_1xx_agent->set_behaviour(agent_behaviour_type::flee);
 
-		S.add_agent_particle(sim_101_agent);
+		S.add_agent_particle(sim_1xx_agent);
+
+		print_1xx_info();
 
 		S.set_time_step(0.101f);
 	}
@@ -145,20 +132,22 @@ namespace study_cases {
 
 		rplane *rp = new rplane();
 		rp->set_points(
-			gvec3(-50.0f, -2.0f, -50.0f), gvec3(-50.0f, -2.0f, 50.0f),
-			gvec3(50.0f, -2.0f, 50.0f), gvec3(50.0f, -2.0f, -50.0f)
+			gvec3(-25.0f, -2.0f, -25.0f), gvec3(-25.0f, -2.0f,  25.0f),
+			gvec3( 25.0f, -2.0f,  25.0f), gvec3( 25.0f, -2.0f, -25.0f)
 		);
 		rp->set_color(0.4f,0.4f,0.4f,0.5f);
 		geometry.push_back(rp);
 
 		V.get_box().set_min_max(
-			gvec3(-50.0f, -10.0f, -50.0f), gvec3(50.0f, 10.0f, 50.0f)
+			gvec3(-25.0f, -10.0f, -25.0f), gvec3(25.0f, 10.0f, 25.0f)
 		);
 
 		V.get_box().make_buffers();
 
 		V.set_window_dims(width, height);
 		V.init_cameras();
+
+		V.set_theta(0.0f);
 
 		V.increment_theta(50.0f);
 	}
@@ -177,33 +166,33 @@ namespace study_cases {
 				x = atof(argv[i + 1]);
 				y = atof(argv[i + 2]);
 				z = atof(argv[i + 3]);
-				sim_101_target = vec3(x,y,z);
+				sim_1xx_target = vec3(x,y,z);
 				i += 3;
 			}
 			else if (strcmp(argv[i], "--pos") == 0) {
 				x = atof(argv[i + 1]);
 				y = atof(argv[i + 2]);
 				z = atof(argv[i + 3]);
-				sim_101_ini_pos = vec3(x,y,z);
+				sim_1xx_ini_pos = vec3(x,y,z);
 				i += 3;
 			}
 			else if (strcmp(argv[i], "--vel") == 0) {
 				x = atof(argv[i + 1]);
 				y = atof(argv[i + 2]);
 				z = atof(argv[i + 3]);
-				sim_101_ini_vel = vec3(x,y,z);
+				sim_1xx_ini_vel = vec3(x,y,z);
 				i += 3;
 			}
 			else if (strcmp(argv[i], "--seek-weight") == 0) {
-				sim_101_seek_weight = atof(argv[i + 1]);
+				sim_1xx_seek_weight = atof(argv[i + 1]);
 				++i;
 			}
 			else if (strcmp(argv[i], "--max-speed") == 0) {
-				sim_101_max_speed = atof(argv[i + 1]);
+				sim_1xx_max_speed = atof(argv[i + 1]);
 				++i;
 			}
 			else if (strcmp(argv[i], "--max-force") == 0) {
-				sim_101_max_force = atof(argv[i + 1]);
+				sim_1xx_max_force = atof(argv[i + 1]);
 				++i;
 			}
 		}
@@ -214,7 +203,7 @@ namespace study_cases {
 	void sim_101_exit() {
 		exit_func();
 
-		sim_101_agent = nullptr;
+		sim_1xx_agent = nullptr;
 	}
 
 	int sim_101_init(bool init_window) {
@@ -245,19 +234,19 @@ namespace study_cases {
 		render_velocity_vector = true;
 		render_target_vector = true;
 
-		sim_101_ini_pos = vec3(0.0f,0.0f,0.0f);
-		sim_101_ini_vel = vec3(0.1f, 0.0f, 0.1f);
-		sim_101_target = vec3(-20.0f, 0.0f, 20.0f);
+		sim_1xx_ini_pos = vec3(0.0f,0.0f,0.0f);
+		sim_1xx_ini_vel = vec3(0.1f, 0.0f, 0.1f);
+		sim_1xx_target = vec3(-20.0f, 0.0f, 20.0f);
 
 		float w = 1.0f/4.0f;
 
-		sim_101_max_speed = 0.25f;
-		sim_101_max_force = 101.0f;
-		sim_101_seek_weight = 0.5f;
-		sim_101_flee_weight = w;
-		sim_101_arrival_weight = w;
-		sim_101_coll_avoid_weight = w;
-		sim_101_mass = 60.0f;
+		sim_1xx_max_speed = 0.25f;
+		sim_1xx_max_force = 101.0f;
+		sim_1xx_seek_weight = 0.5f;
+		sim_1xx_flee_weight = 0.5;
+		sim_1xx_arrival_weight = w;
+		sim_1xx_coll_avoid_weight = w;
+		sim_1xx_mass = 60.0f;
 
 		/* PARSE ARGUMENTS */
 		int arg_parse = sim_101_parse_arguments(_argc, _argv);

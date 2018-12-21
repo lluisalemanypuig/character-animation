@@ -13,7 +13,8 @@ HEADERS += \
     terrain/ray_rasterize_4_way.hpp \
     utils/utils.hpp \
     utils/indexed_minheap.hpp \
-    utils/indexed_minheap.cpp
+    utils/indexed_minheap.cpp \
+    sim_1xx.hpp
 
 SOURCES += main.cpp \
     charanim_variables.cpp \
@@ -29,7 +30,8 @@ SOURCES += main.cpp \
     sim_101.cpp \
     sim_102.cpp \
     sim_103.cpp \
-    sim_200.cpp
+    sim_200.cpp \
+    sim_1xx.cpp
 
 # self-includes
 INCLUDEPATH += ../
