@@ -14,12 +14,10 @@ using namespace std;
 typedef glm::vec3 gvec3;
 
 // physim includes
-#include <physim/initialiser/initialiser.hpp>
 #include <physim/particles/agent_particle.hpp>
 #include <physim/geometry/rectangle.hpp>
 #include <physim/math/vec2.hpp>
 #include <physim/math/vec3.hpp>
-using namespace physim::init;
 using namespace physim::particles;
 using namespace physim::geometric;
 using namespace physim::math;

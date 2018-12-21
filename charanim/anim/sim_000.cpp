@@ -15,7 +15,6 @@ using namespace std;
 // physim includes
 #include <physim/particles/sized_particle.hpp>
 #include <physim/math/vec3.hpp>
-using namespace physim::init;
 using namespace physim::particles;
 using namespace physim::geometric;
 
