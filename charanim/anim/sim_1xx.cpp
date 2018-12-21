@@ -27,35 +27,57 @@ namespace sim_1xx {
 	float sim_1xx_arrival_weight;
 	float sim_1xx_coll_avoid_weight;
 	float sim_1xx_mass;
+	float sim_1xx_slowing_distance;
+
+#define has_behaviour(behav) sim_1xx_agent->is_behaviour_set(behav)
 
 	void print_1xx_info() {
-		cout << "    Environment information: " << endl;
-		cout << "        Target position: (" << sim_1xx_target.x << ","
+		bool has_seek = has_behaviour(agent_behaviour_type::seek);
+		bool has_flee = has_behaviour(agent_behaviour_type::flee);
+		bool has_arrival = has_behaviour(agent_behaviour_type::arrival);
+		bool has_coll_avoid = has_behaviour(agent_behaviour_type::collision_avoidance);
+
+		cout << "Environment information: " << endl;
+		cout << "    Target position: (" << sim_1xx_target.x << ","
 											 << sim_1xx_target.y << ","
 											 << sim_1xx_target.z << ")"
 											 << endl;
-		cout << "        Agent's initial position: ("
+		cout << "    Agent's initial position: ("
 											 << sim_1xx_ini_pos.x << ","
 											 << sim_1xx_ini_pos.y << ","
 											 << sim_1xx_ini_pos.z << ")"
 											 << endl;
-		cout << "        Agent's initial velocity: ("
+		cout << "    Agent's initial velocity: ("
 											 << sim_1xx_ini_vel.x << ","
 											 << sim_1xx_ini_vel.y << ","
 											 << sim_1xx_ini_vel.z << ")"
 											 << endl;
-		cout << "    Behaviour parameters:" << endl;
-		cout << "        max speed:      " << sim_1xx_max_speed << endl;
-		cout << "        max force:      " << sim_1xx_max_force << endl;
-		cout << "        seek weight:    " << sim_1xx_seek_weight << endl;
-		cout << "        flee weight:    " << sim_1xx_flee_weight << endl;
-		cout << "        arrival weight: " << sim_1xx_arrival_weight << endl;
-		cout << "        agent's weight: " << sim_1xx_mass << endl;
-		cout << "        Behaviour: " << endl;
-		cout << "            Seek? " << (sim_1xx_agent->is_behaviour_set(agent_behaviour_type::seek) ? "Yes" : "No") << endl;
-		cout << "            Flee? " << (sim_1xx_agent->is_behaviour_set(agent_behaviour_type::flee) ? "Yes" : "No") << endl;
-		cout << "            Arrival? " << (sim_1xx_agent->is_behaviour_set(agent_behaviour_type::arrival) ? "Yes" : "No") << endl;
-		cout << "            Collision avoidance? " << (sim_1xx_agent->is_behaviour_set(agent_behaviour_type::collision_avoidance) ? "Yes" : "No") << endl;
+		cout << "Behaviour parameters:" << endl;
+		cout << "    max speed:      " << sim_1xx_max_speed << endl;
+		cout << "    max force:      " << sim_1xx_max_force << endl;
+		cout << "    agent's weight: " << sim_1xx_mass << endl;
+		cout << "    Behaviour: " << endl;
+
+		cout << "        Seek? " << (has_seek ? "Yes" : "No") << endl;
+		if (has_seek) {
+			cout
+			 << "            seek weight: " << sim_1xx_seek_weight << endl;
+		}
+
+		cout << "        Flee? " << (has_flee ? "Yes" : "No") << endl;
+		if (has_flee) {
+			cout
+			 << "            flee weight: " << sim_1xx_flee_weight << endl;
+		}
+
+		cout << "        Arrival? " << (has_arrival ? "Yes" : "No") << endl;
+		if (has_arrival) {
+			cout
+			 << "            arrival weight:    " << sim_1xx_arrival_weight << endl
+			 << "            slowing distance:  " << sim_1xx_slowing_distance << endl;
+		}
+
+		cout << "        Collision avoidance? " << (has_coll_avoid ? "Yes" : "No") << endl;
 	}
 
 } // -- namespace sim_1xx

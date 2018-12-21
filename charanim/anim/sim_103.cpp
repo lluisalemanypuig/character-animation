@@ -122,9 +122,7 @@ namespace study_cases {
 
 		S.add_agent_particle(sim_1xx_agent);
 
-		print_1xx_info();
-
-		S.set_time_step(0.103f);
+		S.set_time_step(0.001f);
 	}
 
 	void sim_103_init_geometry() {
@@ -216,6 +214,9 @@ namespace study_cases {
 		special_key_pressed = latticePoint(0,0);
 		regular_key_pressed = latticePoint(0,0);
 
+		float _move_x = move_x;
+		float _move_z = move_z;
+
 		move_x = 0.0f;
 		move_z = 0.0f;
 		bgd_color = glm::vec3(0.8f,0.8f,0.8f);
@@ -269,7 +270,18 @@ namespace study_cases {
 
 		glEnable(GL_DEPTH_TEST);
 
+		float zoomP = V.get_perspective_camera().get_zoom();
+		float zoomC = V.get_orthogonal_camera().get_zoom();
+
 		sim_103_init_geometry();
+
+		if (not init_window) {
+			V.get_perspective_camera().set_zoom(zoomP);
+			V.get_orthogonal_camera().set_zoom(zoomC);
+			move_x = _move_x;
+			move_z = _move_z;
+		}
+
 		sim_103_init_simulation();
 
 		bool success;
@@ -284,6 +296,9 @@ namespace study_cases {
 			cerr << "Error: error when loading sphere" << endl;
 			return 1;
 		}
+
+		sim_103_usage();
+		print_1xx_info();
 
 		return 0;
 	}

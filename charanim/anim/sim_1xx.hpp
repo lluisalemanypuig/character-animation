@@ -22,6 +22,7 @@ namespace sim_1xx {
 	extern float sim_1xx_arrival_weight;
 	extern float sim_1xx_coll_avoid_weight;
 	extern float sim_1xx_mass;
+	extern float sim_1xx_slowing_distance;
 
 	void print_1xx_info();
 

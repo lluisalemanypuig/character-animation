@@ -38,7 +38,6 @@ namespace study_cases {
 	void sim_100_usage() {
 		cout << "Simulation 100: validation of seek behaviour" << endl;
 		cout << endl;
-		cout << "Specify a map file as parameter to visualise it." << endl;
 		cout << "    --help : show the usage." << endl;
 		cout << endl;
 		cout << "Keyboard keys:" << endl;
@@ -68,7 +67,14 @@ namespace study_cases {
 
 		base_render();
 
-		for (int i = 0; i < 10; ++i) {
+		glDisable(GL_LIGHTING);
+		glColor3f(1.0f,1.0f,1.0f);
+		glBegin(GL_LINES);
+			glVertex3f(sim_1xx_target.x, sim_1xx_target.y, sim_1xx_target.z);
+			glVertex3f(sim_1xx_ini_pos.x, sim_1xx_ini_pos.y, sim_1xx_ini_pos.z);
+		glEnd();
+
+		for (int i = 0; i < 100; ++i) {
 			S.simulate_agent_particles();
 		}
 
@@ -111,8 +117,6 @@ namespace study_cases {
 		sim_1xx_agent->max_speed = sim_1xx_max_speed;
 		sim_1xx_agent->max_force = sim_1xx_max_force;
 		sim_1xx_agent->seek_weight = sim_1xx_seek_weight;
-		sim_1xx_agent->flee_weight = sim_1xx_flee_weight;
-		sim_1xx_agent->arrival_weight = sim_1xx_arrival_weight;
 
 		sim_1xx_agent->mass = sim_1xx_mass;
 		sim_1xx_agent->bouncing = 1.0f;
@@ -123,9 +127,7 @@ namespace study_cases {
 
 		S.add_agent_particle(sim_1xx_agent);
 
-		print_1xx_info();
-
-		S.set_time_step(0.100f);
+		S.set_time_step(0.001f);
 	}
 
 	void sim_100_init_geometry() {
@@ -147,8 +149,6 @@ namespace study_cases {
 
 		V.set_window_dims(width, height);
 		V.init_cameras();
-
-		V.increment_theta(50.0f);
 	}
 
 	int sim_100_parse_arguments(int argc, char *argv[]) {
@@ -217,6 +217,9 @@ namespace study_cases {
 		special_key_pressed = latticePoint(0,0);
 		regular_key_pressed = latticePoint(0,0);
 
+		float _move_x = move_x;
+		float _move_z = move_z;
+
 		move_x = 0.0f;
 		move_z = 0.0f;
 		bgd_color = glm::vec3(0.8f,0.8f,0.8f);
@@ -234,17 +237,12 @@ namespace study_cases {
 		render_target_vector = true;
 
 		sim_1xx_ini_pos = vec3(0.0f,0.0f,0.0f);
-		sim_1xx_ini_vel = vec3(0.1f, 0.0f, 0.1f);
+		sim_1xx_ini_vel = vec3(0.5f, 0.0f, 0.5f);
 		sim_1xx_target = vec3(-20.0f, 0.0f, 20.0f);
 
-		float w = 1.0f/4.0f;
-
-		sim_1xx_max_speed = 0.25f;
+		sim_1xx_max_speed = 0.5f;
 		sim_1xx_max_force = 100.0f;
-		sim_1xx_seek_weight = 0.5f;
-		sim_1xx_flee_weight = w;
-		sim_1xx_arrival_weight = w;
-		sim_1xx_coll_avoid_weight = w;
+		sim_1xx_seek_weight = 5.0f;
 		sim_1xx_mass = 60.0f;
 
 		/* PARSE ARGUMENTS */
@@ -270,7 +268,18 @@ namespace study_cases {
 
 		glEnable(GL_DEPTH_TEST);
 
+		float zoomP = V.get_perspective_camera().get_zoom();
+		float zoomC = V.get_orthogonal_camera().get_zoom();
+
 		sim_100_init_geometry();
+
+		if (not init_window) {
+			V.get_perspective_camera().set_zoom(zoomP);
+			V.get_orthogonal_camera().set_zoom(zoomC);
+			move_x = _move_x;
+			move_z = _move_z;
+		}
+
 		sim_100_init_simulation();
 
 		bool success;
@@ -285,6 +294,9 @@ namespace study_cases {
 			cerr << "Error: error when loading sphere" << endl;
 			return 1;
 		}
+
+		sim_100_usage();
+		print_1xx_info();
 
 		return 0;
 	}

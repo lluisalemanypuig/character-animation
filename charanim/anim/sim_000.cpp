@@ -247,6 +247,9 @@ namespace study_cases {
 		special_key_pressed = latticePoint(0,0);
 		regular_key_pressed = latticePoint(0,0);
 
+		float _move_x = move_x;
+		float _move_z = move_z;
+
 		move_x = 0.0f;
 		move_z = 0.0f;
 		bgd_color = glm::vec3(0.8f,0.8f,0.8f);
@@ -286,9 +289,19 @@ namespace study_cases {
 		glEnable(GL_DEPTH_TEST);
 		glDisable(GL_LIGHTING);
 
+		float zoomP = V.get_perspective_camera().get_zoom();
+		float zoomC = V.get_orthogonal_camera().get_zoom();
+
 		V.get_box().set_min_max(glm::vec3(0,0,0), glm::vec3(20,5,20));
 		V.set_window_dims(width, height);
 		V.init_cameras();
+
+		if (not init_window) {
+			V.get_perspective_camera().set_zoom(zoomP);
+			V.get_orthogonal_camera().set_zoom(zoomC);
+			move_x = _move_x;
+			move_z = _move_z;
+		}
 
 		sim_000_init_geometry();
 		bool success;
