@@ -114,6 +114,7 @@ namespace study_cases {
 
 		sim_1xx_agent->max_speed = sim_1xx_max_speed;
 		sim_1xx_agent->max_force = sim_1xx_max_force;
+
 		sim_1xx_agent->arrival_weight = sim_1xx_arrival_weight;
 		sim_1xx_agent->slowing_distance = sim_1xx_slowing_distance;
 

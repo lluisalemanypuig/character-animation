@@ -70,11 +70,13 @@ namespace study_cases {
 			S.simulate_agent_particles();
 		}
 
-		if (dist(sim_1xx_agent->cur_pos, sim_1xx_agent->target) <= 2.5f) {
-			++sim_1xx_path_it;
-			sim_1xx_agent->target = sim_1xx_path[sim_1xx_path_it];
-			if (sim_1xx_path_it == sim_1xx_path.size() - 1) {
-				sim_1xx_agent->set_behaviour(agent_behaviour_type::arrival);
+		if (sim_1xx_path_it < sim_1xx_path.size() - 1) {
+			if (dist(sim_1xx_agent->cur_pos, sim_1xx_agent->target) <= 2.5f) {
+				++sim_1xx_path_it;
+				sim_1xx_agent->target = sim_1xx_path[sim_1xx_path_it];
+				if (sim_1xx_path_it == sim_1xx_path.size() - 1) {
+					sim_1xx_agent->set_behaviour(agent_behaviour_type::arrival);
+				}
 			}
 		}
 
@@ -124,8 +126,8 @@ namespace study_cases {
 		sim_1xx_agent->max_force = sim_1xx_max_force;
 
 		sim_1xx_agent->seek_weight = sim_1xx_seek_weight;
-		//sim_1xx_agent->flee_weight = sim_1xx_flee_weight;
-		//sim_1xx_agent->arrival_weight = sim_1xx_arrival_weight;
+		sim_1xx_agent->arrival_weight = sim_1xx_arrival_weight;
+		sim_1xx_agent->slowing_distance = sim_1xx_slowing_distance;
 		sim_1xx_agent->coll_avoid_weight = sim_1xx_coll_avoid_weight;
 
 		sim_1xx_agent->mass = sim_1xx_mass;
@@ -265,6 +267,8 @@ namespace study_cases {
 		sim_1xx_max_speed = 0.5f;
 		sim_1xx_max_force = 100.0f;
 		sim_1xx_seek_weight = 5.0f;
+		sim_1xx_arrival_weight = 5.0f;
+		sim_1xx_slowing_distance = 20.0f;
 		sim_1xx_coll_avoid_weight = 1.0f;
 		sim_1xx_mass = 60.0f;
 
@@ -280,8 +284,7 @@ namespace study_cases {
 			glutInitDisplayMode(GLUT_DEPTH | GLUT_DOUBLE | GLUT_RGBA);
 			glutInitWindowSize(width, height);
 			window_id =
-			glutCreateWindow("Character animation - \
-				Collision avoidance steering inspection");
+			glutCreateWindow("Character animation - Collision avoidance steering inspection");
 
 			GLenum err = glewInit();
 			if (err != 0) {
