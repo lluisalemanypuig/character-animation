@@ -75,6 +75,7 @@ namespace study_cases {
 				++sim_1xx_path_it;
 				sim_1xx_agent->target = sim_1xx_path[sim_1xx_path_it];
 				if (sim_1xx_path_it == sim_1xx_path.size() - 1) {
+					sim_1xx_agent->unset_behaviour(agent_behaviour_type::seek);
 					sim_1xx_agent->set_behaviour(agent_behaviour_type::arrival);
 				}
 			}
