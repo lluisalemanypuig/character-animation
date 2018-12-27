@@ -1,5 +1,8 @@
 #pragma once
 
+// C++ includes
+#include <vector>
+
 // physim includes
 #include <physim/particles/agent_particle.hpp>
 #include <physim/math/vec3.hpp>
@@ -23,6 +26,9 @@ namespace sim_1xx {
 	extern float sim_1xx_coll_avoid_weight;
 	extern float sim_1xx_mass;
 	extern float sim_1xx_slowing_distance;
+
+	extern size_t sim_1xx_path_it;
+	extern std::vector<physim::math::vec3> sim_1xx_path;
 
 	void print_1xx_info();
 

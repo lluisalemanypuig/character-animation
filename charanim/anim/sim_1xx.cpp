@@ -29,6 +29,9 @@ namespace sim_1xx {
 	float sim_1xx_mass;
 	float sim_1xx_slowing_distance;
 
+	vector<vec3> sim_1xx_path;
+	size_t sim_1xx_path_it;
+
 #define has_behaviour(behav) sim_1xx_agent->is_behaviour_set(behav)
 
 	void print_1xx_info() {
@@ -78,6 +81,10 @@ namespace sim_1xx {
 		}
 
 		cout << "        Collision avoidance? " << (has_coll_avoid ? "Yes" : "No") << endl;
+		if (has_coll_avoid) {
+			cout << "            collision avoidance weight: "
+				 << sim_1xx_coll_avoid_weight << endl;
+		}
 	}
 
 } // -- namespace sim_1xx

@@ -99,7 +99,6 @@ namespace study_cases {
 	}
 
 	void sim_100_init_simulation() {
-
 		sim_1xx_agent = nullptr;
 
 		// add agent particles
@@ -111,6 +110,7 @@ namespace study_cases {
 
 		sim_1xx_agent->cur_pos = sim_1xx_ini_pos;
 		sim_1xx_agent->cur_vel = sim_1xx_ini_vel;
+		sim_1xx_agent->orientation = physim::math::normalise(sim_1xx_ini_vel);
 
 		sim_1xx_agent->max_speed = sim_1xx_max_speed;
 		sim_1xx_agent->max_force = sim_1xx_max_force;

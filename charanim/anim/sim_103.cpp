@@ -24,6 +24,7 @@ using namespace physim::math;
 
 // render includes
 #include <render/geometry/rplane.hpp>
+#include <render/geometry/rrectangle.hpp>
 
 // custom includes
 #include <anim/sim_1xx.hpp>
@@ -36,8 +37,7 @@ namespace study_cases {
 	void sim_103_usage() {
 		cout << "Simulation 103: validation of collision avoidance behaviour" << endl;
 		cout << endl;
-		cout << "Specify a map file as parameter to visualise it." << endl;
-		cout << "    --help : show the usage." << endl;
+		cout << "This simulated uses a 'pre-computed' path" << endl;
 		cout << endl;
 		cout << "Keyboard keys:" << endl;
 		cout << "    h: show the usage." << endl;
@@ -66,8 +66,16 @@ namespace study_cases {
 
 		base_render();
 
-		for (int i = 0; i < 10; ++i) {
+		for (int i = 0; i < 100; ++i) {
 			S.simulate_agent_particles();
+		}
+
+		if (dist(sim_1xx_agent->cur_pos, sim_1xx_agent->target) <= 2.5f) {
+			++sim_1xx_path_it;
+			sim_1xx_agent->target = sim_1xx_path[sim_1xx_path_it];
+			if (sim_1xx_path_it == sim_1xx_path.size() - 1) {
+				sim_1xx_agent->set_behaviour(agent_behaviour_type::arrival);
+			}
 		}
 
 		if (window_id != -1) {
@@ -95,32 +103,48 @@ namespace study_cases {
 	void sim_103_init_simulation() {
 		sim_1xx_agent = nullptr;
 
+		sim_1xx_path.clear();
+		sim_1xx_path = { vec3(25.0f, 0.0f, 12.0f),
+						 vec3(42.0f, 0.0f, 25.0f),
+						 vec3(25.0f, 0.0f, 40.0f) };
+
 		// add agent particles
 		sim_1xx_agent = new agent_particle();
 		sim_1xx_agent->lifetime = 9999.0f; // immortal agent
 		sim_1xx_agent->R = 1.0f;
 
-		sim_1xx_agent->target = sim_1xx_target;
+		sim_1xx_path_it = 0;
+		sim_1xx_agent->target = sim_1xx_path[sim_1xx_path_it];
 
 		sim_1xx_agent->cur_pos = sim_1xx_ini_pos;
 		sim_1xx_agent->cur_vel = sim_1xx_ini_vel;
+		sim_1xx_agent->orientation = physim::math::normalise(sim_1xx_ini_vel);
 
 		sim_1xx_agent->max_speed = sim_1xx_max_speed;
 		sim_1xx_agent->max_force = sim_1xx_max_force;
+
 		sim_1xx_agent->seek_weight = sim_1xx_seek_weight;
-		sim_1xx_agent->flee_weight = sim_1xx_flee_weight;
-		sim_1xx_agent->arrival_weight = sim_1xx_arrival_weight;
+		//sim_1xx_agent->flee_weight = sim_1xx_flee_weight;
+		//sim_1xx_agent->arrival_weight = sim_1xx_arrival_weight;
+		sim_1xx_agent->coll_avoid_weight = sim_1xx_coll_avoid_weight;
 
 		sim_1xx_agent->mass = sim_1xx_mass;
 		sim_1xx_agent->bouncing = 1.0f;
 		sim_1xx_agent->friction = 0.0f;
 
 		sim_1xx_agent->unset_all_behaviours();
-		sim_1xx_agent->set_behaviour(agent_behaviour_type::arrival);
+		sim_1xx_agent->set_behaviour(agent_behaviour_type::seek);
+		sim_1xx_agent->set_behaviour(agent_behaviour_type::collision_avoidance);
 
 		S.add_agent_particle(sim_1xx_agent);
 
 		S.set_time_step(0.001f);
+
+		// add physical geometry
+		rectangle *r = new rectangle();
+		r->set_points(vec3(0.0f, 0.0f, 25.0f), vec3(40.0f, 0.0f, 25.0f),
+					  vec3(40.0f, 1.0f, 25.0f), vec3(0.0f, 1.0f, 25.0f));
+		S.add_geometry(r);
 	}
 
 	void sim_103_init_geometry() {
@@ -128,14 +152,14 @@ namespace study_cases {
 
 		rplane *rp = new rplane();
 		rp->set_points(
-			gvec3(-50.0f, -2.0f, -50.0f), gvec3(-50.0f, -2.0f, 50.0f),
-			gvec3(50.0f, -2.0f, 50.0f), gvec3(50.0f, -2.0f, -50.0f)
+			gvec3(0.0f,  -2.0f, 0.0f),  gvec3(0.0f, -2.0f, 50.0f),
+			gvec3(50.0f, -2.0f, 50.0f), gvec3(50.0f, -2.0f, 0.0f)
 		);
 		rp->set_color(0.4f,0.4f,0.4f,0.5f);
 		geometry.push_back(rp);
 
 		V.get_box().set_min_max(
-			gvec3(-50.0f, -10.0f, -50.0f), gvec3(50.0f, 10.0f, 50.0f)
+			gvec3(0.0f, -10.0f, 0.0f), gvec3(50.0f, 10.0f, 50.0f)
 		);
 
 		V.get_box().make_buffers();
@@ -144,6 +168,12 @@ namespace study_cases {
 		V.init_cameras();
 
 		V.increment_theta(50.0f);
+
+		// add physical geometry
+		rrectangle *r = new rrectangle();
+		r->set_points(gvec3(0.0f, 0.0f, 25.0f), gvec3(40.0f, 0.0f, 25.0f),
+					  gvec3(40.0f, 1.0f, 25.0f), gvec3(0.0f, 1.0f, 25.0f));
+		geometry.push_back(r);
 	}
 
 	int sim_103_parse_arguments(int argc, char *argv[]) {
@@ -155,13 +185,6 @@ namespace study_cases {
 			if (strcmp(argv[i], "--help") == 0) {
 				sim_103_usage();
 				return 2;
-			}
-			else if (strcmp(argv[i], "--target") == 0) {
-				x = atof(argv[i + 1]);
-				y = atof(argv[i + 2]);
-				z = atof(argv[i + 3]);
-				sim_1xx_target = vec3(x,y,z);
-				i += 3;
 			}
 			else if (strcmp(argv[i], "--pos") == 0) {
 				x = atof(argv[i + 1]);
@@ -187,6 +210,10 @@ namespace study_cases {
 			}
 			else if (strcmp(argv[i], "--max-force") == 0) {
 				sim_1xx_max_force = atof(argv[i + 1]);
+				++i;
+			}
+			else if (strcmp(argv[i], "--coll-avoid") == 0) {
+				sim_1xx_coll_avoid_weight = atof(argv[i + 1]);
 				++i;
 			}
 		}
@@ -231,18 +258,14 @@ namespace study_cases {
 		render_velocity_vector = true;
 		render_target_vector = true;
 
-		sim_1xx_ini_pos = vec3(0.0f,0.0f,0.0f);
-		sim_1xx_ini_vel = vec3(0.1f, 0.0f, 0.1f);
+		sim_1xx_ini_pos = vec3(25.0f,0.0f,0.0f);
+		sim_1xx_ini_vel = vec3(0.5f, 0.0f, 0.5f);
 		sim_1xx_target = vec3(-20.0f, 0.0f, 20.0f);
 
-		float w = 1.0f/4.0f;
-
-		sim_1xx_max_speed = 0.25f;
-		sim_1xx_max_force = 103.0f;
-		sim_1xx_seek_weight = 0.5f;
-		sim_1xx_flee_weight = w;
-		sim_1xx_arrival_weight = w;
-		sim_1xx_coll_avoid_weight = w;
+		sim_1xx_max_speed = 0.5f;
+		sim_1xx_max_force = 100.0f;
+		sim_1xx_seek_weight = 5.0f;
+		sim_1xx_coll_avoid_weight = 1.0f;
 		sim_1xx_mass = 60.0f;
 
 		/* PARSE ARGUMENTS */
@@ -256,7 +279,9 @@ namespace study_cases {
 			glutInit(&_argc, _argv);
 			glutInitDisplayMode(GLUT_DEPTH | GLUT_DOUBLE | GLUT_RGBA);
 			glutInitWindowSize(width, height);
-			window_id = glutCreateWindow("Character animation - Flee steering inspection");
+			window_id =
+			glutCreateWindow("Character animation - \
+				Collision avoidance steering inspection");
 
 			GLenum err = glewInit();
 			if (err != 0) {
