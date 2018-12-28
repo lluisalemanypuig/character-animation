@@ -38,6 +38,12 @@ namespace charanim {
 		flat_shader.set_vec4("colour", glm::vec4(0.0f,0.0f,1.0f,1.0f));
 		flat_shader.release();
 
+		texture_shader.bind();
+		texture_shader.set_vec3("light.diffuse", glm::vec3(1.0f,1.0f,1.0f));
+		texture_shader.set_vec3("light.ambient", glm::vec3(0.2f,0.2f,0.2f));
+		texture_shader.set_vec3("light.position", glm::vec3(0.f,0.f,0.f));
+		texture_shader.release();
+
 		return true;
 	}
 
@@ -45,7 +51,11 @@ namespace charanim {
 		sphere = new rendered_triangle_mesh();
 
 		OBJ_reader obj;
-		obj.load_object("../../models", "sphere.obj", *sphere);
+		bool r = obj.load_object("../../charanim/models", "sphere-wireframe.obj", *sphere);
+		if (not r) {
+			return false;
+		}
+
 		sphere->make_buffers();
 
 		return true;

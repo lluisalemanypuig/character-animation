@@ -16,6 +16,7 @@ typedef glm::vec3 gvec3;
 // physim includes
 #include <physim/particles/agent_particle.hpp>
 #include <physim/geometry/rectangle.hpp>
+#include <physim/geometry/sphere.hpp>
 #include <physim/math/vec2.hpp>
 #include <physim/math/vec3.hpp>
 using namespace physim::particles;
@@ -24,7 +25,10 @@ using namespace physim::math;
 
 // render includes
 #include <render/geometry/rplane.hpp>
+#include <render/geometry/rsphere.hpp>
 #include <render/geometry/rrectangle.hpp>
+#include <render/obj_reader.hpp>
+#include <render/shader/shader_helper.hpp>
 
 // custom includes
 #include <anim/sim_1xx.hpp>
@@ -114,7 +118,7 @@ namespace study_cases {
 		// add agent particles
 		sim_1xx_agent = new agent_particle();
 		sim_1xx_agent->lifetime = 9999.0f; // immortal agent
-		sim_1xx_agent->R = 1.0f;
+		sim_1xx_agent->R = 0.5f;
 
 		sim_1xx_path_it = 0;
 		sim_1xx_agent->target = sim_1xx_path[sim_1xx_path_it];
@@ -148,6 +152,10 @@ namespace study_cases {
 		r->set_points(vec3(0.0f, 0.0f, 25.0f), vec3(40.0f, 0.0f, 25.0f),
 					  vec3(40.0f, 1.0f, 25.0f), vec3(0.0f, 1.0f, 25.0f));
 		S.add_geometry(r);
+		physim::geometric::sphere *s = new physim::geometric::sphere();
+		s->set_position(vec3((25.0f + 42.0f)/2.0f, 0.0f, (12.0f + 25.0f)/2.0f));
+		s->set_radius(1.0f);
+		S.add_geometry(s);
 	}
 
 	void sim_103_init_geometry() {
@@ -177,6 +185,23 @@ namespace study_cases {
 		r->set_points(gvec3(0.0f, 0.0f, 25.0f), gvec3(40.0f, 0.0f, 25.0f),
 					  gvec3(40.0f, 1.0f, 25.0f), gvec3(0.0f, 1.0f, 25.0f));
 		geometry.push_back(r);
+
+		rsphere *rball = new rsphere();
+		rball->set_center(gvec3((25.0f + 42.0f)/2.0f, 0.0f, (12.0f + 25.0f)/2.0f));
+		rball->set_radius(1.0f);
+
+		shared_ptr<rendered_triangle_mesh> sim_ball(new rendered_triangle_mesh);
+		OBJ_reader obj;
+		obj.load_object("../../charanim/models", "sphere.obj", *sim_ball);
+
+		rball->set_model(sim_ball);
+		geometry.push_back(rball);
+
+		sim_ball->load_textures();
+		sim_ball->make_buffers_materials_textures();
+		texture_shader.bind();
+		shader_helper::activate_materials_textures(*sim_ball, texture_shader);
+		texture_shader.release();
 	}
 
 	int sim_103_parse_arguments(int argc, char *argv[]) {
@@ -296,6 +321,18 @@ namespace study_cases {
 		}
 
 		glEnable(GL_DEPTH_TEST);
+		bool success;
+		success = load_shaders();
+		if (not success) {
+			cerr << "Error: error when loading shaders" << endl;
+			return 1;
+		}
+
+		success = load_sphere();
+		if (not success) {
+			cerr << "Error: error when loading sphere" << endl;
+			return 1;
+		}
 
 		float zoomP = V.get_perspective_camera().get_zoom();
 		float zoomC = V.get_orthogonal_camera().get_zoom();
@@ -310,19 +347,6 @@ namespace study_cases {
 		}
 
 		sim_103_init_simulation();
-
-		bool success;
-		success = load_shaders();
-		if (not success) {
-			cerr << "Error: error when loading shaders" << endl;
-			return 1;
-		}
-
-		success = load_sphere();
-		if (not success) {
-			cerr << "Error: error when loading sphere" << endl;
-			return 1;
-		}
 
 		sim_103_usage();
 		print_1xx_info();

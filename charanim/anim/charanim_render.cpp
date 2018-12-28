@@ -166,7 +166,6 @@ namespace charanim {
 				r->draw_geometry();
 			}
 		}
-
 		if (not render_base_spheres and ps.size() > 0) {
 			glPointSize(3.0f);
 			glBegin(GL_POINTS);
@@ -176,6 +175,25 @@ namespace charanim {
 			}
 			glEnd();
 		}
+
+		glEnable(GL_LIGHTING);
+		texture_shader.bind();
+		texture_shader.set_vec3("view_pos", glm::vec3(0.0f,0.0f,0.0f));
+		texture_shader.set_mat4("projection", projection);
+		for (const rgeom *r : geometry) {
+			if (r->get_model() != nullptr) {
+				glm::mat4 model(1.0f);
+				r->make_model_matrix(model);
+
+				glm::mat4 modelview = view*model;
+				glm::mat3 normal_matrix = glm::inverseTranspose(glm::mat3(modelview));
+
+				texture_shader.set_mat4("modelview", modelview);
+				texture_shader.set_mat3("normal_matrix", normal_matrix);
+				r->draw();
+			}
+		}
+		texture_shader.release();
 	}
 
 	void full_render() {
