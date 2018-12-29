@@ -2,7 +2,8 @@ TEMPLATE = subdirs
 
 SUBDIRS += \
     render \
-	anim
+	anim \
+    character-render
 
 DISTFILES += \
 	shaders/flat.frag \

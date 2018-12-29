@@ -9,6 +9,14 @@ CONFIG -= qt
 QMAKE_CXXFLAGS_DEBUG += -DDEBUG
 QMAKE_CXXFLAGS_RELEASE += -DNDEBUG
 
+# for 'self' includes
+INCLUDEPATH += ..
+
+# physim library
+INCLUDEPATH += ../../../
+DEPENDPATH += ../../../
+
+# Files
 HEADERS += \
     obj_reader.hpp \
     box.hpp \
@@ -50,11 +58,4 @@ SOURCES += \
     triangle_mesh/rendered_triangle_mesh.cpp \
     triangle_mesh/triangle_mesh.cpp \
     triangle_mesh/triangle_mesh_utils.cpp
-
-# for 'self' includes
-INCLUDEPATH += ..
-
-# physim library
-INCLUDEPATH += ../../../
-DEPENDPATH += ../../../
 
