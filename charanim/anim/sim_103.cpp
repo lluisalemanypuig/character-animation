@@ -32,6 +32,7 @@ using namespace physim::math;
 
 // custom includes
 #include <anim/sim_1xx.hpp>
+#include <anim/vec_helper.hpp>
 
 namespace charanim {
 using namespace sim_1xx;
@@ -152,10 +153,15 @@ namespace study_cases {
 		r->set_points(vec3(0.0f, 0.0f, 25.0f), vec3(40.0f, 0.0f, 25.0f),
 					  vec3(40.0f, 1.0f, 25.0f), vec3(0.0f, 1.0f, 25.0f));
 		S.add_geometry(r);
-		physim::geometric::sphere *s = new physim::geometric::sphere();
-		s->set_position(vec3((25.0f + 42.0f)/2.0f, 0.0f, (12.0f + 25.0f)/2.0f));
-		s->set_radius(1.0f);
-		S.add_geometry(s);
+		physim::geometric::sphere *s1 = new physim::geometric::sphere();
+		s1->set_position( (sim_1xx_path[0] + sim_1xx_path[1])/2.0f );
+		s1->set_radius(1.0f);
+		S.add_geometry(s1);
+
+		physim::geometric::sphere *s2 = new physim::geometric::sphere();
+		s2->set_position( (sim_1xx_path[1] + sim_1xx_path[2])/2.0f );
+		s2->set_radius(1.5f);
+		S.add_geometry(s2);
 	}
 
 	void sim_103_init_geometry() {
@@ -186,16 +192,22 @@ namespace study_cases {
 					  gvec3(40.0f, 1.0f, 25.0f), gvec3(0.0f, 1.0f, 25.0f));
 		geometry.push_back(r);
 
-		rsphere *rball = new rsphere();
-		rball->set_center(gvec3((25.0f + 42.0f)/2.0f, 0.0f, (12.0f + 25.0f)/2.0f));
-		rball->set_radius(1.0f);
+		rsphere *rball1 = new rsphere();
+		rball1->set_center( to_gvec3((sim_1xx_path[0] + sim_1xx_path[1])/2.0f) );
+		rball1->set_radius(1.0f);
+		rsphere *rball2 = new rsphere();
+		rball2->set_center( to_gvec3((sim_1xx_path[1] + sim_1xx_path[2])/2.0f) );
+		rball2->set_radius(1.5f);
 
 		shared_ptr<rendered_triangle_mesh> sim_ball(new rendered_triangle_mesh);
 		OBJ_reader obj;
 		obj.load_object("../../charanim/models", "sphere.obj", *sim_ball);
 
-		rball->set_model(sim_ball);
-		geometry.push_back(rball);
+		rball1->set_model(sim_ball);
+		geometry.push_back(rball1);
+
+		rball2->set_model(sim_ball);
+		geometry.push_back(rball2);
 
 		sim_ball->load_textures();
 		sim_ball->make_buffers_materials_textures();
@@ -334,6 +346,8 @@ namespace study_cases {
 			return 1;
 		}
 
+		sim_103_init_simulation();
+
 		float zoomP = V.get_perspective_camera().get_zoom();
 		float zoomC = V.get_orthogonal_camera().get_zoom();
 
@@ -345,8 +359,6 @@ namespace study_cases {
 			move_x = _move_x;
 			move_z = _move_z;
 		}
-
-		sim_103_init_simulation();
 
 		sim_103_usage();
 		print_1xx_info();
