@@ -17,6 +17,193 @@ using namespace std;
 
 // PRIVATE
 
+void rendered_triangle_mesh::fill_buffers
+(const vector<float>& data, const vector<uint>& indices)
+{
+	// bind VAO
+	glBindVertexArray(VAO);
+	assert(glGetError() == GL_NO_ERROR);
+
+	// ---------------------
+	// VBO fill
+	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+	assert(glGetError() == GL_NO_ERROR);
+
+	glBufferData(GL_ARRAY_BUFFER, data.size()*sizeof(float), &data[0], GL_STATIC_DRAW);
+	assert(glGetError() == GL_NO_ERROR);
+
+	// vertex coordinates
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6*sizeof(float), (void *)0);
+	assert(glGetError() == GL_NO_ERROR);
+
+	glEnableVertexAttribArray(0);
+	assert(glGetError() == GL_NO_ERROR);
+
+	// normals
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6*sizeof(float), (void *)(3*sizeof(float)));
+	assert(glGetError() == GL_NO_ERROR);
+
+	glEnableVertexAttribArray(1);
+	assert(glGetError() == GL_NO_ERROR);
+
+	// ---------------------
+	// EBO fill
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+	assert(glGetError() == GL_NO_ERROR);
+
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size()*sizeof(uint), &indices[0], GL_STATIC_DRAW);
+	assert(glGetError() == GL_NO_ERROR);
+
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	assert(glGetError() == GL_NO_ERROR);
+	// ---------------------
+
+	// VAO release
+	glBindVertexArray(0);
+	assert(glGetError() == GL_NO_ERROR);
+}
+
+void rendered_triangle_mesh::fill_buffers_materials
+(const std::vector<float>& data, const std::vector<int>& flat_idxs,
+ const std::vector<uint>& indices)
+{
+	// bind VAO
+	glBindVertexArray(VAO);
+	assert(glGetError() == GL_NO_ERROR);
+
+	// ---------------------
+	// VBO fill
+	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+	assert(glGetError() == GL_NO_ERROR);
+
+	glBufferData(GL_ARRAY_BUFFER, data.size()*sizeof(float), &data[0], GL_STATIC_DRAW);
+	assert(glGetError() == GL_NO_ERROR);
+
+	// vertex coordinates
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6*sizeof(float), (void *)0);
+	assert(glGetError() == GL_NO_ERROR);
+
+	glEnableVertexAttribArray(0);
+	assert(glGetError() == GL_NO_ERROR);
+
+	// normals
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6*sizeof(float), (void *)(3*sizeof(float)));
+	assert(glGetError() == GL_NO_ERROR);
+
+	glEnableVertexAttribArray(1);
+	assert(glGetError() == GL_NO_ERROR);
+
+	// ---------------------
+	// IBO fill
+	glBindBuffer(GL_ARRAY_BUFFER, IBO);
+	assert(glGetError() == GL_NO_ERROR);
+
+	glBufferData(GL_ARRAY_BUFFER, flat_idxs.size()*sizeof(int), &flat_idxs[0], GL_STATIC_DRAW);
+	assert(glGetError() == GL_NO_ERROR);
+
+	// indices (materials)
+	glVertexAttribIPointer(2, 1, GL_INT, 0, (void *)0);
+	assert(glGetError() == GL_NO_ERROR);
+
+	glEnableVertexAttribArray(2);
+	assert(glGetError() == GL_NO_ERROR);
+
+	// ---------------------
+	// EBO fill
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+	assert(glGetError() == GL_NO_ERROR);
+
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size()*sizeof(uint), &indices[0], GL_STATIC_DRAW);
+	assert(glGetError() == GL_NO_ERROR);
+
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	assert(glGetError() == GL_NO_ERROR);
+	// ---------------------
+
+	// VAO release
+	glBindVertexArray(0);
+	assert(glGetError() == GL_NO_ERROR);
+}
+
+void rendered_triangle_mesh::fill_buffers_materials_textures
+(const std::vector<float>& data, const std::vector<int>& flat_idxs,
+ const std::vector<uint>& indices)
+{
+	// bind VAO
+	glBindVertexArray(VAO);
+
+	// ---------------------
+	// VBO fill
+	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+	assert(glGetError() == GL_NO_ERROR);
+
+	glBufferData(GL_ARRAY_BUFFER, data.size()*sizeof(float), &data[0], GL_STATIC_DRAW);
+	assert(glGetError() == GL_NO_ERROR);
+
+	// vertex coordinates
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8*sizeof(float), (void *)0);
+	assert(glGetError() == GL_NO_ERROR);
+
+	glEnableVertexAttribArray(0);
+	assert(glGetError() == GL_NO_ERROR);
+
+	// normals
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8*sizeof(float), (void *)(3*sizeof(float)));
+	assert(glGetError() == GL_NO_ERROR);
+
+	glEnableVertexAttribArray(1);
+	assert(glGetError() == GL_NO_ERROR);
+
+	// texture coordinates
+	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8*sizeof(float), (void *)(6*sizeof(float)));
+	assert(glGetError() == GL_NO_ERROR);
+
+	glEnableVertexAttribArray(2);
+	assert(glGetError() == GL_NO_ERROR);
+
+	// ---------------------
+	// IBO fill
+	glBindBuffer(GL_ARRAY_BUFFER, IBO);
+	assert(glGetError() == GL_NO_ERROR);
+
+	glBufferData(GL_ARRAY_BUFFER, flat_idxs.size()*sizeof(int), &flat_idxs[0], GL_STATIC_DRAW);
+	assert(glGetError() == GL_NO_ERROR);
+
+	// indices (materials + textures)
+	// -- materials
+	glBindBuffer(GL_ARRAY_BUFFER, IBO);
+	assert(glGetError() == GL_NO_ERROR);
+
+	glVertexAttribIPointer(3, 1, GL_INT, 2*sizeof(int), (void *)0);
+	assert(glGetError() == GL_NO_ERROR);
+
+	glEnableVertexAttribArray(3);
+	assert(glGetError() == GL_NO_ERROR);
+
+	// -- textures
+	glVertexAttribIPointer(4, 1, GL_INT, 2*sizeof(int), (void *)(1*sizeof(int)));
+	assert(glGetError() == GL_NO_ERROR);
+
+	glEnableVertexAttribArray(4);
+	assert(glGetError() == GL_NO_ERROR);
+
+	// ---------------------
+	// EBO fill
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+	assert(glGetError() == GL_NO_ERROR);
+
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size()*sizeof(uint), &indices[0], GL_STATIC_DRAW);
+	assert(glGetError() == GL_NO_ERROR);
+
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	assert(glGetError() == GL_NO_ERROR);
+	// ---------------------
+
+	// VAO release
+	glBindVertexArray(0);
+	assert(glGetError() == GL_NO_ERROR);
+}
+
 // PUBLIC
 
 rendered_triangle_mesh::rendered_triangle_mesh() : triangle_mesh() {
@@ -307,46 +494,7 @@ void rendered_triangle_mesh::make_buffers() {
 	VBO = buffs[0];
 	EBO = buffs[1];
 
-	// bind VAO
-	glBindVertexArray(VAO);
-	assert(glGetError() == GL_NO_ERROR);
-
-	// ---------------------
-	// VBO fill
-	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	assert(glGetError() == GL_NO_ERROR);
-
-	glBufferData(GL_ARRAY_BUFFER, data.size()*sizeof(float), &data[0], GL_STATIC_DRAW);
-	assert(glGetError() == GL_NO_ERROR);
-
-	// vertex coordinates
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6*sizeof(float), (void *)0);
-	assert(glGetError() == GL_NO_ERROR);
-
-	glEnableVertexAttribArray(0);
-	assert(glGetError() == GL_NO_ERROR);
-
-	// normals
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6*sizeof(float), (void *)(3*sizeof(float)));
-	assert(glGetError() == GL_NO_ERROR);
-
-	glEnableVertexAttribArray(1);
-	assert(glGetError() == GL_NO_ERROR);
-
-	// ---------------------
-	// EBO fill
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-	assert(glGetError() == GL_NO_ERROR);
-
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size()*sizeof(uint), &indices[0], GL_STATIC_DRAW);
-	assert(glGetError() == GL_NO_ERROR);
-
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	assert(glGetError() == GL_NO_ERROR);
-	// ---------------------
-
-	// VAO release
-	glBindVertexArray(0);
+	fill_buffers(data, indices);
 
 	#if defined (DEBUG)
 	cout << line << " rendered_mesh::make_buffers() " << line << " - buffers made" << endl;
@@ -355,11 +503,31 @@ void rendered_triangle_mesh::make_buffers() {
 	cout << line << "     EBO: " << EBO << endl;
 	#endif
 }
+void rendered_triangle_mesh::remake_buffers() {
+
+	vector<float> data(2*3*triangles.size());
+	vector<uint> indices(triangles.size());
+
+	for (size_t t = 0; t < triangles.size(); ++t) {
+		data[6*t    ] = vertices[ triangles[t] ].x;
+		data[6*t + 1] = vertices[ triangles[t] ].y;
+		data[6*t + 2] = vertices[ triangles[t] ].z;
+
+		glm::vec3 norm = glm::normalize(normals[ normal_idxs[t] ]);
+		data[6*t + 3] = norm.x;
+		data[6*t + 4] = norm.y;
+		data[6*t + 5] = norm.z;
+
+		indices[t] = t;
+	}
+
+	fill_buffers(data, indices);
+}
 
 void rendered_triangle_mesh::make_buffers_materials() {
 
 	vector<float> data((3 + 3)*triangles.size());
-	vector<GLint> flat_idxs(triangles.size());
+	vector<int> flat_idxs(triangles.size());
 	vector<uint> indices(triangles.size());
 
 	for (size_t t = 0; t < triangles.size(); ++t) {
@@ -388,62 +556,7 @@ void rendered_triangle_mesh::make_buffers_materials() {
 	IBO = buffs[1];
 	EBO = buffs[2];
 
-	// bind VAO
-	glBindVertexArray(VAO);
-	assert(glGetError() == GL_NO_ERROR);
-
-	// ---------------------
-	// VBO fill
-	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	assert(glGetError() == GL_NO_ERROR);
-
-	glBufferData(GL_ARRAY_BUFFER, data.size()*sizeof(float), &data[0], GL_STATIC_DRAW);
-	assert(glGetError() == GL_NO_ERROR);
-
-	// vertex coordinates
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6*sizeof(float), (void *)0);
-	assert(glGetError() == GL_NO_ERROR);
-
-	glEnableVertexAttribArray(0);
-	assert(glGetError() == GL_NO_ERROR);
-
-	// normals
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6*sizeof(float), (void *)(3*sizeof(float)));
-	assert(glGetError() == GL_NO_ERROR);
-
-	glEnableVertexAttribArray(1);
-	assert(glGetError() == GL_NO_ERROR);
-
-	// ---------------------
-	// IBO fill
-	glBindBuffer(GL_ARRAY_BUFFER, IBO);
-	assert(glGetError() == GL_NO_ERROR);
-
-	glBufferData(GL_ARRAY_BUFFER, flat_idxs.size()*sizeof(int), &flat_idxs[0], GL_STATIC_DRAW);
-	assert(glGetError() == GL_NO_ERROR);
-
-	// indices (materials)
-	glVertexAttribIPointer(2, 1, GL_INT, 0, (void *)0);
-	assert(glGetError() == GL_NO_ERROR);
-
-	glEnableVertexAttribArray(2);
-	assert(glGetError() == GL_NO_ERROR);
-
-	// ---------------------
-	// EBO fill
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-	assert(glGetError() == GL_NO_ERROR);
-
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size()*sizeof(uint), &indices[0], GL_STATIC_DRAW);
-	assert(glGetError() == GL_NO_ERROR);
-
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	assert(glGetError() == GL_NO_ERROR);
-	// ---------------------
-
-	// VAO release
-	glBindVertexArray(0);
-	assert(glGetError() == GL_NO_ERROR);
+	fill_buffers_materials(data, flat_idxs, indices);
 
 	#if defined (DEBUG)
 	cout << line << " rendered_mesh::make_buffers_materials() " << line << " - buffers made" << endl;
@@ -452,6 +565,29 @@ void rendered_triangle_mesh::make_buffers_materials() {
 	cout << line << "     IBO: " << IBO << endl;
 	cout << line << "     EBO: " << EBO << endl;
 	#endif
+}
+void rendered_triangle_mesh::remake_buffers_materials() {
+
+	vector<float> data((3 + 3)*triangles.size());
+	vector<int> flat_idxs(triangles.size());
+	vector<uint> indices(triangles.size());
+
+	for (size_t t = 0; t < triangles.size(); ++t) {
+		data[6*t    ] = vertices[ triangles[t] ].x;
+		data[6*t + 1] = vertices[ triangles[t] ].y;
+		data[6*t + 2] = vertices[ triangles[t] ].z;
+
+		glm::vec3 norm = glm::normalize(normals[ normal_idxs[t] ]);
+		data[6*t + 3] = norm.x;
+		data[6*t + 4] = norm.y;
+		data[6*t + 5] = norm.z;
+
+		flat_idxs[t] = mat_idxs[t/3];
+
+		indices[t] = t;
+	}
+
+	fill_buffers_materials(data, flat_idxs, indices);
 }
 
 void rendered_triangle_mesh::make_buffers_materials_textures() {
@@ -497,79 +633,7 @@ void rendered_triangle_mesh::make_buffers_materials_textures() {
 	IBO = buffs[1];
 	EBO = buffs[2];
 
-	// bind VAO
-	glBindVertexArray(VAO);
-
-	// ---------------------
-	// VBO fill
-	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	assert(glGetError() == GL_NO_ERROR);
-
-	glBufferData(GL_ARRAY_BUFFER, data.size()*sizeof(float), &data[0], GL_STATIC_DRAW);
-	assert(glGetError() == GL_NO_ERROR);
-
-	// vertex coordinates
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8*sizeof(float), (void *)0);
-	assert(glGetError() == GL_NO_ERROR);
-
-	glEnableVertexAttribArray(0);
-	assert(glGetError() == GL_NO_ERROR);
-
-	// normals
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8*sizeof(float), (void *)(3*sizeof(float)));
-	assert(glGetError() == GL_NO_ERROR);
-
-	glEnableVertexAttribArray(1);
-	assert(glGetError() == GL_NO_ERROR);
-
-	// texture coordinates
-	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8*sizeof(float), (void *)(6*sizeof(float)));
-	assert(glGetError() == GL_NO_ERROR);
-
-	glEnableVertexAttribArray(2);
-	assert(glGetError() == GL_NO_ERROR);
-
-	// ---------------------
-	// IBO fill
-	glBindBuffer(GL_ARRAY_BUFFER, IBO);
-	assert(glGetError() == GL_NO_ERROR);
-
-	glBufferData(GL_ARRAY_BUFFER, flat_idxs.size()*sizeof(int), &flat_idxs[0], GL_STATIC_DRAW);
-	assert(glGetError() == GL_NO_ERROR);
-
-	// indices (materials + textures)
-	// -- materials
-	glBindBuffer(GL_ARRAY_BUFFER, IBO);
-	assert(glGetError() == GL_NO_ERROR);
-
-	glVertexAttribIPointer(3, 1, GL_INT, 2*sizeof(int), (void *)0);
-	assert(glGetError() == GL_NO_ERROR);
-
-	glEnableVertexAttribArray(3);
-	assert(glGetError() == GL_NO_ERROR);
-
-	// -- textures
-	glVertexAttribIPointer(4, 1, GL_INT, 2*sizeof(int), (void *)(1*sizeof(int)));
-	assert(glGetError() == GL_NO_ERROR);
-
-	glEnableVertexAttribArray(4);
-	assert(glGetError() == GL_NO_ERROR);
-
-	// ---------------------
-	// EBO fill
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-	assert(glGetError() == GL_NO_ERROR);
-
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size()*sizeof(uint), &indices[0], GL_STATIC_DRAW);
-	assert(glGetError() == GL_NO_ERROR);
-
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	assert(glGetError() == GL_NO_ERROR);
-	// ---------------------
-
-	// VAO release
-	glBindVertexArray(0);
-	assert(glGetError() == GL_NO_ERROR);
+	fill_buffers_materials_textures(data, flat_idxs, indices);
 
 	#if defined (DEBUG)
 	cout << line << " rendered_mesh::make_buffers_materials_textures() " << line << " - buffers made" << endl;
@@ -578,6 +642,40 @@ void rendered_triangle_mesh::make_buffers_materials_textures() {
 	cout << line << "     IBO: " << IBO << endl;
 	cout << line << "     EBO: " << EBO << endl;
 	#endif
+}
+void rendered_triangle_mesh::remake_buffers_materials_textures() {
+
+	vector<float> data((3 + 3 + 2)*triangles.size());
+	vector<int> flat_idxs((1 + 1)*triangles.size());
+	vector<uint> indices(triangles.size());
+
+	for (size_t t = 0; t < triangles.size(); ++t) {
+		const glm::vec3& vert = vertices[ triangles[t] ];
+		data[8*t    ] = vert.x;
+		data[8*t + 1] = vert.y;
+		data[8*t + 2] = vert.z;
+
+		glm::vec3 norm = glm::normalize(normals[ normal_idxs[t] ]);
+		data[8*t + 3] = norm.x;
+		data[8*t + 4] = norm.y;
+		data[8*t + 5] = norm.z;
+
+		if (texture_coord_idxs[t] > 0) {
+			const glm::vec2& tex = texture_coords[ texture_coord_idxs[t] ];
+			data[8*t + 6] = tex.x;
+			data[8*t + 7] = 1.0f - tex.y;
+		}
+
+		int M = mat_idxs[t/3];
+		flat_idxs[2*t    ] = M;
+		if (M != __NULL_MATERIAL_INDEX) {
+			flat_idxs[2*t + 1] = materials[M].txt_id;
+		}
+
+		indices[t] = t;
+	}
+
+	fill_buffers_materials_textures(data, flat_idxs, indices);
 }
 
 void rendered_triangle_mesh::render() const {

@@ -63,6 +63,15 @@ class rendered_triangle_mesh : public triangle_mesh {
 		/// Element Buffer Object (indices).
 		uint EBO;
 
+		void fill_buffers
+		(const std::vector<float>& data, const std::vector<uint>& indices);
+		void fill_buffers_materials
+		(const std::vector<float>& data, const std::vector<int>& flat_idxs,
+		 const std::vector<uint>& indices);
+		void fill_buffers_materials_textures
+		(const std::vector<float>& data, const std::vector<int>& flat_idxs,
+		 const std::vector<uint>& indices);
+
 	public:
 		/// Constructor.
 		rendered_triangle_mesh();
@@ -180,6 +189,14 @@ class rendered_triangle_mesh : public triangle_mesh {
 		 * more efficiently than with GL lists.
 		 */
 		void make_buffers();
+		/**
+		 * @brief Builds buffer objects for fast rendering.
+		 *
+		 * Builds the necessary buffer objects to render the mesh
+		 * more efficiently than with GL lists.
+		 * @pre Buffers are already created.
+		 */
+		void remake_buffers();
 
 		/**
 		 * @brief Builds buffer objects for fast rendering.
@@ -189,6 +206,15 @@ class rendered_triangle_mesh : public triangle_mesh {
 		 * materials to the buffers.
 		 */
 		void make_buffers_materials();
+		/**
+		 * @brief Builds buffer objects for fast rendering.
+		 *
+		 * Builds the necessary buffer objects to render the mesh
+		 * more efficiently than with GL lists. This function adds
+		 * materials to the buffers.
+		 * @pre Buffers are already created.
+		 */
+		void remake_buffers_materials();
 
 		/**
 		 * @brief Builds buffer objects for fast rendering.
@@ -198,6 +224,15 @@ class rendered_triangle_mesh : public triangle_mesh {
 		 * materials to the buffers.
 		 */
 		void make_buffers_materials_textures();
+		/**
+		 * @brief Builds buffer objects for fast rendering.
+		 *
+		 * Builds the necessary buffer objects to render the mesh
+		 * more efficiently than with GL lists. This function adds
+		 * materials to the buffers.
+		 * @pre Buffers are already created.
+		 */
+		void remake_buffers_materials_textures();
 
 		/**
 		 * @brief Chooses the best way of rendering this mesh.
