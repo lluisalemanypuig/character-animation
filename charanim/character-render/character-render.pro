@@ -43,4 +43,8 @@ unix {
 
 # Files
 SOURCES += \
-        main.cpp
+        main.cpp \
+    character_reader.cpp
+
+HEADERS += \
+    character_reader.hpp
