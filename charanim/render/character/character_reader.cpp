@@ -1,4 +1,8 @@
-#include "character_reader.hpp"
+#include <render/character/character_reader.hpp>
+
+// C++ includes
+#include <iostream>
+using namespace std;
 
 namespace character_reader {
 
@@ -47,8 +51,10 @@ bool parse_cfg_file
 		string option, value;
 		parse_line(line, option, value);
 
+		#if defined(DEBUG)
 		cout << "option: '" << option << "'" << endl;
 		cout << "    value: '" << value << "'" << endl;
+		#endif
 
 		if (option == "path") {
 			data_path = value;
@@ -84,7 +90,7 @@ bool load_anims_meshes_materials
 	const vector<string>& animations,
 	const vector<string>& meshes,
 	const vector<string>& materials,
-	CalCoreModel *core_model
+	std::shared_ptr<CalCoreModel> core_model
 )
 {
 	#if defined(DEBUG)
@@ -157,11 +163,13 @@ bool load_anims_meshes_materials
 
 bool load_model(
 	const string& dir,
-	CalCoreModel *core_model,
-	CalModel **model
+	std::shared_ptr<CalCoreModel>& core_model,
+	std::shared_ptr<CalModel>& model
 )
 {
+	#if defined (DEBUG)
 	cout << "Loading textures..." << endl;
+	#endif
 
 	// load all textures and store the opengl texture id in the
 	// corresponding map in the material
@@ -177,7 +185,9 @@ bool load_model(
 			string map_filename = pCoreMaterial->getMapFilename(map_id);
 			string map_full_filename = dir + "/" + map_filename;
 
+			#if defined (DEBUG)
 			cout << "    material filename: " << map_full_filename << endl;
+			#endif
 
 			// load the texture from the file
 			//GLuint tex_id = load_texture(strPath + strFilename);
@@ -201,17 +211,17 @@ bool load_model(
 
 	// Calculate Bounding Boxes
 
-	core_model->getCoreSkeleton()->calculateBoundingBoxes(core_model);
-	*model = new CalModel(core_model);
+	core_model->getCoreSkeleton()->calculateBoundingBoxes(&(*core_model));
+	model = shared_ptr<CalModel>(new CalModel(&(*core_model)));
 
 	// attach all meshes to the model
 	int mesh_id;
 	for (mesh_id = 0; mesh_id < core_model->getCoreMeshCount(); ++mesh_id) {
-		(*model)->attachMesh(mesh_id);
+		model->attachMesh(mesh_id);
 	}
 
 	// set the material set of the whole model
-	(*model)->setMaterialSet(0);
+	model->setMaterialSet(0);
 
 	/*
 	// set initial animation state
@@ -228,8 +238,8 @@ bool load_core_model(
 	const string& dir,
 	const string& file,
 	const string& name,
-	CalCoreModel **core_model,
-	CalModel **model
+	shared_ptr<CalCoreModel>& core_model,
+	shared_ptr<CalModel>& model
 )
 {
 	// data from the configuration file
@@ -252,7 +262,7 @@ bool load_core_model(
 		return false;
 	}
 
-	*core_model = new CalCoreModel(name);
+	core_model = shared_ptr<CalCoreModel>(new CalCoreModel(name));
 
 	#if defined(DEBUG)
 	cout << "In configuration file: " << cfg_filename << endl;
@@ -266,13 +276,13 @@ bool load_core_model(
 	bool lamm = load_anims_meshes_materials(
 		dir_to_data, skeleton,
 		animations, meshes, materials,
-		*core_model
+		core_model
 	);
 	if (not lamm) {
 		return false;
 	}
 
-	bool ltm = load_model(dir_to_data, *core_model, model);
+	bool ltm = load_model(dir_to_data, core_model, model);
 	if (not ltm) {
 		return false;
 	}

@@ -38,7 +38,9 @@ HEADERS += \
     triangle_mesh/triangle_mesh.hpp \
     triangle_mesh/triangle_mesh_utils.hpp \
     triangle_mesh/rendered_triangle_mesh.hpp \
-    err_war_utils.hpp
+    err_war_utils.hpp \
+    character/rendered_character.hpp \
+    character/character_reader.hpp
 
 SOURCES += \
     obj_reader.cpp \
@@ -57,5 +59,7 @@ SOURCES += \
     shader/shader_helper.cpp \
     triangle_mesh/rendered_triangle_mesh.cpp \
     triangle_mesh/triangle_mesh.cpp \
-    triangle_mesh/triangle_mesh_utils.cpp
+    triangle_mesh/triangle_mesh_utils.cpp \
+    character/rendered_character.cpp \
+    character/character_reader.cpp
 

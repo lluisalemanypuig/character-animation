@@ -3,7 +3,7 @@
 // C++ includes
 #include <vector>
 #include <string>
-using namespace std;
+#include <memory>
 
 // Cal3d includes
 #include <cal3d/cal3d.h>
@@ -24,16 +24,20 @@ namespace character_reader {
 	(
 		const std::string& dir, const std::string& skeleton,
 		const std::vector<std::string>& animations, const std::vector<std::string>& meshes,
-		const std::vector<std::string>& materials, CalCoreModel *core_model
+		const std::vector<std::string>& materials,
+		std::shared_ptr<CalCoreModel> core_model
 	);
 
 	bool load_model(
-		const std::string& dir, CalCoreModel *core_model, CalModel **model
+		const std::string& dir,
+		std::shared_ptr<CalCoreModel>& core_model,
+		std::shared_ptr<CalModel>& model
 	);
 
 	bool load_core_model(
 		const std::string& dir, const std::string& file, const std::string& name,
-		CalCoreModel **core_model, CalModel **model
+		std::shared_ptr<CalCoreModel>& core_model,
+		std::shared_ptr<CalModel>& model
 	);
 
 } // -- namespace character_reader
