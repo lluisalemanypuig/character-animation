@@ -25,11 +25,13 @@ namespace character_reader {
 		const std::string& dir, const std::string& skeleton,
 		const std::vector<std::string>& animations, const std::vector<std::string>& meshes,
 		const std::vector<std::string>& materials,
-		std::shared_ptr<CalCoreModel> core_model
+		std::shared_ptr<CalCoreModel> core_model,
+		int **animation_ids
 	);
 
 	bool load_model(
 		const std::string& dir,
+		int *anim_ids,
 		std::shared_ptr<CalCoreModel>& core_model,
 		std::shared_ptr<CalModel>& model
 	);

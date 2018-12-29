@@ -1,16 +1,16 @@
 #version 330 core
 
 struct Material {
-	vec3 ambient;
-	vec3 diffuse;
-	vec3 specular;
+	vec4 ambient;
+	vec4 diffuse;
+	vec4 specular;
 	float shininess;
 };
 struct Light {
 	vec3 position;
-	vec3 ambient;
-	vec3 diffuse;
-	vec3 specular;
+	vec4 ambient;
+	vec4 diffuse;
+	vec4 specular;
 };
 
 uniform vec3 view_pos;
@@ -34,21 +34,21 @@ void main() {
 
 	if (mat_id >= 0) {
 		// ambient
-		vec3 ambient = light.ambient * material[mat_id].ambient;
+		vec4 ambient = light.ambient * material[mat_id].ambient;
 
 		// diffuse
 		vec3 norm = normalize(frag_normal);
 		vec3 light_dir = normalize(light.position - frag_pos);
 		float diff = max(dot(norm, light_dir), 0.0);
-		vec3 diffuse = light.diffuse*(diff*material[mat_id].diffuse);
+		vec4 diffuse = light.diffuse*(diff*material[mat_id].diffuse);
 
 		// specular
 		vec3 view_dir = normalize(view_pos - frag_pos);
 		vec3 refl_dir = reflect(-light_dir, norm);
 		float spec = pow(max(dot(view_dir, refl_dir), 0.0), material[mat_id].shininess);
-		vec3 specular = light.specular*(spec*material[mat_id].specular);
+		vec4 specular = light.specular*(spec*material[mat_id].specular);
 
-		col = vec4(ambient + diffuse + specular, 1.0);
+		col = ambient + diffuse + specular;
 	}
 	if (tex_id == 1) {
 		col = texture2D(tex1, tex_coord)*col;

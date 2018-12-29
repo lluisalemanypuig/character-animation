@@ -1,5 +1,7 @@
 #include <render/triangle_mesh/triangle_mesh_utils.hpp>
 
+material::material() {}
+
 material::material
 (
 	const std::string& _id,

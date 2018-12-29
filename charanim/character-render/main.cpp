@@ -2,14 +2,14 @@
 #include <string.h>
 
 // C++ includes
-#include <algorithm>
 #include <iostream>
-#include <fstream>
-#include <sstream>
 #include <utility>
-#include <memory>
-#include <string>
 using namespace std;
+
+// glm includes
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_inverse.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 
 // Cal3d includes
 #include <cal3d/cal3d.h>
@@ -22,39 +22,102 @@ using namespace std;
 #include <render/shader/shader_helper.hpp>
 #include <render/shader/shader.hpp>
 #include <render/scene/viewer.hpp>
+#include <render/character/rendered_character.hpp>
 #include <render/character/character_reader.hpp>
 
-void info(shared_ptr<CalCoreModel> core_model) {
-	cout << "Information about the cal_core_model:" << endl;
-	cout << "    It has: " << core_model->getCoreMeshCount() << " meshes" << endl;
-	for (int i = 0; i < core_model->getCoreMeshCount(); ++i) {
-		CalCoreMesh *mesh = core_model->getCoreMesh(i);
-		cout << "    mesh " << i << " has " << mesh->getCoreSubmeshCount() << " submeshes" << endl;
-		for (int j = 0; j < mesh->getCoreSubmeshCount(); ++j) {
-			CalCoreSubmesh *submesh = mesh->getCoreSubmesh(j);
-			cout << "        submesh " << j << " has:" << endl;
-			cout << "            " << submesh->getVertexCount() << " vertices:" << endl;
+#include "utils.hpp"
 
-			cout << "            With coordinates: ";
-			const vector<CalCoreSubmesh::Vertex>& verts = submesh->getVectorVertex();
-			for (const CalCoreSubmesh::Vertex& v : verts) {
-				const CalVector& pos = v.position;
-				cout << "(" << pos[0] << "," << pos[1] << "," << pos[2] << "),";
-			}
-			cout << endl;
+typedef pair<int,int> point;
 
-			cout << "            " << submesh->getVectorFace().size() << " triangles:" << endl;
-			cout << "            With vertex indices: ";
-			const vector<CalCoreSubmesh::Face>& faces = submesh->getVectorFace();
-			for (const CalCoreSubmesh::Face& f : faces) {
-				cout << "(" << f.vertexId[0] << "," << f.vertexId[1] << "," << f.vertexId[2] << "),";
-			}
-			cout << endl;
-		}
-	}
+// ------------------
+// global variables
+// ------------------
+
+static rendered_character C;
+static viewer V;
+
+static timing::time_point sec;
+static int FPS;
+static int fps_count;
+static bool display_fps_count;
+
+static int pressed_button;
+static point last_mouse;
+
+static bool lock_mouse;
+static int window_id;
+
+static shader character_shader;
+
+// glut helpers
+#define ESC 27
+#define LEFT_ARROW 100
+#define UP_ARROW 101
+#define RIGHT_ARROW 102
+#define DOWN_AROW 103
+
+// -----------------------
+// Global helper functions
+// -----------------------
+
+template<typename T>
+static inline void UNUSED(const T& x) { (void)x; }
+
+// -----------
+// Exit viewer
+// -----------
+
+void exit_func() {
+
 }
 
-int main() {
+// -----------------
+// INITIALISE OpenGL
+// -----------------
+
+int initGL(int argc, char *argv[]) {
+
+	// initial window size
+	int iw = 640;
+	int ih = 480;
+
+	// ----------------- //
+	/* initialise window */
+	glutInit(&argc, argv);
+	glutInitDisplayMode(GLUT_DEPTH | GLUT_DOUBLE | GLUT_RGBA);
+	glutInitWindowPosition(50, 25);
+	glutInitWindowSize(iw, ih);
+	window_id = glutCreateWindow("Basic viewer");
+
+	GLenum err = glewInit();
+	if (err != 0) {
+		cerr << "initGL - Error:" << endl;
+		cerr << "    when initialising glew: " << err << endl;
+		exit(1);
+	}
+
+	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_NORMALIZE);
+	glEnable(GL_LIGHTING);
+
+	glEnable(GL_LIGHT0);
+	float col[] = {1.0f, 1.0f, 1.0f, 1.0f};
+	glLightfv(GL_LIGHT0, GL_DIFFUSE, col);
+	float pos[] = {0.0f, 0.0f, 0.0f, 1.0f};
+	glLightfv(GL_LIGHT0, GL_POSITION, pos);
+	float amb[] = {0.2f, 0.2f, 0.2f, 1.0f};
+	glLightfv(GL_LIGHT0, GL_AMBIENT, amb);
+
+	// --------------------------- //
+	/* initialise global variables */
+	pressed_button = 0;
+	last_mouse = point(0,0);
+	lock_mouse = false;
+
+	display_fps_count = false;
+	FPS = 60;
+	fps_count = 0;
+
 	shared_ptr<CalCoreModel> core_model = nullptr;
 	shared_ptr<CalModel> model = nullptr;
 
@@ -76,112 +139,212 @@ int main() {
 		return 1;
 	}
 
-	//info(core_model);
+	C.set_cal_info(core_model, model);
+	C.get_model()->update(0.001f);
 
-	size_t total_submeshes = 0;
-	for (int i = 0; i < core_model->getCoreMeshCount(); ++i) {
-		CalCoreMesh *mesh = core_model->getCoreMesh(i);
-		total_submeshes += static_cast<size_t>(mesh->getCoreSubmeshCount());
+	C.initialise_buffers();
+	C.fill_buffers();
+
+	bool r = character_shader.init
+			("../../charanim/shaders", "character.vert", "character.frag");
+	if (not r) { return false; }
+
+	V.set_window_dims(iw, ih);
+	V.get_box().set_min_max
+	(
+		glm::vec3(-10.0f,-10.0f,-10.0f),
+		glm::vec3(10.0f,10.0f,10.0f)
+	);
+	V.init_cameras();
+
+	glDisable(GL_LIGHTING);
+
+	sec = timing::now();
+
+	return 0;
+}
+
+// ------------
+// RENDER SCENE
+// ------------
+
+void refresh() {
+	++fps_count;
+
+	glClearColor(0.0, 0.0, 0.0, 1.0);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	/* render character */
+
+	glm::mat4 projection(1.0f), view(1.0f);
+	V.make_projection_matrix(projection);
+	V.make_view_matrix(view);
+
+	character_shader.bind();
+	character_shader.set_vec3("view_pos", glm::vec3(0.0f,0.0f,0.0f));
+	character_shader.set_mat4("projection", projection);
+
+	shader_helper::activate_materials_textures(C, character_shader);
+
+	glm::mat4 model(1.0f);
+	glm::mat4 modelview = view*model;
+	glm::mat3 normal_matrix = glm::inverseTranspose(glm::mat3(modelview));
+
+	C.get_model()->update(0.001f);
+	C.fill_buffers();
+	C.render();
+
+	character_shader.release();
+
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+
+	V.apply_projection();
+
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
+
+	V.apply_view();
+
+	glBegin(GL_TRIANGLES);
+		glVertex3f(0.0f, 0.0f, 0.0f);
+		glVertex3f(0.0f, 1.0f, 0.0f);
+		glVertex3f(1.0f, 0.0f, 0.0f);
+	glEnd();
+
+	glutSwapBuffers();
+}
+
+void timed_refresh(int value) {
+	UNUSED(value);
+
+	refresh();
+
+	timing::time_point here = timing::now();
+	double elapsed = timing::elapsed_seconds(sec, here);
+	if (elapsed >= 1.0) {
+		if (display_fps_count) {
+			cout << "fps " << fps_count << " (" << FPS << ")" << endl;
+		}
+		fps_count = 0;
+		sec = timing::now();
 	}
 
-	model->update(0.01f);
+	glutTimerFunc(1000.0f/FPS, timed_refresh, 0);
+}
 
-	CalRenderer *cal_renderer = model->getRenderer();
-	bool begin_render = cal_renderer->beginRendering();
-	if (not begin_render) {
-		cerr << "Error (" << __LINE__ << "):" << endl;
-		cerr << "    Could not begin render" << endl;
-		return 1;
+// ---------------
+// RESIZE viewport
+// ---------------
+
+void reshape(int w, int h) {
+	float pzoom = V.get_perspective_camera().get_zoom();
+	float ozoom = V.get_orthogonal_camera().get_zoom();
+
+	V.set_window_dims(w, h);
+	V.init_cameras();
+
+	V.get_perspective_camera().set_zoom(pzoom);
+	V.get_orthogonal_camera().set_zoom(ozoom);
+
+	glViewport(0, 0, w, h);
+}
+
+// ++++++++++++++++++
+// EVENTS
+// ++++++++++++++++++
+
+// -------------
+// MOUSE HANDLER
+// -------------
+
+void mouse_click_event(int button, int state, int x, int y) {
+	UNUSED(x);
+	UNUSED(y);
+	UNUSED(state);
+
+	pressed_button = button;
+}
+
+void mouse_movement(int x, int y) {
+	//int dx = x - last_mouse.first;
+	//int dy = y - last_mouse.second;
+	last_mouse = point(x,y);
+}
+
+void mouse_drag_event(int x, int y) {
+	int dx = x - last_mouse.first;
+	int dy = y - last_mouse.second;
+	last_mouse = point(x,y);
+
+	if (pressed_button == GLUT_LEFT_BUTTON) {
+		V.increment_psi(-0.3f*dx);
+		V.increment_theta(0.3f*dy);
 	}
+	else if (pressed_button == GLUT_RIGHT_BUTTON) {
+		V.increment_zoom(0.75f*dy);
+	}
+}
 
-	vector<float> all_data;
-	vector<int> all_indices;
+// ----------------
+// KEYBOARD HANDLER
+// ----------------
 
-	cout << "Building triangle meshes..." << endl;
+void special_keys(int key, int x, int y) {
+	UNUSED(key);
+	UNUSED(x);
+	UNUSED(y);
+}
 
-	int n_meshes = cal_renderer->getMeshCount();
-	for (int mesh_id = 0; mesh_id < n_meshes; ++mesh_id) {
-		int n_submeshes = cal_renderer->getSubmeshCount(mesh_id);
-		for (int submesh_id = 0; submesh_id < n_submeshes; ++submesh_id) {
+void keyboard_event(unsigned char c, int x, int y) {
+	UNUSED(x);
+	UNUSED(y);
 
-			bool s = cal_renderer->selectMeshSubmesh(mesh_id, submesh_id);
-			if (not s) {
-				cerr << "Error (" << __LINE__ << "):" << endl;
-				cerr << "    when selecting submesh " << submesh_id
-					 << " from mesh " << mesh_id << endl;
-				continue;
-			}
-
-			// retrieve vertices
-			float verts[30000][3];
-			int n_verts = cal_renderer->getVertices(&verts[0][0]);
-
-			// retrieve normals
-			float normals[30000][3];
-			int n_normals = cal_renderer->getNormals(&normals[0][0]);
-
-			// retrieve texture coordinates
-			float tex_coords[30000][2];
-			int n_tex_coords = cal_renderer->getTextureCoordinates(0, &tex_coords[0][0]);
-
-			// store retrieved info
-			vector<float> submesh_data(3*n_verts + 3*n_normals + 2*n_tex_coords);
-			size_t v_it, n_it, t_it;
-			v_it = n_it = t_it = 0;
-			for (size_t it = 0; it < submesh_data.size(); it += 8) {
-				if (v_it < n_verts) {
-					submesh_data[it + 0] = verts[v_it][0];
-					submesh_data[it + 1] = verts[v_it][1];
-					submesh_data[it + 2] = verts[v_it][2];
-				}
-				if (n_it < n_normals) {
-					submesh_data[it + 3] = normals[n_it][0];
-					submesh_data[it + 4] = normals[n_it][1];
-					submesh_data[it + 5] = normals[n_it][2];
-				}
-				if (t_it < n_tex_coords) {
-					submesh_data[it + 6] = tex_coords[t_it][0];
-					submesh_data[it + 7] = tex_coords[t_it][1];
-				}
-
-				++v_it;
-				++n_it;
-				++t_it;
-			}
-			all_data.insert(all_data.end(), submesh_data.begin(), submesh_data.end());
-
-			// retrieve face indices
-			int n_faces = cal_renderer->getFaceCount();
-			vector<int> faces(3*n_faces);
-			int r_faces = cal_renderer->getFaces(&faces[0]);
-			assert(r_faces == n_faces);
-
-			int N = all_indices.size();
-			transform(
-				faces.begin(), faces.end(),
-				back_inserter(all_indices),
-				[N](int k) -> int { return k + N; }
-			);
+	if (c == ESC) {
+		glutDestroyWindow(window_id);
+	}
+	else if (c == 'p') {
+		V.switch_to_perspective();
+	}
+	else if (c == 'o') {
+		V.switch_to_orthogonal();
+	}
+	else if (c == '+') {
+		if (FPS < 59) {
+			++FPS;
 		}
 	}
-
-	cal_renderer->endRendering();
-	cout << "All data: " << all_data.size() << endl;
-	for (size_t i = 0; i < all_data.size(); i += 8) {
-		cout << i << ":" << endl;
-		cout << "    vertex: " << all_data[i + 0] << endl;
-		cout << "            " << all_data[i + 1] << endl;
-		cout << "            " << all_data[i + 2] << endl;
-		cout << "   normals: " << all_data[i + 3] << endl;
-		cout << "            " << all_data[i + 4] << endl;
-		cout << "            " << all_data[i + 5] << endl;
-		cout << "tex coords: " << all_data[i + 6] << endl;
-		cout << "            " << all_data[i + 7] << endl;
+	else if (c == '-') {
+		if (FPS > 1) {
+			--FPS;
+		}
 	}
-	cout << "All indices: ";
-	for (size_t i = 0; i < all_indices.size(); ++i) {
-		cout << " " << all_indices[i];
+	else if (c == 'z') {
+		display_fps_count = not display_fps_count;
 	}
-	cout << endl;
 }
+
+int main(int argc, char* argv[]) {
+	int r = initGL(argc, argv);
+	if (r != 0) {
+		return r;
+	}
+
+	atexit(exit_func);
+
+	glutDisplayFunc(refresh);
+	glutReshapeFunc(reshape);
+	glutKeyboardFunc(keyboard_event);
+	glutSpecialFunc(special_keys);
+	glutMouseFunc(mouse_click_event);
+	glutPassiveMotionFunc(mouse_movement);
+	glutMotionFunc(mouse_drag_event);
+
+	//glutIdleFunc(refresh);
+	glutTimerFunc(1000.0f/FPS, timed_refresh, 0);
+
+	glutMainLoop();
+}
+
+
 

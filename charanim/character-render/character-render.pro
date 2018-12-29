@@ -43,6 +43,8 @@ unix {
 
 # Files
 SOURCES += \
-        main.cpp
+    main.cpp \
+    utils.cpp
 
-HEADERS +=
+HEADERS += \
+    utils.hpp

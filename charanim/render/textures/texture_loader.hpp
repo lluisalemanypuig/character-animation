@@ -38,17 +38,27 @@ class texture_loader {
 		// MODIFIERS
 
 		/**
+		 * @brief Loads the texture from a file
+		 *
+		 * Given a file name of a texture load it into memory, unless it
+		 * was previously loaded.
+		 *
+		 * @return Returns the OpenGL index for the texture generated.
+		 */
+		unsigned int load_texture(const std::string& f);
+
+		/**
 		 * @brief Loads the textures of a collection of materials.
 		 *
 		 * Given a collection of materials, either withor without textures,
 		 * load all of them into memory. If a texture was loaded previously
 		 * then it is NOT loaded again.
 		 *
-		 * The indexes generated for each texture are stored in @e info.
+		 * The indexes generated for each texture are stored in @e idxs.
 		 * @param[out] mats Collection of materials. The textures indexes
 		 * are is overriden for those materials with textures.
 		 * @param[out] idxs At the end will conatin the indexes of the
-		 * textures genereated.
+		 * textures generated.
 		 */
 		void load_textures(std::vector<material>& mats,
 							 std::vector<unsigned int>& idxs);

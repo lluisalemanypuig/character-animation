@@ -19,6 +19,8 @@ class rendered_character {
 
 		std::vector<material> all_mats;
 
+		size_t n_triangles;
+
 		/// Vertex Array Object index
 		uint VAO;
 		/// Vertex Buffer Object index.
@@ -49,6 +51,9 @@ class rendered_character {
 		// needs buffers initialised
 		bool fill_buffers();
 
+		void render() const;
+
+		const std::vector<material>& get_materials() const;
 
 		std::shared_ptr<CalCoreModel> get_core_model();
 		const std::shared_ptr<CalCoreModel> get_core_model() const;

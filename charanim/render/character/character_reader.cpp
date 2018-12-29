@@ -4,6 +4,10 @@
 #include <iostream>
 using namespace std;
 
+// render includes
+#include <render/include_gl.hpp>
+#include <render/textures/texture_loader.hpp>
+
 namespace character_reader {
 
 void parse_line(const string& line, string& option, string& value) {
@@ -90,7 +94,8 @@ bool load_anims_meshes_materials
 	const vector<string>& animations,
 	const vector<string>& meshes,
 	const vector<string>& materials,
-	std::shared_ptr<CalCoreModel> core_model
+	std::shared_ptr<CalCoreModel> core_model,
+	int **animation_ids
 )
 {
 	#if defined(DEBUG)
@@ -105,7 +110,7 @@ bool load_anims_meshes_materials
 	cout << "Loading animations..." << endl;
 	#endif
 
-	int *animation_id = static_cast<int *>(malloc(animations.size()*sizeof(int)));
+	*animation_ids = static_cast<int *>(malloc(animations.size()*sizeof(int)));
 
 	for (size_t i = 0; i < animations.size(); ++i) {
 		const string& anim = animations[i];
@@ -115,8 +120,8 @@ bool load_anims_meshes_materials
 		cout << "    Loading animation: " << anim_filename << endl;
 		#endif
 
-		animation_id[i] = core_model->loadCoreAnimation(anim_filename);
-		if (animation_id[i] == -1) {
+		(*animation_ids)[i] = core_model->loadCoreAnimation(anim_filename);
+		if ((*animation_ids)[i] == -1) {
 			CalError::printLastError();
 			return false;
 		}
@@ -163,6 +168,7 @@ bool load_anims_meshes_materials
 
 bool load_model(
 	const string& dir,
+	int *anim_ids,
 	std::shared_ptr<CalCoreModel>& core_model,
 	std::shared_ptr<CalModel>& model
 )
@@ -171,29 +177,31 @@ bool load_model(
 	cout << "Loading textures..." << endl;
 	#endif
 
+	texture_loader& tex_loader = texture_loader::get_loader();
+
 	// load all textures and store the opengl texture id in the
 	// corresponding map in the material
 	int mat_id;
 	for (mat_id = 0; mat_id < core_model->getCoreMaterialCount(); ++mat_id) {
 		// get the core material
-		CalCoreMaterial *pCoreMaterial;
-		pCoreMaterial = core_model->getCoreMaterial(mat_id);
+		CalCoreMaterial *core_material = core_model->getCoreMaterial(mat_id);
 
 		// loop through all maps of the core material
-		for (int map_id = 0; map_id < pCoreMaterial->getMapCount(); ++map_id) {
+		for (int map_id = 0; map_id < core_material->getMapCount(); ++map_id) {
 			// get the filename of the texture
-			string map_filename = pCoreMaterial->getMapFilename(map_id);
+			string map_filename = core_material->getMapFilename(map_id);
 			string map_full_filename = dir + "/" + map_filename;
 
 			#if defined (DEBUG)
-			cout << "    material filename: " << map_full_filename << endl;
+			cout << "    texture filename: " << map_full_filename << endl;
+			cout << "        map_id= " << map_id << endl;
 			#endif
 
 			// load the texture from the file
-			//GLuint tex_id = load_texture(strPath + strFilename);
+			GLuint tex_id = tex_loader.load_texture(map_full_filename);
 
 			// store the opengl texture id in the user data of the map
-			//pCoreMaterial->setMapUserData(map_id, (Cal::UserData)tex_id);
+			core_material->setMapUserData(map_id, (Cal::UserData)tex_id);
 		}
 	}
 
@@ -223,13 +231,10 @@ bool load_model(
 	// set the material set of the whole model
 	model->setMaterialSet(0);
 
-	/*
 	// set initial animation state
-	m_state = STATE_MOTION;
-	(*model)->getMixer()->blendCycle(m_animationId[STATE_MOTION], m_motionBlend[0], 0.0f);
-	(*model)->getMixer()->blendCycle(m_animationId[STATE_MOTION + 1], m_motionBlend[1], 0.0f);
-	(*model)->getMixer()->blendCycle(m_animationId[STATE_MOTION + 2], m_motionBlend[2], 0.0f);
-	*/
+	model->getMixer()->blendCycle(anim_ids[0], 0.75f, 0.0f);
+	model->getMixer()->blendCycle(anim_ids[1], 0.15f, 0.0f);
+	model->getMixer()->blendCycle(anim_ids[2], 0.10f, 0.0f);
 
 	return true;
 }
@@ -272,17 +277,19 @@ bool load_core_model(
 	cout << "    Found: " << materials.size() << " materials" << endl;
 	#endif
 
+	int *anim_ids;
+
 	string dir_to_data = dir + "/" + data_path;
 	bool lamm = load_anims_meshes_materials(
 		dir_to_data, skeleton,
 		animations, meshes, materials,
-		core_model
+		core_model, &anim_ids
 	);
 	if (not lamm) {
 		return false;
 	}
 
-	bool ltm = load_model(dir_to_data, core_model, model);
+	bool ltm = load_model(dir_to_data, anim_ids, core_model, model);
 	if (not ltm) {
 		return false;
 	}

@@ -25,7 +25,7 @@ struct material {
 	uint txt_id;
 	/// Illumination mesh.
 	int illum;
-	/// Specular exponent.
+	/// Specular exponent (shininess).
 	float Ns;
 	/// ¿?
 	float Ni;
@@ -38,6 +38,8 @@ struct material {
 	/// Specular colour, with transparency.
 	glm::vec4 Ks;
 
+	/// Default constructor
+	material();
 	/**
 	 * @brief Constructor.
 	 * @param amb Ambient colour, without transparency.

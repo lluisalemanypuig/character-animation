@@ -24,7 +24,91 @@ texture_loader::~texture_loader() {
 
 // MODIFIERS
 
-void texture_loader::load_textures(vector<material>& mats, vector<unsigned int>& idxs)
+unsigned int texture_loader::load_texture(const std::string& f) {
+	// check if it has been already loaded
+	auto it = textures.find(f);
+	unsigned int id = 0;
+	if (it != textures.end()) {
+		id = it->second;
+	}
+
+	// already loaded or not previously freed
+	if (id != 0) {
+		return id;
+	}
+
+	// load texture and assign index to material
+
+	#if defined (DEBUG)
+	cout << line << " texture_loader::load_textures:" << endl;
+	cout << line << "     About to load image '" << f << "'" << endl;
+	#endif
+
+	int width, height, n_channels;
+	unsigned char *data = stbi_load(f.c_str(), &width, &height, &n_channels, 0);
+	if (data == nullptr) {
+		cerr << "texture_loader::load_textures - " << ERR << ":" << endl;
+		cerr << "    Could not load texture '" << f << "'" << endl;
+	}
+
+	#if defined (DEBUG)
+	cout << line << "     image loaded!" << endl;
+	cout << line << "         dimensions: " << width << "x" << height << endl;
+	cout << line << "         # channels: " << n_channels << endl;
+	cout << line << "     Generating texture... ";
+	#endif
+
+	glGenTextures(1, &id);
+	assert(glGetError() == GL_NO_ERROR);
+
+	#if defined (DEBUG)
+	cout << "id: " << id << endl;
+	cout << line << "     glBindTexture...      ";
+	#endif
+
+	glBindTexture(GL_TEXTURE_2D, id);
+	assert(glGetError() == GL_NO_ERROR);
+
+	#if defined (DEBUG)
+	cout << "done" << endl;
+	cout << line << "     glTexImage2D...       ";
+	#endif
+
+	if (n_channels == 3) {
+		glTexImage2D
+		(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+	}
+	else if (n_channels == 4) {
+		glTexImage2D
+		(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+	}
+	assert(glGetError() == GL_NO_ERROR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	assert(glGetError() == GL_NO_ERROR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	assert(glGetError() == GL_NO_ERROR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	assert(glGetError() == GL_NO_ERROR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	assert(glGetError() == GL_NO_ERROR);
+
+	#if defined (DEBUG)
+	cout << "done" << endl;
+	#endif
+
+	glGenerateMipmap(GL_TEXTURE_2D);
+	assert(glGetError() == GL_NO_ERROR);
+
+	stbi_image_free(data);
+
+	textures[f] = id;
+	++tex_loaded;
+
+	return id;
+}
+
+void texture_loader::load_textures
+(vector<material>& mats, vector<unsigned int>& idxs)
 {
 	set<unsigned int> unique_texs;
 	for (size_t i = 0; i < mats.size(); ++i) {
@@ -92,13 +176,12 @@ void texture_loader::load_textures(vector<material>& mats, vector<unsigned int>&
 		if (n_channels == 3) {
 			glTexImage2D
 			(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
-			assert(glGetError() == GL_NO_ERROR);
 		}
 		else if (n_channels == 4) {
 			glTexImage2D
 			(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
-			assert(glGetError() == GL_NO_ERROR);
 		}
+		assert(glGetError() == GL_NO_ERROR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 		assert(glGetError() == GL_NO_ERROR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
