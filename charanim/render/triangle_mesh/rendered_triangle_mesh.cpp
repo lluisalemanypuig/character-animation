@@ -660,7 +660,7 @@ void rendered_triangle_mesh::remake_buffers_materials_textures() {
 		data[8*t + 4] = norm.y;
 		data[8*t + 5] = norm.z;
 
-		if (texture_coord_idxs[t] > 0) {
+		if (texture_coord_idxs[t] >= 0) {
 			const glm::vec2& tex = texture_coords[ texture_coord_idxs[t] ];
 			data[8*t + 6] = tex.x;
 			data[8*t + 7] = 1.0f - tex.y;

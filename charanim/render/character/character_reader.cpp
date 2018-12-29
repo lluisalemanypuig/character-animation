@@ -149,7 +149,7 @@ bool load_anims_meshes_materials
 	cout << "Loading materials..." << endl;
 	#endif
 
-	for (size_t i = 0; i < meshes.size(); ++i) {
+	for (size_t i = 0; i < materials.size(); ++i) {
 		const string& mat = materials[i];
 		string mat_filename = dir + "/" + mat;
 		#if defined(DEBUG)
@@ -174,7 +174,7 @@ bool load_model(
 )
 {
 	#if defined (DEBUG)
-	cout << "Loading textures..." << endl;
+	cout << "Loading textures (if any) ..." << endl;
 	#endif
 
 	texture_loader& tex_loader = texture_loader::get_loader();
@@ -188,13 +188,13 @@ bool load_model(
 
 		// loop through all maps of the core material
 		for (int map_id = 0; map_id < core_material->getMapCount(); ++map_id) {
+
 			// get the filename of the texture
 			string map_filename = core_material->getMapFilename(map_id);
 			string map_full_filename = dir + "/" + map_filename;
 
 			#if defined (DEBUG)
 			cout << "    texture filename: " << map_full_filename << endl;
-			cout << "        map_id= " << map_id << endl;
 			#endif
 
 			// load the texture from the file
@@ -219,8 +219,8 @@ bool load_model(
 
 	// Calculate Bounding Boxes
 
-	core_model->getCoreSkeleton()->calculateBoundingBoxes(&(*core_model));
-	model = shared_ptr<CalModel>(new CalModel(&(*core_model)));
+	core_model->getCoreSkeleton()->calculateBoundingBoxes(core_model.get());
+	model = shared_ptr<CalModel>(new CalModel(core_model.get()));
 
 	// attach all meshes to the model
 	int mesh_id;

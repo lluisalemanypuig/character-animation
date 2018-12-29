@@ -122,7 +122,7 @@ int initGL(int argc, char *argv[]) {
 	shared_ptr<CalModel> model = nullptr;
 
 	bool res = character_reader::load_core_model(
-		"../../characters", "paladin.cfg", "dummy",
+		"../../characters", "cally.cfg", "dummy",
 		core_model, model
 	);
 
@@ -149,6 +149,10 @@ int initGL(int argc, char *argv[]) {
 			("../../charanim/shaders", "character.vert", "character.frag");
 	if (not r) { return false; }
 
+	character_shader.bind();
+	shader_helper::activate_materials_textures(C, character_shader);
+	character_shader.release();
+
 	V.set_window_dims(iw, ih);
 	V.get_box().set_min_max
 	(
@@ -156,6 +160,7 @@ int initGL(int argc, char *argv[]) {
 		glm::vec3(10.0f,10.0f,10.0f)
 	);
 	V.init_cameras();
+	V.get_perspective_camera().set_zfar(5000.0);
 
 	glDisable(GL_LIGHTING);
 
@@ -174,6 +179,10 @@ void refresh() {
 	glClearColor(0.0, 0.0, 0.0, 1.0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+	// we will render some alpha-blended textures
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
 	/* render character */
 
 	glm::mat4 projection(1.0f), view(1.0f);
@@ -184,14 +193,15 @@ void refresh() {
 	character_shader.set_vec3("view_pos", glm::vec3(0.0f,0.0f,0.0f));
 	character_shader.set_mat4("projection", projection);
 
-	shader_helper::activate_materials_textures(C, character_shader);
-
 	glm::mat4 model(1.0f);
 	glm::mat4 modelview = view*model;
 	glm::mat3 normal_matrix = glm::inverseTranspose(glm::mat3(modelview));
 
+	character_shader.set_mat4("modelview", modelview);
+	character_shader.set_mat3("normal_matrix", normal_matrix);
+
 	C.get_model()->update(0.001f);
-	C.fill_buffers();
+	//C.fill_buffers();
 	C.render();
 
 	character_shader.release();

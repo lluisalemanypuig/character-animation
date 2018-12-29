@@ -18,6 +18,22 @@ uniform sampler2D tex1;
 uniform sampler2D tex2;
 uniform sampler2D tex3;
 uniform sampler2D tex4;
+uniform sampler2D tex5;
+uniform sampler2D tex6;
+uniform sampler2D tex7;
+uniform sampler2D tex8;
+uniform sampler2D tex9;
+uniform sampler2D tex10;
+uniform sampler2D tex11;
+uniform sampler2D tex12;
+uniform sampler2D tex13;
+uniform sampler2D tex14;
+uniform sampler2D tex15;
+uniform sampler2D tex16;
+uniform sampler2D tex17;
+uniform sampler2D tex18;
+uniform sampler2D tex19;
+uniform sampler2D tex20;
 uniform Light light;
 uniform Material material[32];
 
@@ -50,19 +66,31 @@ void main() {
 
 		col = ambient + diffuse + specular;
 	}
-	if (tex_id == 1) {
-		col = texture2D(tex1, tex_coord)*col;
-	}
-	else if (tex_id == 2) {
-		col = texture2D(tex2, tex_coord)*col;
-	}
-	else if (tex_id == 3) {
-		col = texture2D(tex3, tex_coord)*col;
-	}
-	else if (tex_id == 4) {
-		col = texture2D(tex4, tex_coord)*col;
+	switch (tex_id) {
+	case  1: col = texture2D( tex1, tex_coord)*col; break;
+	case  2: col = texture2D( tex2, tex_coord)*col; break;
+	case  3: col = texture2D( tex3, tex_coord)*col; break;
+	case  4: col = texture2D( tex4, tex_coord)*col; break;
+	case  5: col = texture2D( tex5, tex_coord)*col; break;
+	case  6: col = texture2D( tex6, tex_coord)*col; break;
+	case  7: col = texture2D( tex7, tex_coord)*col; break;
+	case  8: col = texture2D( tex8, tex_coord)*col; break;
+	case  9: col = texture2D( tex9, tex_coord)*col; break;
+	case 10: col = texture2D(tex10, tex_coord)*col; break;
+	case 11: col = texture2D(tex11, tex_coord)*col; break;
+	case 12: col = texture2D(tex12, tex_coord)*col; break;
+	case 13: col = texture2D(tex12, tex_coord)*col; break;
+	case 14: col = texture2D(tex12, tex_coord)*col; break;
+	case 15: col = texture2D(tex12, tex_coord)*col; break;
+	case 16: col = texture2D(tex12, tex_coord)*col; break;
+	case 17: col = texture2D(tex12, tex_coord)*col; break;
+	case 18: col = texture2D(tex12, tex_coord)*col; break;
+	case 19: col = texture2D(tex12, tex_coord)*col; break;
+	case 20: col = texture2D(tex12, tex_coord)*col; break;
+	case 0:
+		col = col;
 	}
 
-	frag_color = col;
+	frag_color = vec4(1,0,0,1);
 }
 

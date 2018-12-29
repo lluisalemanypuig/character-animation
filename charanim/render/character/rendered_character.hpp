@@ -19,7 +19,10 @@ class rendered_character {
 
 		std::vector<material> all_mats;
 
-		size_t n_triangles;
+		// data for buffers
+		std::vector<float> data;
+		std::vector<int> flat_idxs;
+		std::vector<uint> indices;
 
 		/// Vertex Array Object index
 		uint VAO;
