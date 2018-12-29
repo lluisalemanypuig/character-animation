@@ -12,6 +12,8 @@ DISTFILES += \
 	shaders/flat.vert \
 	shaders/materials.vert \
     shaders/textures.vert \
+    shaders/character.vert \
+    shaders/character.frag \
     maps/map_0.txt \
     models/sphere.obj \
     models/sphere.mtl \

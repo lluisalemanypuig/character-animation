@@ -49,6 +49,8 @@ int main() {
 		return 1;
 	}
 
+	size_t total_materials = 0;
+
 	cout << "Information about the cal_core_model:" << endl;
 	cout << "    It has: " << core_model->getCoreMeshCount() << " meshes" << endl;
 	for (int i = 0; i < core_model->getCoreMeshCount(); ++i) {
@@ -58,21 +60,22 @@ int main() {
 			CalCoreSubmesh *submesh = mesh->getCoreSubmesh(j);
 			cout << "        submesh " << j << " has:" << endl;
 			cout << "            " << submesh->getVertexCount() << " vertices:" << endl;
-			cout << "            With coordinates: ";
+
+			/*cout << "            With coordinates: ";
 			const vector<CalCoreSubmesh::Vertex>& verts = submesh->getVectorVertex();
 			for (const CalCoreSubmesh::Vertex& v : verts) {
 				const CalVector& pos = v.position;
 				cout << "(" << pos[0] << "," << pos[1] << "," << pos[2] << "),";
 			}
-			cout << endl;
+			cout << endl;*/
 
 			cout << "            " << submesh->getVectorFace().size() << " triangles:" << endl;
-			cout << "            With vertex indices: ";
+			/*cout << "            With vertex indices: ";
 			const vector<CalCoreSubmesh::Face>& faces = submesh->getVectorFace();
 			for (const CalCoreSubmesh::Face& f : faces) {
 				cout << "(" << f.vertexId[0] << "," << f.vertexId[1] << "," << f.vertexId[2] << "),";
 			}
-			cout << endl;
+			cout << endl;*/
 		}
 	}
 }

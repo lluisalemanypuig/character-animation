@@ -39,8 +39,8 @@ namespace charanim {
 		flat_shader.release();
 
 		texture_shader.bind();
-		texture_shader.set_vec3("light.diffuse", glm::vec3(1.0f,1.0f,1.0f));
-		texture_shader.set_vec3("light.ambient", glm::vec3(0.2f,0.2f,0.2f));
+		texture_shader.set_vec4("light.diffuse", glm::vec4(1.0f,1.0f,1.0f,1.0f));
+		texture_shader.set_vec4("light.ambient", glm::vec4(0.2f,0.2f,0.2f,1.0f));
 		texture_shader.set_vec3("light.position", glm::vec3(0.f,0.f,0.f));
 		texture_shader.release();
 
