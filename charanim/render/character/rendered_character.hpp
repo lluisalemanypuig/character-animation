@@ -23,23 +23,25 @@ class rendered_character {
 		std::vector<material> all_mats;
 
 		// data for buffers
-		std::vector<float> data;
-		std::vector<uint> flat_idxs;
-		std::vector<size_t> indices;
+		std::vector<float> vertices;
+		std::vector<float> normals;
+		std::vector<float> tex_coords;
+		std::vector<uint> mat_idxs;
+		std::vector<uint> tex_idxs;
+		std::vector<uint> corners;
+
+		std::vector<int> faces_per_submesh;
 
 		/// Vertex Array Object index
 		uint VAO;
-		/// Vertex Buffer Object index.
-		uint VBO;
-		/**
-		 * @brief Indices Buffer Object index.
-		 *
-		 * May contain only material indices or both
-		 * material and texture indices.
-		 */
-		uint IBO;
+		/// Vertex Buffer Objects
+		uint VBO_verts, VBO_normals, VBO_tex_coords;
+		/// Indices Buffer Object index.
+		uint IBO_mats, IBO_texs;
 		/// Element Buffer Object (indices).
 		uint EBO;
+
+		void clear_buffer(uint& buf_id);
 
 	public:
 		rendered_character();
@@ -51,9 +53,9 @@ class rendered_character {
 		(std::shared_ptr<CalCoreModel> core_model,
 		 std::shared_ptr<CalModel> model);
 
-		// needs cal_info
+		// needs set_cal_info
 		void initialise_buffers();
-
+		// needs set_cal_info
 		bool flatten_data();
 		// needs buffers initialised, and data flattened
 		void fill_buffers();

@@ -168,7 +168,7 @@ int initGL(int argc, char *argv[]) {
 	shared_ptr<CalModel> model = nullptr;
 
 	bool res = character_reader::load_core_model(
-		"../../characters", "paladin.cfg", "dummy",
+		"../../characters", "cally.cfg", "dummy",
 		core_model, model
 	);
 
@@ -182,9 +182,8 @@ int initGL(int argc, char *argv[]) {
 
 	bool r = character_shader.init
 			("../../charanim/shaders", "character.vert", "character.frag");
-	if (not r) { return false; }
+	if (not r) { return 1; }
 
-	/*
 	character_shader.bind();
 	shader_helper::activate_materials_textures(C, character_shader);
 	character_shader.set_vec4("light.diffuse", glm::vec4(0.5f, 0.5f, 0.5f, 1.0f));
@@ -192,7 +191,6 @@ int initGL(int argc, char *argv[]) {
 	character_shader.set_vec4("light.ambient", glm::vec4(0.3f, 0.3f, 0.3f, 1.0f));
 	character_shader.set_vec3("light.position", glm::vec3(1.0f, -1.0f, 1.0f));
 	character_shader.release();
-	*/
 
 	glm::vec3 vmin, vmax;
 	C.get_bounding_box(vmin, vmax);
@@ -219,7 +217,6 @@ void refresh() {
 
 	/* render character */
 
-	/*
 	glm::mat4 projection(1.0f), view(1.0f);
 	V.make_projection_matrix(projection);
 	V.make_view_matrix(view);
@@ -236,7 +233,6 @@ void refresh() {
 	C.fill_buffers();
 	C.render();
 	character_shader.release();
-	*/
 
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
@@ -252,10 +248,10 @@ void refresh() {
 	C.get_bounding_box(vmin, vmax);
 
 	glPushMatrix();
-		glEnable(GL_LIGHTING);
+		/*glEnable(GL_LIGHTING);
 		glEnable(GL_LIGHT0);
-		C.flatten_data();
-		C.draw();
+		//C.flatten_data();
+		C.draw();*/
 
 		glDisable(GL_LIGHTING);
 		glColor3f(1.0f, 0.0f, 0.0f);
