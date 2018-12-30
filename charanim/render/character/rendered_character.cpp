@@ -81,9 +81,10 @@ void rendered_character::set_cal_info(
 	int total_faces = 0;
 
 	// one pass to
-	// 1. allocate memory for vertices, normals and tex_coords
-	// 2. store material and texture indices
-	// 3. store corner indices
+	// 1. allocate memory for vertices and normals
+	// 2. store texture coordinates
+	// 3. store material and texture indices
+	// 4. store corner indices
 
 	int n_meshes = cal_renderer->getMeshCount();
 	for (int mesh_id = 0; mesh_id < n_meshes; ++mesh_id) {
@@ -144,9 +145,8 @@ void rendered_character::set_cal_info(
 
 			if (n_texes > 0) {
 				tex_coords.insert
-				(tex_coords.end(),
-					&__tex_coords[0][0],
-					&__tex_coords[0][0] + 2*n_texes
+				(	tex_coords.end(),
+					&__tex_coords[0][0], &__tex_coords[0][0] + 2*n_texes
 				);
 			}
 			else {
@@ -169,7 +169,6 @@ void rendered_character::set_cal_info(
 
 	vertices.resize(3*total_vertices);
 	normals.resize(3*total_vertices);
-	tex_coords.resize(2*total_vertices);
 
 	cal_renderer->endRendering();
 }
@@ -208,7 +207,7 @@ void rendered_character::initialise_buffers() {
 	glBindVertexArray(VAO);
 
 	// ---------------------
-	// VBO_tex_coords: texture coordinates
+	// texture coordinates fill
 	glBindBuffer(GL_ARRAY_BUFFER, VBO_tex_coords);
 	assert(glGetError() == GL_NO_ERROR);
 
@@ -216,35 +215,35 @@ void rendered_character::initialise_buffers() {
 	(GL_ARRAY_BUFFER, tex_coords.size()*sizeof(float), &tex_coords[0], GL_STATIC_DRAW);
 	assert(glGetError() == GL_NO_ERROR);
 
-	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 0, (void *)0);
+	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
 	assert(glGetError() == GL_NO_ERROR);
 
 	glEnableVertexAttribArray(2);
 	assert(glGetError() == GL_NO_ERROR);
 
 	// ---------------------
-	// IBO_mats fill
+	// material indices fill
 	glBindBuffer(GL_ARRAY_BUFFER, IBO_mats);
 	assert(glGetError() == GL_NO_ERROR);
 
-	glBufferData(GL_ARRAY_BUFFER, mat_idxs.size()*sizeof(int), &mat_idxs[0], GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, mat_idxs.size()*sizeof(uint), &mat_idxs[0], GL_STATIC_DRAW);
 	assert(glGetError() == GL_NO_ERROR);
 
-	glVertexAttribIPointer(3, 1, GL_UNSIGNED_INT, 0, (void *)0);
+	glVertexAttribIPointer(3, 1, GL_UNSIGNED_INT, 0, nullptr);
 	assert(glGetError() == GL_NO_ERROR);
 
 	glEnableVertexAttribArray(3);
 	assert(glGetError() == GL_NO_ERROR);
 
 	// ---------------------
-	// IBO_texs fill
+	// texture indices fill
 	glBindBuffer(GL_ARRAY_BUFFER, IBO_texs);
 	assert(glGetError() == GL_NO_ERROR);
 
-	glBufferData(GL_ARRAY_BUFFER, tex_idxs.size()*sizeof(int), &tex_idxs[0], GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, tex_idxs.size()*sizeof(uint), &tex_idxs[0], GL_STATIC_DRAW);
 	assert(glGetError() == GL_NO_ERROR);
 
-	glVertexAttribIPointer(4, 1, GL_UNSIGNED_INT, 0, (void *)0);
+	glVertexAttribIPointer(4, 1, GL_UNSIGNED_INT, 0, nullptr);
 	assert(glGetError() == GL_NO_ERROR);
 
 	glEnableVertexAttribArray(4);
@@ -326,7 +325,7 @@ void rendered_character::fill_buffers() {
 	(GL_ARRAY_BUFFER, vertices.size()*sizeof(float), &vertices[0], GL_DYNAMIC_DRAW);
 	assert(glGetError() == GL_NO_ERROR);
 
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void *)0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
 	assert(glGetError() == GL_NO_ERROR);
 
 	glEnableVertexAttribArray(0);
@@ -341,7 +340,7 @@ void rendered_character::fill_buffers() {
 	(GL_ARRAY_BUFFER, normals.size()*sizeof(float), &normals[0], GL_DYNAMIC_DRAW);
 	assert(glGetError() == GL_NO_ERROR);
 
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, (void *)0);
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
 	assert(glGetError() == GL_NO_ERROR);
 
 	glEnableVertexAttribArray(1);
@@ -356,7 +355,7 @@ void rendered_character::render() const {
 	glBindVertexArray(VAO);
 	assert(glGetError() == GL_NO_ERROR);
 
-	glDrawElements(GL_TRIANGLES, corners.size(), GL_UNSIGNED_INT, 0);
+	glDrawElements(GL_TRIANGLES, corners.size(), GL_UNSIGNED_INT, nullptr);
 	assert(glGetError() == GL_NO_ERROR);
 
 	glBindVertexArray(0);
@@ -441,6 +440,9 @@ void rendered_character::draw() const {
 	cal_renderer->endRendering();
 
 	/*
+	// use flattened data to render character.
+	// Why? For the glory of [insert favourite demon's name]!
+
 	// for every submesh
 	size_t corner_it = 0;
 	for (size_t fps_it = 0; fps_it < faces_per_submesh.size(); ++fps_it) {

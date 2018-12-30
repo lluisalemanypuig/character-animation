@@ -168,7 +168,7 @@ int initGL(int argc, char *argv[]) {
 	shared_ptr<CalModel> model = nullptr;
 
 	bool res = character_reader::load_core_model(
-		"../../characters", "cally.cfg", "dummy",
+		"../../characters", "paladin.cfg", "dummy",
 		core_model, model
 	);
 
@@ -185,11 +185,12 @@ int initGL(int argc, char *argv[]) {
 	if (not r) { return 1; }
 
 	character_shader.bind();
-	shader_helper::activate_materials_textures(C, character_shader);
 	character_shader.set_vec4("light.diffuse", glm::vec4(0.5f, 0.5f, 0.5f, 1.0f));
 	character_shader.set_vec4("light.specular", glm::vec4(0.1f, 0.1f, 0.1f, 1.0f));
 	character_shader.set_vec4("light.ambient", glm::vec4(0.3f, 0.3f, 0.3f, 1.0f));
 	character_shader.set_vec3("light.position", glm::vec3(1.0f, -1.0f, 1.0f));
+	character_shader.set_vec3("view_pos", glm::vec3(0.0f,0.0f,0.0f));
+	shader_helper::activate_materials_textures(C, character_shader);
 	character_shader.release();
 
 	glm::vec3 vmin, vmax;
@@ -225,7 +226,6 @@ void refresh() {
 	glm::mat3 normal_matrix = glm::inverseTranspose(glm::mat3(modelview));
 
 	character_shader.bind();
-	character_shader.set_vec3("view_pos", glm::vec3(0.0f,0.0f,0.0f));
 	character_shader.set_mat4("projection", projection);
 	character_shader.set_mat4("modelview", modelview);
 	character_shader.set_mat3("normal_matrix", normal_matrix);

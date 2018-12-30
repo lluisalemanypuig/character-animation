@@ -50,17 +50,14 @@ void main() {
 
 		col = ambient + diffuse + specular;
 	}
-	if (tex_id == 1) {
-		col = texture2D(tex1, tex_coord)*col;
-	}
-	else if (tex_id == 2) {
-		col = texture2D(tex2, tex_coord)*col;
-	}
-	else if (tex_id == 3) {
-		col = texture2D(tex3, tex_coord)*col;
-	}
-	else if (tex_id == 4) {
-		col = texture2D(tex4, tex_coord)*col;
+	switch (tex_id) {
+	case  1: col = texture2D( tex1, tex_coord)*col; break;
+	case  2: col = texture2D( tex2, tex_coord)*col; break;
+	case  3: col = texture2D( tex3, tex_coord)*col; break;
+	case  4: col = texture2D( tex4, tex_coord)*col; break;
+	default:
+		// do nothing
+		col = col;
 	}
 
 	frag_color = col;
