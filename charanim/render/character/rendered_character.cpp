@@ -378,7 +378,7 @@ void rendered_character::draw() const {
 	for (int mesh_id = 0; mesh_id < n_meshes; ++mesh_id) {
 
 		int n_submeshes = cal_renderer->getSubmeshCount(mesh_id);
-		for (int submesh_id = 0; submesh_id < n_submeshes; ++submesh_id) {
+		for (int submesh_id = 0; submesh_id < n_submeshes; ++submesh_id, ++mat_idx) {
 
 			bool s = cal_renderer->selectMeshSubmesh(mesh_id, submesh_id);
 			if (not s) {
@@ -389,13 +389,9 @@ void rendered_character::draw() const {
 			}
 
 			// retrieve vertices
-			int n_verts = cal_renderer->getVertices(&verts[0][0]);
-			(void)n_verts;
-
+			cal_renderer->getVertices(&verts[0][0]);
 			// retrieve normals
-			int n_normals = cal_renderer->getNormals(&normals[0][0]);
-			(void)n_normals;
-
+			cal_renderer->getNormals(&normals[0][0]);
 			// retrieve texture coordinates
 			int n_tex_coords =
 				cal_renderer->getTextureCoordinates(0, &tex_coords[0][0]);
@@ -403,41 +399,36 @@ void rendered_character::draw() const {
 			// retrieve face indices
 			int n_faces = cal_renderer->getFaces(&faces[0][0]);
 
-			glMaterialfv(GL_FRONT, GL_AMBIENT, glm::value_ptr(all_mats[mat_idx].Ka));
 			glMaterialfv(GL_FRONT, GL_DIFFUSE, glm::value_ptr(all_mats[mat_idx].Kd));
+			glMaterialfv(GL_FRONT, GL_AMBIENT, glm::value_ptr(all_mats[mat_idx].Ka));
 			glMaterialfv(GL_FRONT, GL_SPECULAR, glm::value_ptr(all_mats[mat_idx].Ks));
 			glMaterialf(GL_FRONT, GL_SHININESS, all_mats[mat_idx].Ns);
 
-			for (int f = 0; f < n_faces; ++f) {
-				bool textenable = false;
-				// set the texture coordinate buffer and state if necessary
-				if ((cal_renderer->getMapCount() > 0) and (n_tex_coords > 0)) {
-					textenable = true;
-					glEnable(GL_TEXTURE_2D);
-					glBindTexture(GL_TEXTURE_2D,
-						reinterpret_cast<uintptr_t>(cal_renderer->getMapUserData(0))
-					);
-				}
-				else {
-					glDisable(GL_TEXTURE_2D);
-				}
+			bool textenable = false;
+			// set the texture coordinate buffer and state if necessary
+			if ((cal_renderer->getMapCount() > 0) and (n_tex_coords > 0)) {
+				textenable = true;
+				glEnable(GL_TEXTURE_2D);
+				glBindTexture(GL_TEXTURE_2D,
+					reinterpret_cast<uintptr_t>(cal_renderer->getMapUserData(0))
+				);
+			}
+			else {
+				glDisable(GL_TEXTURE_2D);
+			}
 
+			for (int f = 0; f < n_faces; ++f) {
 				glBegin(GL_TRIANGLES);
 				for (int k = 0; k < 3; ++k) {
 					int v = faces[f][k];
-
 					if (textenable) {
 						glTexCoord2f(tex_coords[v][0], tex_coords[v][1]);
 					}
-
 					glNormal3f(normals[v][0], normals[v][1], normals[v][2]);
-
 					glVertex3f(verts[v][0], verts[v][1], verts[v][2]);
 				}
 				glEnd();
 			}
-
-			++mat_idx;
 		}
 	}
 

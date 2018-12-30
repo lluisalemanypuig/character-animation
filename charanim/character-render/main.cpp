@@ -145,13 +145,13 @@ int initGL(int argc, char *argv[]) {
 	glEnable(GL_LIGHTING);
 
 	glEnable(GL_LIGHT0);
-	float diff[] = {1.0f, 1.0f, 1.0f, 1.0f};
+	float diff[] = {0.5f, 0.5f, 0.5f, 1.0f};
 	glLightfv(GL_LIGHT0, GL_DIFFUSE, diff);
-	float spec[] = { 0.1f, 0.1f, 0.1f, 1.0f };
+	float spec[] = {0.1f, 0.1f, 0.1f, 1.0f};
 	glLightfv(GL_LIGHT0, GL_SPECULAR, spec);
-	float amb[] = {0.2f, 0.2f, 0.2f, 1.0f};
+	float amb[] = {0.3f, 0.3f, 0.3f, 1.0f};
 	glLightfv(GL_LIGHT0, GL_AMBIENT, amb);
-	float pos[] = {0.0f, 0.0f, 0.0f, 1.0f};
+	float pos[] = {1.0f, -1.0f, 1.0f, 1.0f};
 	glLightfv(GL_LIGHT0, GL_POSITION, pos);
 
 	// --------------------------- //
@@ -168,7 +168,7 @@ int initGL(int argc, char *argv[]) {
 	shared_ptr<CalModel> model = nullptr;
 
 	bool res = character_reader::load_core_model(
-		"../../characters", "cally.cfg", "dummy",
+		"../../characters", "paladin.cfg", "dummy",
 		core_model, model
 	);
 
@@ -184,9 +184,11 @@ int initGL(int argc, char *argv[]) {
 			("../../charanim/shaders", "character.vert", "character.frag");
 	if (not r) { return false; }
 
+	/*
 	character_shader.bind();
 	shader_helper::activate_materials_textures(C, character_shader);
 	character_shader.release();
+	*/
 
 	glm::vec3 vmin, vmax;
 	C.get_bounding_box(vmin, vmax);
@@ -206,6 +208,7 @@ int initGL(int argc, char *argv[]) {
 
 void refresh() {
 	++fps_count;
+	C.get_model()->update(0.01f);
 
 	glClearColor(0.0, 0.0, 0.0, 1.0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -246,15 +249,13 @@ void refresh() {
 	glPushMatrix();
 		glEnable(GL_LIGHTING);
 		glEnable(GL_LIGHT0);
-		C.flatten_data();
+		//C.flatten_data();
 		C.draw();
 
 		glDisable(GL_LIGHTING);
 		glColor3f(1.0f, 0.0f, 0.0f);
 		draw_box(vmin, vmax);
 	glPopMatrix();
-
-	C.get_model()->update(0.01f);
 
 	glutSwapBuffers();
 }

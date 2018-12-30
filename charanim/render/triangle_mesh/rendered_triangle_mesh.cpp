@@ -9,6 +9,7 @@ using namespace std;
 
 // glm includes
 #include <glm/glm.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 // render includes
 #include <render/textures/texture_loader.hpp>
@@ -415,9 +416,9 @@ void rendered_triangle_mesh::slow_render() const {
 		int M = mat_idxs[t/3];
 		// set the material so that the lighting works
 		if (M != __NULL_MATERIAL_INDEX) {
-			glMaterialfv(GL_FRONT,GL_DIFFUSE,  &(materials[M].Kd[0]));
-			glMaterialfv(GL_FRONT,GL_AMBIENT,  &(materials[M].Ka[0]));
-			glMaterialfv(GL_FRONT,GL_SPECULAR, &(materials[M].Ks[0]));
+			glMaterialfv(GL_FRONT,GL_DIFFUSE,  glm::value_ptr(materials[M].Kd));
+			glMaterialfv(GL_FRONT,GL_AMBIENT,  glm::value_ptr(materials[M].Ka));
+			glMaterialfv(GL_FRONT,GL_SPECULAR, glm::value_ptr(materials[M].Ks));
 			glMaterialf(GL_FRONT,GL_SHININESS, materials[M].Ns);
 
 			if (materials[M].txt_id == __NULL_TEXTURE_INDEX) {
