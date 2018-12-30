@@ -178,8 +178,6 @@ int initGL(int argc, char *argv[]) {
 	}
 
 	C.set_cal_info(core_model, model);
-
-	/*
 	C.initialise_buffers();
 
 	bool r = character_shader.init
@@ -189,7 +187,6 @@ int initGL(int argc, char *argv[]) {
 	character_shader.bind();
 	shader_helper::activate_materials_textures(C, character_shader);
 	character_shader.release();
-	*/
 
 	glm::vec3 vmin, vmax;
 	C.get_bounding_box(vmin, vmax);
@@ -214,22 +211,22 @@ void refresh() {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	/* render character */
+
 	/*
 	glm::mat4 projection(1.0f), view(1.0f);
 	V.make_projection_matrix(projection);
 	V.make_view_matrix(view);
-
-	character_shader.bind();
-	character_shader.set_vec3("view_pos", glm::vec3(0.0f,0.0f,0.0f));
-	character_shader.set_mat4("projection", projection);
-
 	glm::mat4 model(1.0f);
 	glm::mat4 modelview = view*model;
 	glm::mat3 normal_matrix = glm::inverseTranspose(glm::mat3(modelview));
 
+	character_shader.bind();
+	character_shader.set_vec3("view_pos", glm::vec3(0.0f,0.0f,0.0f));
+	character_shader.set_mat4("projection", projection);
 	character_shader.set_mat4("modelview", modelview);
 	character_shader.set_mat3("normal_matrix", normal_matrix);
-
+	C.fill_buffers();
+	C.render();
 	character_shader.release();
 	*/
 
@@ -249,6 +246,7 @@ void refresh() {
 	glPushMatrix();
 		glEnable(GL_LIGHTING);
 		glEnable(GL_LIGHT0);
+		C.flatten_data();
 		C.draw();
 
 		glDisable(GL_LIGHTING);

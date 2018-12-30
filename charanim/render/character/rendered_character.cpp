@@ -6,6 +6,7 @@
 using namespace std;
 
 // glm includes
+#include <glm/gtc/type_ptr.hpp>
 #include <glm/glm.hpp>
 using namespace glm;
 
@@ -156,7 +157,7 @@ void rendered_character::initialise_buffers() {
 	#endif
 }
 
-bool rendered_character::fill_buffers() {
+bool rendered_character::flatten_data() {
 	data.clear();
 	flat_idxs.clear();
 	indices.clear();
@@ -169,10 +170,10 @@ bool rendered_character::fill_buffers() {
 		return false;
 	}
 
-	float verts[30000][3];
-	float normals[30000][3];
-	float tex_coords[30000][2];
-	int faces[30000][3];
+	static float verts[30000][3];
+	static float normals[30000][3];
+	static float tex_coords[30000][2];
+	static int faces[30000][3];
 
 	int material_index = 0;
 	int n_meshes = cal_renderer->getMeshCount();
@@ -190,57 +191,66 @@ bool rendered_character::fill_buffers() {
 			}
 
 			// retrieve vertices
-			int n_verts = cal_renderer->getVertices(&verts[0][0]);
+			cal_renderer->getVertices(&verts[0][0]);
 
 			// retrieve normals
-			int n_normals = cal_renderer->getNormals(&normals[0][0]);
+			cal_renderer->getNormals(&normals[0][0]);
 
 			// retrieve texture coordinates
-			int n_tex_coords =
-				cal_renderer->getTextureCoordinates(0, &tex_coords[0][0]);
-
-			// store retrieved info
-			vector<float> submesh_data(3*n_verts + 3*n_normals + 2*n_tex_coords);
-			size_t v_it, n_it, t_it;
-			v_it = n_it = t_it = 0;
-			for (size_t it = 0; it < submesh_data.size(); it += 8) {
-				if (n_verts > 0 and v_it < n_verts) {
-					submesh_data[it + 0] = verts[v_it][0];
-					submesh_data[it + 1] = verts[v_it][1];
-					submesh_data[it + 2] = verts[v_it][2];
-				}
-				if (n_normals > 0 and n_it < n_normals) {
-					submesh_data[it + 3] = normals[n_it][0];
-					submesh_data[it + 4] = normals[n_it][1];
-					submesh_data[it + 5] = normals[n_it][2];
-				}
-				if (n_tex_coords > 0 and t_it < n_tex_coords) {
-					submesh_data[it + 6] = tex_coords[t_it][0];
-					submesh_data[it + 7] = tex_coords[t_it][1];
-				}
-
-				++v_it;
-				++n_it;
-				++t_it;
-			}
-			data.insert(data.end(), submesh_data.begin(), submesh_data.end());
+			cal_renderer->getTextureCoordinates(0, &tex_coords[0][0]);
 
 			// retrieve face indices
 			int n_faces = cal_renderer->getFaces(&faces[0][0]);
-			// store indices
-			int N = indices.size();
-			transform(
-				&faces[0][0], &faces[0][0] + 3*n_faces,
-				back_inserter(indices),
-				[N](int k) -> int { return k + N; }
-			);
 
-			// for each vertex, add the material index and
-			// the texture id
-			for (int i = 0; i < 3*n_faces; ++i) {
-				flat_idxs.push_back(material_index);
-				flat_idxs.push_back(all_mats[material_index].txt_id);
+			// store retrieved info
+			vector<float> submesh_data((3 + 3 + 2)*3*n_faces);
+			vector<int> submesh_flat_idxs((1 + 1)*3*n_faces);
+			vector<size_t> submesh_indices(3*n_faces);
+
+			size_t data_it = 0;
+			size_t flat_idxs_it = 0;
+			size_t indices_it = 0;
+			size_t f_idx = indices.size();
+
+			for (int f = 0; f < n_faces; ++f) {
+				for (int k = 0; k < 3; ++k) {
+					int vk = faces[f][k];
+
+					submesh_data[data_it + 0] = verts[vk][0];
+					submesh_data[data_it + 1] = verts[vk][1];
+					submesh_data[data_it + 2] = verts[vk][2];
+
+					submesh_data[data_it + 3] = normals[vk][0];
+					submesh_data[data_it + 4] = normals[vk][1];
+					submesh_data[data_it + 5] = normals[vk][2];
+
+					submesh_data[data_it + 6] = tex_coords[vk][0];
+					submesh_data[data_it + 7] = tex_coords[vk][1];
+
+					// for each vertex, add the material index,
+					// the texture id, and the face index
+					submesh_flat_idxs[flat_idxs_it + 0] = material_index;
+					submesh_flat_idxs[flat_idxs_it + 1] =
+						all_mats[material_index].txt_id;
+
+					submesh_indices[indices_it] = f_idx;
+
+					data_it += 8;
+					flat_idxs_it += 2;
+					++indices_it;
+					++f_idx;
+				}
 			}
+
+			data.insert(data.end(),
+						submesh_data.begin(),
+						submesh_data.end());
+			flat_idxs.insert(flat_idxs.end(),
+							 submesh_flat_idxs.begin(),
+							 submesh_flat_idxs.end());
+			indices.insert(indices.end(),
+						   submesh_flat_idxs.begin(),
+						   submesh_flat_idxs.end());
 
 			++material_index;
 		}
@@ -248,6 +258,10 @@ bool rendered_character::fill_buffers() {
 
 	cal_renderer->endRendering();
 
+	return true;
+}
+
+void rendered_character::fill_buffers() {
 	// bind VAO
 	glBindVertexArray(VAO);
 
@@ -328,8 +342,6 @@ bool rendered_character::fill_buffers() {
 	// VAO release
 	glBindVertexArray(0);
 	assert(glGetError() == GL_NO_ERROR);
-
-	return true;
 }
 
 void rendered_character::render() const {
@@ -346,6 +358,7 @@ void rendered_character::render() const {
 }
 
 void rendered_character::draw() const {
+
 	CalRenderer *cal_renderer = model->getRenderer();
 	bool begin_render = cal_renderer->beginRendering();
 	if (not begin_render) {
@@ -358,6 +371,8 @@ void rendered_character::draw() const {
 	float normals[30000][3];
 	float tex_coords[30000][2];
 	int faces[30000][3];
+
+	size_t mat_idx = 0;
 
 	int n_meshes = cal_renderer->getMeshCount();
 	for (int mesh_id = 0; mesh_id < n_meshes; ++mesh_id) {
@@ -388,31 +403,12 @@ void rendered_character::draw() const {
 			// retrieve face indices
 			int n_faces = cal_renderer->getFaces(&faces[0][0]);
 
+			glMaterialfv(GL_FRONT, GL_AMBIENT, glm::value_ptr(all_mats[mat_idx].Ka));
+			glMaterialfv(GL_FRONT, GL_DIFFUSE, glm::value_ptr(all_mats[mat_idx].Kd));
+			glMaterialfv(GL_FRONT, GL_SPECULAR, glm::value_ptr(all_mats[mat_idx].Ks));
+			glMaterialf(GL_FRONT, GL_SHININESS, all_mats[mat_idx].Ns);
+
 			for (int f = 0; f < n_faces; ++f) {
-				unsigned char colC[4];
-				float ambient[4], diffuse[4], specular[4];
-
-#define from_char_to_float(cF, cC)				\
-	cF[0] = cC[0]/255.0f; cF[1] = cC[1]/255.0f;	\
-	cF[2] = cC[2]/255.0f; cF[3] = cC[3]/255.0f
-
-				// retrieve ambient color
-				cal_renderer->getAmbientColor(&colC[0]);
-				from_char_to_float(ambient, colC);
-				// retrieve diffuse color
-				cal_renderer->getDiffuseColor(&colC[0]);
-				from_char_to_float(diffuse, colC);
-				// retrieve specular color
-				cal_renderer->getSpecularColor(&colC[0]);
-				from_char_to_float(specular, colC);
-				// shininess
-				float shiny = cal_renderer->getShininess();
-
-				glMaterialfv(GL_FRONT, GL_AMBIENT, ambient);
-				glMaterialfv(GL_FRONT, GL_DIFFUSE, diffuse);
-				glMaterialfv(GL_FRONT, GL_SPECULAR, specular);
-				glMaterialf(GL_FRONT, GL_SHININESS, shiny);
-
 				bool textenable = false;
 				// set the texture coordinate buffer and state if necessary
 				if ((cal_renderer->getMapCount() > 0) and (n_tex_coords > 0)) {
@@ -440,10 +436,46 @@ void rendered_character::draw() const {
 				}
 				glEnd();
 			}
+
+			++mat_idx;
 		}
 	}
 
 	cal_renderer->endRendering();
+
+
+	/*
+	// with we can see that the data in
+	// "data", "flat_idxs", "indices" is correct
+
+	size_t flat_idxs_it = 0;
+	for (size_t i = 0; i < data.size(); i += 3*8) {
+		glBegin(GL_TRIANGLES);
+
+		for (int k = 0; k < 3; ++k, flat_idxs_it += 2) {
+
+			int mat_idx = flat_idxs[flat_idxs_it + 0];
+			int tex_idx = flat_idxs[flat_idxs_it + 1];
+
+			if (tex_idx > 0) {
+				glEnable(GL_TEXTURE_2D);
+				glBindTexture(GL_TEXTURE_2D, tex_idx);
+			}
+
+			glMaterialfv(GL_FRONT, GL_AMBIENT, glm::value_ptr(all_mats[mat_idx].Ka));
+			glMaterialfv(GL_FRONT, GL_DIFFUSE, glm::value_ptr(all_mats[mat_idx].Kd));
+			glMaterialfv(GL_FRONT, GL_SPECULAR, glm::value_ptr(all_mats[mat_idx].Ks));
+			glMaterialf(GL_FRONT, GL_SHININESS, all_mats[mat_idx].Ns);
+
+			if (tex_idx > 0) {
+				glTexCoord2f(data[i + 8*k + 6], data[i + 8*k + 7]);
+			}
+			glNormal3f(data[i + 8*k + 3], data[i + 8*k + 4], data[i + 8*k + 5]);
+			glVertex3f(data[i + 8*k + 0], data[i + 8*k + 1], data[i + 8*k + 2]);
+		}
+		glEnd();
+	}
+	*/
 }
 
 // GETTERS

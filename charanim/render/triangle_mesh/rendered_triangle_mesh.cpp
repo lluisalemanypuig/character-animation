@@ -472,7 +472,7 @@ void rendered_triangle_mesh::make_buffers() {
 	vector<uint> indices(triangles.size());
 
 	for (size_t t = 0; t < triangles.size(); ++t) {
-		data[6*t    ] = vertices[ triangles[t] ].x;
+		data[6*t + 0] = vertices[ triangles[t] ].x;
 		data[6*t + 1] = vertices[ triangles[t] ].y;
 		data[6*t + 2] = vertices[ triangles[t] ].z;
 
@@ -509,7 +509,7 @@ void rendered_triangle_mesh::remake_buffers() {
 	vector<uint> indices(triangles.size());
 
 	for (size_t t = 0; t < triangles.size(); ++t) {
-		data[6*t    ] = vertices[ triangles[t] ].x;
+		data[6*t + 0] = vertices[ triangles[t] ].x;
 		data[6*t + 1] = vertices[ triangles[t] ].y;
 		data[6*t + 2] = vertices[ triangles[t] ].z;
 
@@ -531,7 +531,7 @@ void rendered_triangle_mesh::make_buffers_materials() {
 	vector<uint> indices(triangles.size());
 
 	for (size_t t = 0; t < triangles.size(); ++t) {
-		data[6*t    ] = vertices[ triangles[t] ].x;
+		data[6*t + 0] = vertices[ triangles[t] ].x;
 		data[6*t + 1] = vertices[ triangles[t] ].y;
 		data[6*t + 2] = vertices[ triangles[t] ].z;
 
@@ -573,7 +573,7 @@ void rendered_triangle_mesh::remake_buffers_materials() {
 	vector<uint> indices(triangles.size());
 
 	for (size_t t = 0; t < triangles.size(); ++t) {
-		data[6*t    ] = vertices[ triangles[t] ].x;
+		data[6*t + 0] = vertices[ triangles[t] ].x;
 		data[6*t + 1] = vertices[ triangles[t] ].y;
 		data[6*t + 2] = vertices[ triangles[t] ].z;
 
@@ -598,7 +598,7 @@ void rendered_triangle_mesh::make_buffers_materials_textures() {
 
 	for (size_t t = 0; t < triangles.size(); ++t) {
 		const glm::vec3& vert = vertices[ triangles[t] ];
-		data[8*t    ] = vert.x;
+		data[8*t + 0] = vert.x;
 		data[8*t + 1] = vert.y;
 		data[8*t + 2] = vert.z;
 
@@ -651,7 +651,7 @@ void rendered_triangle_mesh::remake_buffers_materials_textures() {
 
 	for (size_t t = 0; t < triangles.size(); ++t) {
 		const glm::vec3& vert = vertices[ triangles[t] ];
-		data[8*t    ] = vert.x;
+		data[8*t + 0] = vert.x;
 		data[8*t + 1] = vert.y;
 		data[8*t + 2] = vert.z;
 

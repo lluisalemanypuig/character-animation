@@ -25,7 +25,7 @@ class rendered_character {
 		// data for buffers
 		std::vector<float> data;
 		std::vector<int> flat_idxs;
-		std::vector<uint> indices;
+		std::vector<size_t> indices;
 
 		/// Vertex Array Object index
 		uint VAO;
@@ -54,8 +54,9 @@ class rendered_character {
 		// needs cal_info
 		void initialise_buffers();
 
-		// needs buffers initialised
-		bool fill_buffers();
+		bool flatten_data();
+		// needs buffers initialised, and data flattened
+		void fill_buffers();
 
 		void render() const;
 		void draw() const;
