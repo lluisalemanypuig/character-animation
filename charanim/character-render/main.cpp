@@ -187,6 +187,10 @@ int initGL(int argc, char *argv[]) {
 	/*
 	character_shader.bind();
 	shader_helper::activate_materials_textures(C, character_shader);
+	character_shader.set_vec4("light.diffuse", glm::vec4(0.5f, 0.5f, 0.5f, 1.0f));
+	character_shader.set_vec4("light.specular", glm::vec4(0.1f, 0.1f, 0.1f, 1.0f));
+	character_shader.set_vec4("light.ambient", glm::vec4(0.3f, 0.3f, 0.3f, 1.0f));
+	character_shader.set_vec3("light.position", glm::vec3(1.0f, -1.0f, 1.0f));
 	character_shader.release();
 	*/
 
@@ -228,6 +232,7 @@ void refresh() {
 	character_shader.set_mat4("projection", projection);
 	character_shader.set_mat4("modelview", modelview);
 	character_shader.set_mat3("normal_matrix", normal_matrix);
+	C.flatten_data();
 	C.fill_buffers();
 	C.render();
 	character_shader.release();
@@ -249,7 +254,7 @@ void refresh() {
 	glPushMatrix();
 		glEnable(GL_LIGHTING);
 		glEnable(GL_LIGHT0);
-		//C.flatten_data();
+		C.flatten_data();
 		C.draw();
 
 		glDisable(GL_LIGHTING);

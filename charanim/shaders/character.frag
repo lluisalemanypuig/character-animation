@@ -87,10 +87,11 @@ void main() {
 	case 18: col = texture2D(tex12, tex_coord)*col; break;
 	case 19: col = texture2D(tex12, tex_coord)*col; break;
 	case 20: col = texture2D(tex12, tex_coord)*col; break;
-	case 0:
+	default:
+		// do nothing
 		col = col;
 	}
 
-	frag_color = vec4(1,0,0,1);
+	frag_color = col;
 }
 

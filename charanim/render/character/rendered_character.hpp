@@ -24,7 +24,7 @@ class rendered_character {
 
 		// data for buffers
 		std::vector<float> data;
-		std::vector<int> flat_idxs;
+		std::vector<uint> flat_idxs;
 		std::vector<size_t> indices;
 
 		/// Vertex Array Object index

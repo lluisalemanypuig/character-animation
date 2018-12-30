@@ -127,7 +127,9 @@ void rendered_character::set_cal_info(
 			M.Ns = cal_renderer->getShininess();
 			// OpenGL index of the texture
 			M.txt_id =
-			reinterpret_cast<uintptr_t>(cal_renderer->getMapUserData(0));
+			static_cast<uint>(
+			reinterpret_cast<uintptr_t>(cal_renderer->getMapUserData(0))
+			);
 
 			all_mats.push_back(M);
 		}
@@ -175,7 +177,7 @@ bool rendered_character::flatten_data() {
 	static float tex_coords[30000][2];
 	static int faces[30000][3];
 
-	int material_index = 0;
+	uint material_index = 0;
 	int n_meshes = cal_renderer->getMeshCount();
 	for (int mesh_id = 0; mesh_id < n_meshes; ++mesh_id) {
 
@@ -204,7 +206,7 @@ bool rendered_character::flatten_data() {
 
 			// store retrieved info
 			vector<float> submesh_data((3 + 3 + 2)*3*n_faces);
-			vector<int> submesh_flat_idxs((1 + 1)*3*n_faces);
+			vector<uint> submesh_flat_idxs((1 + 1)*3*n_faces);
 			vector<size_t> submesh_indices(3*n_faces);
 
 			size_t data_it = 0;
@@ -410,7 +412,9 @@ void rendered_character::draw() const {
 				textenable = true;
 				glEnable(GL_TEXTURE_2D);
 				glBindTexture(GL_TEXTURE_2D,
+					static_cast<uint>(
 					reinterpret_cast<uintptr_t>(cal_renderer->getMapUserData(0))
+					)
 				);
 			}
 			else {
@@ -441,22 +445,24 @@ void rendered_character::draw() const {
 
 	size_t flat_idxs_it = 0;
 	for (size_t i = 0; i < data.size(); i += 3*8) {
+		uint mat_idx = flat_idxs[flat_idxs_it + 0];
+		uint tex_idx = flat_idxs[flat_idxs_it + 1];
+
+		if (tex_idx > 0) {
+			glEnable(GL_TEXTURE_2D);
+			glBindTexture(GL_TEXTURE_2D, tex_idx);
+		}
+		else {
+			glDisable(GL_TEXTURE_2D);
+		}
+
+		glMaterialfv(GL_FRONT, GL_AMBIENT, glm::value_ptr(all_mats[mat_idx].Ka));
+		glMaterialfv(GL_FRONT, GL_DIFFUSE, glm::value_ptr(all_mats[mat_idx].Kd));
+		glMaterialfv(GL_FRONT, GL_SPECULAR, glm::value_ptr(all_mats[mat_idx].Ks));
+		glMaterialf(GL_FRONT, GL_SHININESS, all_mats[mat_idx].Ns);
+
 		glBegin(GL_TRIANGLES);
-
-		for (int k = 0; k < 3; ++k, flat_idxs_it += 2) {
-
-			int mat_idx = flat_idxs[flat_idxs_it + 0];
-			int tex_idx = flat_idxs[flat_idxs_it + 1];
-
-			if (tex_idx > 0) {
-				glEnable(GL_TEXTURE_2D);
-				glBindTexture(GL_TEXTURE_2D, tex_idx);
-			}
-
-			glMaterialfv(GL_FRONT, GL_AMBIENT, glm::value_ptr(all_mats[mat_idx].Ka));
-			glMaterialfv(GL_FRONT, GL_DIFFUSE, glm::value_ptr(all_mats[mat_idx].Kd));
-			glMaterialfv(GL_FRONT, GL_SPECULAR, glm::value_ptr(all_mats[mat_idx].Ks));
-			glMaterialf(GL_FRONT, GL_SHININESS, all_mats[mat_idx].Ns);
+		for (int k = 0; k < 3; ++k) {
 
 			if (tex_idx > 0) {
 				glTexCoord2f(data[i + 8*k + 6], data[i + 8*k + 7]);
@@ -465,6 +471,8 @@ void rendered_character::draw() const {
 			glVertex3f(data[i + 8*k + 0], data[i + 8*k + 1], data[i + 8*k + 2]);
 		}
 		glEnd();
+
+		flat_idxs_it += 2*3;
 	}
 	*/
 }
