@@ -56,8 +56,8 @@ bool parse_cfg_file
 		parse_line(line, option, value);
 
 		#if defined(DEBUG)
-		cout << "option: '" << option << "'" << endl;
-		cout << "    value: '" << value << "'" << endl;
+		cout << "option: '" << option << "' -- "
+			 << "value: '" << value << "'" << endl;
 		#endif
 
 		if (option == "path") {
@@ -232,8 +232,8 @@ bool make_model(
 	model->setMaterialSet(0);
 
 	// set initial animation state
-	model->getMixer()->blendCycle(anim_ids[2], 0.2f, 0.0f);
-	model->getMixer()->blendCycle(anim_ids[6], 0.8f, 0.0f);
+	model->getMixer()->blendCycle(anim_ids[2], 1.0f, 0.0f);
+	//model->getMixer()->blendCycle(anim_ids[6], 0.8f, 0.0f);
 
 	return true;
 }

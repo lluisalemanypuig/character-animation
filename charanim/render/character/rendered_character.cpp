@@ -65,8 +65,7 @@ void rendered_character::clear_buffers() {
 }
 
 void rendered_character::set_cal_info(
-	shared_ptr<CalCoreModel> cm, shared_ptr<CalModel> m,
-	float scale_to
+	shared_ptr<CalCoreModel> cm, shared_ptr<CalModel> m
 )
 {
 	core_model = cm;
@@ -113,15 +112,15 @@ void rendered_character::set_cal_info(
 			// retrieve ambient color
 			cal_renderer->getAmbientColor(&colC[0]);
 			M.Ka = glm::vec4(colC[0]/255.0f, colC[1]/255.0f,
-							 colC[2]/255.0f, 1.0f - colC[3]/255.0f);
+							 colC[2]/255.0f, colC[3]/255.0f);
 			// retrieve diffuse color
 			cal_renderer->getDiffuseColor(&colC[0]);
 			M.Kd = glm::vec4(colC[0]/255.0f, colC[1]/255.0f,
-							 colC[2]/255.0f, 1.0f - colC[3]/255.0f);
+							 colC[2]/255.0f, colC[3]/255.0f);
 			// retrieve specular color
 			cal_renderer->getSpecularColor(&colC[0]);
 			M.Ks = glm::vec4(colC[0]/255.0f, colC[1]/255.0f,
-							 colC[2]/255.0f, 1.0f - colC[3]/255.0f);
+							 colC[2]/255.0f, colC[3]/255.0f);
 
 			// shininess
 			M.Ns = cal_renderer->getShininess();
@@ -346,10 +345,6 @@ void rendered_character::render() const {
 	}
 }
 
-#define from_char_to_float(cF, cC)				\
-	cF[0] = cC[0]/255.0f; cF[1] = cC[1]/255.0f;	\
-	cF[2] = cC[2]/255.0f; cF[3] = cC[3]/255.0f
-
 void rendered_character::draw() const {
 	CalRenderer *cal_renderer = model->getRenderer();
 	bool begin_render = cal_renderer->beginRendering();
@@ -395,46 +390,51 @@ void rendered_character::draw() const {
 
 			for (int f = 0; f < n_faces; ++f) {
 				unsigned char colC[4];
-				float colF[4];
+				float ambient[4], diffuse[4], specular[4];
+
+#define from_char_to_float(cF, cC)				\
+	cF[0] = cC[0]/255.0f; cF[1] = cC[1]/255.0f;	\
+	cF[2] = cC[2]/255.0f; cF[3] = cC[3]/255.0f
 
 				// retrieve ambient color
 				cal_renderer->getAmbientColor(&colC[0]);
-				from_char_to_float(colF, colC);
-				glMaterialfv(GL_FRONT, GL_AMBIENT, colF);
-
+				from_char_to_float(ambient, colC);
 				// retrieve diffuse color
 				cal_renderer->getDiffuseColor(&colC[0]);
-				from_char_to_float(colF, colC);
-				glMaterialfv(GL_FRONT, GL_DIFFUSE, colF);
-
+				from_char_to_float(diffuse, colC);
 				// retrieve specular color
 				cal_renderer->getSpecularColor(&colC[0]);
-				from_char_to_float(colF, colC);
-				glMaterialfv(GL_FRONT, GL_SPECULAR, colF);
-
+				from_char_to_float(specular, colC);
 				// shininess
 				float shiny = cal_renderer->getShininess();
-				glMaterialfv(GL_FRONT, GL_SHININESS, &shiny);
 
+				glMaterialfv(GL_FRONT, GL_AMBIENT, ambient);
+				glMaterialfv(GL_FRONT, GL_DIFFUSE, diffuse);
+				glMaterialfv(GL_FRONT, GL_SPECULAR, specular);
+				glMaterialf(GL_FRONT, GL_SHININESS, shiny);
+
+				bool textenable = false;
 				// set the texture coordinate buffer and state if necessary
-				if ((cal_renderer->getMapCount() > 0) && (n_tex_coords > 0)) {
+				if ((cal_renderer->getMapCount() > 0) and (n_tex_coords > 0)) {
+					textenable = true;
 					glEnable(GL_TEXTURE_2D);
-					glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-					glEnable(GL_COLOR_MATERIAL);
-
-					// set the texture id we stored in the map user data
 					glBindTexture(GL_TEXTURE_2D,
 						reinterpret_cast<uintptr_t>(cal_renderer->getMapUserData(0))
 					);
 				}
+				else {
+					glDisable(GL_TEXTURE_2D);
+				}
 
-				// OpenGL index of the texture
 				glBegin(GL_TRIANGLES);
 				for (int k = 0; k < 3; ++k) {
 					int v = faces[f][k];
 
+					if (textenable) {
+						glTexCoord2f(tex_coords[v][0], tex_coords[v][1]);
+					}
+
 					glNormal3f(normals[v][0], normals[v][1], normals[v][2]);
-					glTexCoord2f(tex_coords[v][0], 1.0 - tex_coords[v][1]);
 
 					glVertex3f(verts[v][0], verts[v][1], verts[v][2]);
 				}

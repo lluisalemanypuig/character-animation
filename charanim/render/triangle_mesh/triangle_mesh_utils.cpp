@@ -1,5 +1,8 @@
 #include <render/triangle_mesh/triangle_mesh_utils.hpp>
 
+#include <iostream>
+using namespace std;
+
 material::material() {}
 
 material::material

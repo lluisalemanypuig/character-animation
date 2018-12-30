@@ -145,12 +145,14 @@ int initGL(int argc, char *argv[]) {
 	glEnable(GL_LIGHTING);
 
 	glEnable(GL_LIGHT0);
-	float col[] = {1.0f, 1.0f, 1.0f, 1.0f};
-	glLightfv(GL_LIGHT0, GL_DIFFUSE, col);
-	float pos[] = {0.0f, 0.0f, 0.0f, 1.0f};
-	glLightfv(GL_LIGHT0, GL_POSITION, pos);
+	float diff[] = {1.0f, 1.0f, 1.0f, 1.0f};
+	glLightfv(GL_LIGHT0, GL_DIFFUSE, diff);
+	float spec[] = { 0.1f, 0.1f, 0.1f, 1.0f };
+	glLightfv(GL_LIGHT0, GL_SPECULAR, spec);
 	float amb[] = {0.2f, 0.2f, 0.2f, 1.0f};
 	glLightfv(GL_LIGHT0, GL_AMBIENT, amb);
+	float pos[] = {0.0f, 0.0f, 0.0f, 1.0f};
+	glLightfv(GL_LIGHT0, GL_POSITION, pos);
 
 	// --------------------------- //
 	/* initialise global variables */
@@ -166,7 +168,7 @@ int initGL(int argc, char *argv[]) {
 	shared_ptr<CalModel> model = nullptr;
 
 	bool res = character_reader::load_core_model(
-		"../../characters", "paladin.cfg", "dummy",
+		"../../characters", "cally.cfg", "dummy",
 		core_model, model
 	);
 
@@ -175,10 +177,10 @@ int initGL(int argc, char *argv[]) {
 		return 1;
 	}
 
-	C.set_cal_info(core_model, model, 1.0f);
+	C.set_cal_info(core_model, model);
 
-	//C.initialise_buffers();
-	//C.fill_buffers();
+	/*
+	C.initialise_buffers();
 
 	bool r = character_shader.init
 			("../../charanim/shaders", "character.vert", "character.frag");
@@ -187,6 +189,7 @@ int initGL(int argc, char *argv[]) {
 	character_shader.bind();
 	shader_helper::activate_materials_textures(C, character_shader);
 	character_shader.release();
+	*/
 
 	glm::vec3 vmin, vmax;
 	C.get_bounding_box(vmin, vmax);
@@ -211,7 +214,7 @@ void refresh() {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	/* render character */
-
+	/*
 	glm::mat4 projection(1.0f), view(1.0f);
 	V.make_projection_matrix(projection);
 	V.make_view_matrix(view);
@@ -228,6 +231,7 @@ void refresh() {
 	character_shader.set_mat3("normal_matrix", normal_matrix);
 
 	character_shader.release();
+	*/
 
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();

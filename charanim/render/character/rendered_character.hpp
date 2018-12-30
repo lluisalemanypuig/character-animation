@@ -49,8 +49,7 @@ class rendered_character {
 
 		void set_cal_info
 		(std::shared_ptr<CalCoreModel> core_model,
-		 std::shared_ptr<CalModel> model,
-		 float scale_to);
+		 std::shared_ptr<CalModel> model);
 
 		// needs cal_info
 		void initialise_buffers();
