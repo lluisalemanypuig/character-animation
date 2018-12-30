@@ -102,30 +102,8 @@ bool load_anims_meshes_materials
 	cout << "Loading skeleton..." << endl;
 	#endif
 
-	bool success =
-	core_model->loadCoreSkeleton(dir + "/" + skeleton);
+	bool success = core_model->loadCoreSkeleton(dir + "/" + skeleton);
 	assert(success);
-
-	#if defined(DEBUG)
-	cout << "Loading animations..." << endl;
-	#endif
-
-	*animation_ids = static_cast<int *>(malloc(animations.size()*sizeof(int)));
-
-	for (size_t i = 0; i < animations.size(); ++i) {
-		const string& anim = animations[i];
-		string anim_filename = dir + "/" + anim;
-
-		#if defined(DEBUG)
-		cout << "    Loading animation: " << anim_filename << endl;
-		#endif
-
-		(*animation_ids)[i] = core_model->loadCoreAnimation(anim_filename);
-		if ((*animation_ids)[i] == -1) {
-			CalError::printLastError();
-			return false;
-		}
-	}
 
 	#if defined(DEBUG)
 	cout << "Loading meshes..." << endl;
@@ -143,6 +121,28 @@ bool load_anims_meshes_materials
 			CalError::printLastError();
 			return false;
 		}
+	}
+
+	#if defined(DEBUG)
+	cout << "Loading animations..." << endl;
+	#endif
+
+	*animation_ids = static_cast<int *>(malloc(animations.size()*sizeof(int)));
+
+	for (size_t i = 0; i < animations.size(); ++i) {
+		const string& anim = animations[i];
+		string anim_filename = dir + "/" + anim;
+
+		#if defined(DEBUG)
+		cout << "    Loading animation: " << anim_filename << endl;
+		#endif
+
+		int id = core_model->loadCoreAnimation(anim_filename);
+		if (id == -1) {
+			CalError::printLastError();
+			return false;
+		}
+		(*animation_ids)[i] = id;
 	}
 
 	#if defined(DEBUG)
@@ -166,7 +166,7 @@ bool load_anims_meshes_materials
 	return true;
 }
 
-bool load_model(
+bool make_model(
 	const string& dir,
 	int *anim_ids,
 	std::shared_ptr<CalCoreModel>& core_model,
@@ -232,9 +232,8 @@ bool load_model(
 	model->setMaterialSet(0);
 
 	// set initial animation state
-	model->getMixer()->blendCycle(anim_ids[0], 0.75f, 0.0f);
-	model->getMixer()->blendCycle(anim_ids[1], 0.15f, 0.0f);
-	model->getMixer()->blendCycle(anim_ids[2], 0.10f, 0.0f);
+	model->getMixer()->blendCycle(anim_ids[2], 0.2f, 0.0f);
+	model->getMixer()->blendCycle(anim_ids[6], 0.8f, 0.0f);
 
 	return true;
 }
@@ -248,10 +247,10 @@ bool load_core_model(
 )
 {
 	// data from the configuration file
-	float render_scale;
 	string skeleton;
 	string data_path;
 	vector<string> animations, materials, meshes;
+	float render_scale;
 
 	string cfg_filename = dir + "/" + file;
 
@@ -289,10 +288,12 @@ bool load_core_model(
 		return false;
 	}
 
-	bool ltm = load_model(dir_to_data, anim_ids, core_model, model);
+	bool ltm = make_model(dir_to_data, anim_ids, core_model, model);
 	if (not ltm) {
 		return false;
 	}
+
+	free(anim_ids);
 	return true;
 }
 

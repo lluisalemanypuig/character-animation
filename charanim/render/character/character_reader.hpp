@@ -29,7 +29,7 @@ namespace character_reader {
 		int **animation_ids
 	);
 
-	bool load_model(
+	bool make_model(
 		const std::string& dir,
 		int *anim_ids,
 		std::shared_ptr<CalCoreModel>& core_model,
@@ -37,7 +37,8 @@ namespace character_reader {
 	);
 
 	bool load_core_model(
-		const std::string& dir, const std::string& file, const std::string& name,
+		const std::string& dir, const std::string& file,
+		const std::string& name,
 		std::shared_ptr<CalCoreModel>& core_model,
 		std::shared_ptr<CalModel>& model
 	);

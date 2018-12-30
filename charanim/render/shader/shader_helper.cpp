@@ -153,15 +153,7 @@ void activate_materials_textures
 		const material& mat = all_mats[i];
 		set_mat_shader(mat, "material[" + std::to_string(i) + "]", S);
 
-		cout << "Setting material " << i << endl;
-		cout << "    " << out_vec4(mat.Ka) << endl;
-		cout << "    " << out_vec4(mat.Kd) << endl;
-		cout << "    " << out_vec4(mat.Ks) << endl;
-		cout << "    " << mat.Ns << endl;
-
 		if (mat.txt_id > __NULL_TEXTURE_INDEX) {
-			cout << "    with texture id: " << mat.txt_id << endl;
-
 			// these two lines are important
 			glActiveTexture(GL_TEXTURE0 + mat.txt_id);
 			glBindTexture(GL_TEXTURE_2D, mat.txt_id);

@@ -17,6 +17,9 @@ class rendered_character {
 		std::shared_ptr<CalCoreModel> core_model;
 		std::shared_ptr<CalModel> model;
 
+		// bounding box
+		glm::vec3 vmin, vmax;
+
 		std::vector<material> all_mats;
 
 		// data for buffers
@@ -46,7 +49,8 @@ class rendered_character {
 
 		void set_cal_info
 		(std::shared_ptr<CalCoreModel> core_model,
-		 std::shared_ptr<CalModel> model);
+		 std::shared_ptr<CalModel> model,
+		 float scale_to);
 
 		// needs cal_info
 		void initialise_buffers();
@@ -55,6 +59,12 @@ class rendered_character {
 		bool fill_buffers();
 
 		void render() const;
+		void draw() const;
+
+		// GETTERS
+
+		void get_bounding_box(glm::vec3& vmin, glm::vec3& vmax) const;
+		glm::vec3 get_center() const;
 
 		const std::vector<material>& get_materials() const;
 

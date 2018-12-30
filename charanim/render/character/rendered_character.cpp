@@ -2,7 +2,12 @@
 
 // C++ includes
 #include <algorithm>
+#include <limits>
 using namespace std;
+
+// glm includes
+#include <glm/glm.hpp>
+using namespace glm;
 
 // render includes
 #include <render/include_gl.hpp>
@@ -60,33 +65,18 @@ void rendered_character::clear_buffers() {
 }
 
 void rendered_character::set_cal_info(
-	shared_ptr<CalCoreModel> cm, shared_ptr<CalModel> m
+	shared_ptr<CalCoreModel> cm, shared_ptr<CalModel> m,
+	float scale_to
 )
 {
 	core_model = cm;
 	model = m;
-}
 
-void rendered_character::initialise_buffers() {
-	glGenVertexArrays(1, &VAO);
-	assert(glGetError() == GL_NO_ERROR);
+	model->update(0.0001f);
 
-	GLuint buffs[3];
-	glGenBuffers(3, buffs);
-	assert(glGetError() == GL_NO_ERROR);
-
-	VBO = buffs[0];
-	IBO = buffs[1];
-	EBO = buffs[2];
-
-	#if defined (DEBUG)
-	cout << line << " rendered_character::initialise_buffers " << line
-		 << " - buffers initialised" << endl;
-	cout << line << "     VAO: " << VAO << endl;
-	cout << line << "     VBO: " << VBO << endl;
-	cout << line << "     IBO: " << IBO << endl;
-	cout << line << "     EBO: " << EBO << endl;
-	#endif
+	vmin = glm::vec3( numeric_limits<float>::max());
+	vmax = glm::vec3(-numeric_limits<float>::max());
+	float verts[30000][3];
 
 	CalRenderer *cal_renderer = model->getRenderer();
 	bool begin_render = cal_renderer->beginRendering();
@@ -107,6 +97,13 @@ void rendered_character::initialise_buffers() {
 				cerr << "    when selecting submesh " << submesh_id
 					 << " from mesh " << mesh_id << endl;
 				continue;
+			}
+
+			// retrieve vertices
+			int n_verts = cal_renderer->getVertices(&verts[0][0]);
+			for (int i = 0; i < n_verts; ++i) {
+				vmin = glm::min(vmin, vec3(verts[i][0], verts[i][1], verts[i][2]));
+				vmax = glm::max(vmax, vec3(verts[i][0], verts[i][1], verts[i][2]));
 			}
 
 			/* retrieve material */
@@ -135,11 +132,28 @@ void rendered_character::initialise_buffers() {
 			all_mats.push_back(M);
 		}
 	}
-
 	cal_renderer->endRendering();
+}
 
-	#if defined(DEBUG)
-	cout << line << " materials successfully made" << endl;
+void rendered_character::initialise_buffers() {
+	glGenVertexArrays(1, &VAO);
+	assert(glGetError() == GL_NO_ERROR);
+
+	GLuint buffs[3];
+	glGenBuffers(3, buffs);
+	assert(glGetError() == GL_NO_ERROR);
+
+	VBO = buffs[0];
+	IBO = buffs[1];
+	EBO = buffs[2];
+
+	#if defined (DEBUG)
+	cout << line << " rendered_character::initialise_buffers " << line
+		 << " - buffers initialised" << endl;
+	cout << line << "     VAO: " << VAO << endl;
+	cout << line << "     VBO: " << VBO << endl;
+	cout << line << "     IBO: " << IBO << endl;
+	cout << line << "     EBO: " << EBO << endl;
 	#endif
 }
 
@@ -161,7 +175,7 @@ bool rendered_character::fill_buffers() {
 	float tex_coords[30000][2];
 	int faces[30000][3];
 
-	int material_index;
+	int material_index = 0;
 	int n_meshes = cal_renderer->getMeshCount();
 	for (int mesh_id = 0; mesh_id < n_meshes; ++mesh_id) {
 
@@ -234,33 +248,6 @@ bool rendered_character::fill_buffers() {
 	}
 
 	cal_renderer->endRendering();
-
-	/*
-	data = vector<float>({0, 0, 0, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f,
-						  1, 0, 0, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f,
-						  1, 0, 1, 1.0f, 1.0f, 1.0f, 0.5f, 1.0f,
-						  0, 0, 1, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f,
-						  0, 1, 0, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f,
-						  1, 1, 0, 1.0f, 1.0f, 1.0f, 0.0f, 0.5f,
-						  1, 1, 1, 1.0f, 1.0f, 1.0f, 0.5f, 0.0f,
-						  0, 1, 1, 1.0f, 1.0f, 1.0f, 0.2f, 0.8f
-						 });
-
-	flat_idxs = vector<int>({1, 1,
-							 1, 1,
-							 1, 1,
-							 1, 1,
-							 1, 1,
-							 1, 1,
-							 1, 1,
-							 1, 1
-							});
-
-	indices = vector<uint>({0,1,2, 0,2,3, 0,1,5, 0,5,4,
-							0,3,7, 0,7,4, 1,2,6, 1,6,5,
-							2,3,7, 2,7,6, 4,5,6, 4,6,7
-						   });
-	*/
 
 	// bind VAO
 	glBindVertexArray(VAO);
@@ -359,6 +346,117 @@ void rendered_character::render() const {
 	}
 }
 
+#define from_char_to_float(cF, cC)				\
+	cF[0] = cC[0]/255.0f; cF[1] = cC[1]/255.0f;	\
+	cF[2] = cC[2]/255.0f; cF[3] = cC[3]/255.0f
+
+void rendered_character::draw() const {
+	CalRenderer *cal_renderer = model->getRenderer();
+	bool begin_render = cal_renderer->beginRendering();
+	if (not begin_render) {
+		cerr << ERR << endl;
+		cerr << "    Could not begin render" << endl;
+		return;
+	}
+
+	float verts[30000][3];
+	float normals[30000][3];
+	float tex_coords[30000][2];
+	int faces[30000][3];
+
+	int n_meshes = cal_renderer->getMeshCount();
+	for (int mesh_id = 0; mesh_id < n_meshes; ++mesh_id) {
+
+		int n_submeshes = cal_renderer->getSubmeshCount(mesh_id);
+		for (int submesh_id = 0; submesh_id < n_submeshes; ++submesh_id) {
+
+			bool s = cal_renderer->selectMeshSubmesh(mesh_id, submesh_id);
+			if (not s) {
+				cerr << "Error (" << __LINE__ << "):" << endl;
+				cerr << "    when selecting submesh " << submesh_id
+					 << " from mesh " << mesh_id << endl;
+				continue;
+			}
+
+			// retrieve vertices
+			int n_verts = cal_renderer->getVertices(&verts[0][0]);
+			(void)n_verts;
+
+			// retrieve normals
+			int n_normals = cal_renderer->getNormals(&normals[0][0]);
+			(void)n_normals;
+
+			// retrieve texture coordinates
+			int n_tex_coords =
+				cal_renderer->getTextureCoordinates(0, &tex_coords[0][0]);
+
+			// retrieve face indices
+			int n_faces = cal_renderer->getFaces(&faces[0][0]);
+
+			for (int f = 0; f < n_faces; ++f) {
+				unsigned char colC[4];
+				float colF[4];
+
+				// retrieve ambient color
+				cal_renderer->getAmbientColor(&colC[0]);
+				from_char_to_float(colF, colC);
+				glMaterialfv(GL_FRONT, GL_AMBIENT, colF);
+
+				// retrieve diffuse color
+				cal_renderer->getDiffuseColor(&colC[0]);
+				from_char_to_float(colF, colC);
+				glMaterialfv(GL_FRONT, GL_DIFFUSE, colF);
+
+				// retrieve specular color
+				cal_renderer->getSpecularColor(&colC[0]);
+				from_char_to_float(colF, colC);
+				glMaterialfv(GL_FRONT, GL_SPECULAR, colF);
+
+				// shininess
+				float shiny = cal_renderer->getShininess();
+				glMaterialfv(GL_FRONT, GL_SHININESS, &shiny);
+
+				// set the texture coordinate buffer and state if necessary
+				if ((cal_renderer->getMapCount() > 0) && (n_tex_coords > 0)) {
+					glEnable(GL_TEXTURE_2D);
+					glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+					glEnable(GL_COLOR_MATERIAL);
+
+					// set the texture id we stored in the map user data
+					glBindTexture(GL_TEXTURE_2D,
+						reinterpret_cast<uintptr_t>(cal_renderer->getMapUserData(0))
+					);
+				}
+
+				// OpenGL index of the texture
+				glBegin(GL_TRIANGLES);
+				for (int k = 0; k < 3; ++k) {
+					int v = faces[f][k];
+
+					glNormal3f(normals[v][0], normals[v][1], normals[v][2]);
+					glTexCoord2f(tex_coords[v][0], 1.0 - tex_coords[v][1]);
+
+					glVertex3f(verts[v][0], verts[v][1], verts[v][2]);
+				}
+				glEnd();
+			}
+		}
+	}
+
+	cal_renderer->endRendering();
+}
+
+// GETTERS
+
+void rendered_character::get_bounding_box(vec3& _vmin, vec3& _vmax) const {
+	_vmin = vmin;
+	_vmax = vmax;
+}
+
+glm::vec3 rendered_character::get_center() const {
+	return (vmin + vmax)/2.0f;
+}
+
 const std::vector<material>& rendered_character::get_materials() const {
 	return all_mats;
 }
@@ -376,3 +474,4 @@ shared_ptr<CalModel> rendered_character::get_model() {
 const shared_ptr<CalModel> rendered_character::get_model() const {
 	return model;
 }
+

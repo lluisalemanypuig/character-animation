@@ -63,6 +63,50 @@ static shader character_shader;
 template<typename T>
 static inline void UNUSED(const T& x) { (void)x; }
 
+inline static
+void draw_box(const glm::vec3& vmin, const glm::vec3& vmax) {
+	glBegin(GL_LINES);
+		// -----------------------------
+		glVertex3f(vmin.x, vmin.y, vmin.z);
+		glVertex3f(vmax.x, vmin.y, vmin.z);
+
+		glVertex3f(vmax.x, vmin.y, vmin.z);
+		glVertex3f(vmax.x, vmin.y, vmax.z);
+
+		glVertex3f(vmax.x, vmin.y, vmax.z);
+		glVertex3f(vmin.x, vmin.y, vmax.z);
+
+		glVertex3f(vmin.x, vmin.y, vmax.z);
+		glVertex3f(vmin.x, vmin.y, vmin.z);
+
+		// -----------------------------
+		glVertex3f(vmin.x, vmax.y, vmin.z);
+		glVertex3f(vmax.x, vmax.y, vmin.z);
+
+		glVertex3f(vmax.x, vmax.y, vmin.z);
+		glVertex3f(vmax.x, vmax.y, vmax.z);
+
+		glVertex3f(vmax.x, vmax.y, vmax.z);
+		glVertex3f(vmin.x, vmax.y, vmax.z);
+
+		glVertex3f(vmin.x, vmax.y, vmax.z);
+		glVertex3f(vmin.x, vmax.y, vmin.z);
+
+		// -----------------------------
+		glVertex3f(vmin.x, vmin.y, vmin.z);
+		glVertex3f(vmin.x, vmax.y, vmin.z);
+
+		glVertex3f(vmax.x, vmin.y, vmin.z);
+		glVertex3f(vmax.x, vmax.y, vmin.z);
+
+		glVertex3f(vmax.x, vmin.y, vmax.z);
+		glVertex3f(vmax.x, vmax.y, vmax.z);
+
+		glVertex3f(vmin.x, vmin.y, vmax.z);
+		glVertex3f(vmin.x, vmax.y, vmax.z);
+	glEnd();
+}
+
 // -----------
 // Exit viewer
 // -----------
@@ -122,28 +166,19 @@ int initGL(int argc, char *argv[]) {
 	shared_ptr<CalModel> model = nullptr;
 
 	bool res = character_reader::load_core_model(
-		"../../characters", "cally.cfg", "dummy",
+		"../../characters", "paladin.cfg", "dummy",
 		core_model, model
 	);
 
 	if (not res) {
-		cerr << "Error: when loading model 'paladin'" << endl;
-		return 1;
-	}
-	if (core_model == nullptr) {
-		cerr << "Error: CalCoreModel not created" << endl;
-		return 1;
-	}
-	if (model == nullptr) {
-		cerr << "Error: CalModel not created" << endl;
+		cerr << "Error: when loading model" << endl;
 		return 1;
 	}
 
-	C.set_cal_info(core_model, model);
-	C.get_model()->update(0.001f);
+	C.set_cal_info(core_model, model, 1.0f);
 
-	C.initialise_buffers();
-	C.fill_buffers();
+	//C.initialise_buffers();
+	//C.fill_buffers();
 
 	bool r = character_shader.init
 			("../../charanim/shaders", "character.vert", "character.frag");
@@ -153,16 +188,12 @@ int initGL(int argc, char *argv[]) {
 	shader_helper::activate_materials_textures(C, character_shader);
 	character_shader.release();
 
-	V.set_window_dims(iw, ih);
-	V.get_box().set_min_max
-	(
-		glm::vec3(-10.0f,-10.0f,-10.0f),
-		glm::vec3(10.0f,10.0f,10.0f)
-	);
-	V.init_cameras();
-	V.get_perspective_camera().set_zfar(5000.0);
+	glm::vec3 vmin, vmax;
+	C.get_bounding_box(vmin, vmax);
 
-	glDisable(GL_LIGHTING);
+	V.set_window_dims(iw, ih);
+	V.get_box().set_min_max(vmin, vmax);
+	V.init_cameras();
 
 	sec = timing::now();
 
@@ -178,10 +209,6 @@ void refresh() {
 
 	glClearColor(0.0, 0.0, 0.0, 1.0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-	// we will render some alpha-blended textures
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	/* render character */
 
@@ -200,10 +227,6 @@ void refresh() {
 	character_shader.set_mat4("modelview", modelview);
 	character_shader.set_mat3("normal_matrix", normal_matrix);
 
-	C.get_model()->update(0.001f);
-	//C.fill_buffers();
-	C.render();
-
 	character_shader.release();
 
 	glMatrixMode(GL_PROJECTION);
@@ -216,11 +239,20 @@ void refresh() {
 
 	V.apply_view();
 
-	glBegin(GL_TRIANGLES);
-		glVertex3f(0.0f, 0.0f, 0.0f);
-		glVertex3f(0.0f, 1.0f, 0.0f);
-		glVertex3f(1.0f, 0.0f, 0.0f);
-	glEnd();
+	glm::vec3 vmin, vmax;
+	C.get_bounding_box(vmin, vmax);
+
+	glPushMatrix();
+		glEnable(GL_LIGHTING);
+		glEnable(GL_LIGHT0);
+		C.draw();
+
+		glDisable(GL_LIGHTING);
+		glColor3f(1.0f, 0.0f, 0.0f);
+		draw_box(vmin, vmax);
+	glPopMatrix();
+
+	C.get_model()->update(0.01f);
 
 	glutSwapBuffers();
 }
