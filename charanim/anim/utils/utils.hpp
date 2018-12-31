@@ -6,6 +6,12 @@
 using namespace std::chrono;
 using namespace std::this_thread;
 
+namespace parsing {
+
+	bool is_help(char *str);
+
+} // -- namespace parsing
+
 namespace timing {
 
 	typedef high_resolution_clock::time_point time_point;

@@ -470,7 +470,9 @@ namespace study_cases {
 		_argv = argv;
 		int r = sim_200_init(true);
 		if (r != 0) {
-			cerr << "Error in initialisation of simulation 00" << endl;
+			if (r == 1) {
+				cerr << "Error in initialisation of simulation 00" << endl;
+			}
 			return;
 		}
 

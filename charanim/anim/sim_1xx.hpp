@@ -18,14 +18,16 @@ namespace sim_1xx {
 	extern physim::math::vec3 sim_1xx_ini_vel;
 	extern physim::math::vec3 sim_1xx_target;
 
+	extern float sim_1xx_mass;
+
 	extern float sim_1xx_max_speed;
 	extern float sim_1xx_max_force;
 	extern float sim_1xx_seek_weight;
 	extern float sim_1xx_flee_weight;
 	extern float sim_1xx_arrival_weight;
-	extern float sim_1xx_coll_avoid_weight;
-	extern float sim_1xx_mass;
 	extern float sim_1xx_slowing_distance;
+	extern float sim_1xx_coll_avoid_weight;
+	extern float sim_1xx_ahead_distance;
 
 	extern size_t sim_1xx_path_it;
 	extern std::vector<physim::math::vec3> sim_1xx_path;

@@ -20,14 +20,16 @@ namespace sim_1xx {
 	vec3 sim_1xx_ini_vel;
 	vec3 sim_1xx_target;
 
+	float sim_1xx_mass;
+
 	float sim_1xx_max_speed;
 	float sim_1xx_max_force;
 	float sim_1xx_seek_weight;
 	float sim_1xx_flee_weight;
 	float sim_1xx_arrival_weight;
-	float sim_1xx_coll_avoid_weight;
-	float sim_1xx_mass;
 	float sim_1xx_slowing_distance;
+	float sim_1xx_coll_avoid_weight;
+	float sim_1xx_ahead_distance;
 
 	vector<vec3> sim_1xx_path;
 	size_t sim_1xx_path_it;
@@ -84,6 +86,8 @@ namespace sim_1xx {
 		if (has_coll_avoid) {
 			cout << "            collision avoidance weight: "
 				 << sim_1xx_coll_avoid_weight << endl;
+			cout << "            ahead distance: "
+				 << sim_1xx_ahead_distance << endl;
 		}
 	}
 

@@ -37,6 +37,12 @@ namespace study_cases {
 		cout << "Simulation 100: validation of seek behaviour" << endl;
 		cout << endl;
 		cout << "    --help : show the usage." << endl;
+		cout << "    --target" << endl;
+		cout << "    --pos" << endl;
+		cout << "    --vel" << endl;
+		cout << "    --seek-weight" << endl;
+		cout << "    --max-speed" << endl;
+		cout << "    --max-force" << endl;
 		cout << endl;
 		cout << "Keyboard keys:" << endl;
 		cout << "    h: show the usage." << endl;
@@ -314,7 +320,9 @@ namespace study_cases {
 		_argv = argv;
 		int r = sim_100_init(true);
 		if (r != 0) {
-			cerr << "Error in initialisation of simulation 00" << endl;
+			if (r == 1) {
+				cerr << "Error in initialisation of simulation 00" << endl;
+			}
 			return;
 		}
 

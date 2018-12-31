@@ -210,7 +210,7 @@ namespace study_cases {
 		string map_file = "none";
 
 		for (int i = 1; i < argc; ++i) {
-			if (strcmp(argv[i], "--help") == 0) {
+			if (parsing::is_help(argv[i])) {
 				sim_000_usage();
 				return 2;
 			}
@@ -396,8 +396,11 @@ namespace study_cases {
 	void sim_000(int argc, char *argv[]) {
 		_argc = argc;
 		_argv = argv;
-		if (sim_000_init(true) != 0) {
-			cerr << "Error in initialisation of simulation 00" << endl;
+		int r = sim_000_init(true);
+		if (r != 0) {
+			if (r == 1) {
+				cerr << "Error in initialisation of simulation 00" << endl;
+			}
 			return;
 		}
 

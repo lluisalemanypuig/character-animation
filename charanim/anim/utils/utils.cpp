@@ -1,5 +1,21 @@
 #include <anim/utils/utils.hpp>
 
+// C includes
+#include <string.h>
+
+namespace parsing {
+
+	bool is_help(char *str) {
+		bool help = false;
+		help = help or (strcmp(str, "-h") == 0);
+		help = help or (strcmp(str, "--he") == 0);
+		help = help or (strcmp(str, "--hel") == 0);
+		help = help or (strcmp(str, "--help") == 0);
+		return help;
+	}
+
+} // -- namespace parsing
+
 namespace timing {
 
 	time_point now() {

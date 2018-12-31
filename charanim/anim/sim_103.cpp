@@ -44,6 +44,14 @@ namespace study_cases {
 		cout << endl;
 		cout << "This simulated uses a 'pre-computed' path" << endl;
 		cout << endl;
+		cout << "Parameters:" << endl;
+		cout << "    --help" << endl;
+		cout << "    --seek-weight" << endl;
+		cout << "    --max-speed" << endl;
+		cout << "    --max-force" << endl;
+		cout << "    --coll-avoid" << endl;
+		cout << "    --ahead-distance" << endl;
+		cout << endl;
 		cout << "Keyboard keys:" << endl;
 		cout << "    h: show the usage." << endl;
 		cout << "    r: reset simulation." << endl;
@@ -135,6 +143,7 @@ namespace study_cases {
 		sim_1xx_agent->arrival_weight = sim_1xx_arrival_weight;
 		sim_1xx_agent->slowing_distance = sim_1xx_slowing_distance;
 		sim_1xx_agent->coll_avoid_weight = sim_1xx_coll_avoid_weight;
+		sim_1xx_agent->ahead_distance = sim_1xx_ahead_distance;
 
 		sim_1xx_agent->mass = sim_1xx_mass;
 		sim_1xx_agent->bouncing = 1.0f;
@@ -256,6 +265,10 @@ namespace study_cases {
 				sim_1xx_coll_avoid_weight = atof(argv[i + 1]);
 				++i;
 			}
+			else if (strcmp(argv[i], "--ahead-distance") == 0) {
+				sim_1xx_ahead_distance = atof(argv[i + 1]);
+				++i;
+			}
 		}
 
 		return 0;
@@ -302,13 +315,15 @@ namespace study_cases {
 		sim_1xx_ini_vel = vec3(0.5f, 0.0f, 0.5f);
 		sim_1xx_target = vec3(-20.0f, 0.0f, 20.0f);
 
+		sim_1xx_mass = 60.0f;
+
 		sim_1xx_max_speed = 0.5f;
 		sim_1xx_max_force = 100.0f;
 		sim_1xx_seek_weight = 5.0f;
 		sim_1xx_arrival_weight = 5.0f;
 		sim_1xx_slowing_distance = 20.0f;
 		sim_1xx_coll_avoid_weight = 1.0f;
-		sim_1xx_mass = 60.0f;
+		sim_1xx_ahead_distance = 15.0f;
 
 		/* PARSE ARGUMENTS */
 		int arg_parse = sim_103_parse_arguments(_argc, _argv);
@@ -381,7 +396,9 @@ namespace study_cases {
 		_argv = argv;
 		int r = sim_103_init(true);
 		if (r != 0) {
-			cerr << "Error in initialisation of simulation 00" << endl;
+			if (r == 1) {
+				cerr << "Error in initialisation of simulation 00" << endl;
+			}
 			return;
 		}
 
