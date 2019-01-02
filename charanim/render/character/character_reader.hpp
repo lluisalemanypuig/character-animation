@@ -25,13 +25,11 @@ namespace character_reader {
 		const std::string& dir, const std::string& skeleton,
 		const std::vector<std::string>& animations, const std::vector<std::string>& meshes,
 		const std::vector<std::string>& materials,
-		std::shared_ptr<CalCoreModel> core_model,
-		int **animation_ids
+		std::shared_ptr<CalCoreModel> core_model
 	);
 
 	bool make_model(
 		const std::string& dir,
-		int *anim_ids,
 		std::shared_ptr<CalCoreModel>& core_model,
 		std::shared_ptr<CalModel>& model
 	);
@@ -40,7 +38,7 @@ namespace character_reader {
 		const std::string& dir, const std::string& file,
 		const std::string& name,
 		std::shared_ptr<CalCoreModel>& core_model,
-		std::shared_ptr<CalModel>& model
+		std::string& data_dir
 	);
 
 } // -- namespace character_reader

@@ -164,16 +164,24 @@ int initGL(int argc, char *argv[]) {
 	FPS = 60;
 	fps_count = 0;
 
+	bool res;
+
 	shared_ptr<CalCoreModel> core_model = nullptr;
-	shared_ptr<CalModel> model = nullptr;
-
-	bool res = character_reader::load_core_model(
-		"../../characters", "paladin.cfg", "dummy",
-		core_model, model
+	string data_dir;
+	res = character_reader::load_core_model(
+		"../../characters", "paladin.cfg", "dummy", core_model, data_dir
 	);
-
 	if (not res) {
-		cerr << "Error: when loading model" << endl;
+		cerr << "Error: when loading core model" << endl;
+		return 1;
+	}
+
+	shared_ptr<CalModel> model = nullptr;
+	res = character_reader::make_model(
+		data_dir, core_model, model
+	);
+	if (not res) {
+		cerr << "Error: when making model" << endl;
 		return 1;
 	}
 
@@ -213,15 +221,21 @@ void refresh() {
 	++fps_count;
 	C.get_model()->update(0.01f);
 
+	float H = 50.0f;
+
 	glClearColor(0.0, 0.0, 0.0, 1.0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	/* render character */
 
+	float ninety = static_cast<float>(M_PI)/2.0f;
+
 	glm::mat4 projection(1.0f), view(1.0f);
 	V.make_projection_matrix(projection);
 	V.make_view_matrix(view);
 	glm::mat4 model(1.0f);
+	model = glm::translate(model, glm::vec3(0.0f, -H, 0.0f));
+	model = glm::rotate(model, -ninety, glm::vec3(1.0f, 0.0f, 0.0f));
 	glm::mat4 modelview = view*model;
 	glm::mat3 normal_matrix = glm::inverseTranspose(glm::mat3(modelview));
 
@@ -244,6 +258,8 @@ void refresh() {
 
 	V.apply_view();
 
+	glTranslatef(0.0f, -H, 0.0f);
+
 	glm::vec3 vmin, vmax;
 	C.get_bounding_box(vmin, vmax);
 
@@ -252,9 +268,12 @@ void refresh() {
 	//C.flatten_data();
 	C.draw();*/
 
-	glDisable(GL_LIGHTING);
-	glColor3f(1.0f, 0.0f, 0.0f);
-	draw_box(vmin, vmax);
+	glPushMatrix();
+		glRotatef(-90.0f, 1.0f, 0.0f, 0.0f);
+		glDisable(GL_LIGHTING);
+		glColor3f(1.0f, 0.0f, 0.0f);
+		draw_box(vmin, vmax);
+	glPopMatrix();
 
 	glBegin(GL_QUADS);
 		glColor3f(1.0f,1.0f,1.0f);

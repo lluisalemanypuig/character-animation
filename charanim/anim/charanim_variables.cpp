@@ -32,6 +32,9 @@ namespace charanim {
 
 	/* RENDERISATION */
 
+	/* characters */
+	vector<rendered_character> characters;
+
 	/* view control */
 	viewer V;
 	float move_x;
@@ -39,19 +42,21 @@ namespace charanim {
 	/* geometry (planes, triangles, rectangles, ...) */
 	std::vector<rgeom *> geometry;
 	/* sphere mesh */
-	rendered_triangle_mesh *sphere;
+	rendered_triangle_mesh *sphere = nullptr;
 
 	/* shaders */
 	shader flat_shader;
 	shader material_shader;
 	shader texture_shader;
+	shader character_shader;
 
 	/* render control */
-	bool render_base_spheres;
-	bool render_grid;
-	bool render_dist_func;
-	bool render_targets;
-	bool render_velocity_vector;
-	bool render_target_vector;
+	bool render_base_spheres = false;
+	bool render_grid = false;
+	bool render_dist_func = false;
+	bool render_targets = false;
+	bool render_velocity_vector = true;
+	bool render_target_vector = true;
+	bool render_orientation_vector = true;
 
 } // -- namespace charanim

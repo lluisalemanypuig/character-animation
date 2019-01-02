@@ -118,7 +118,6 @@ namespace study_cases {
 
 	void sim_103_init_simulation() {
 		
-
 		sim_1xx_path.clear();
 		sim_1xx_path = { vec3(25.0f, 0.0f, 12.0f),
 						 vec3(42.0f, 0.0f, 25.0f),
@@ -276,8 +275,6 @@ namespace study_cases {
 
 	void sim_103_exit() {
 		exit_func();
-
-		
 	}
 
 	int sim_103_init(bool init_window) {

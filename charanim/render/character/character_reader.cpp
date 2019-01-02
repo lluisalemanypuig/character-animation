@@ -94,8 +94,7 @@ bool load_anims_meshes_materials
 	const vector<string>& animations,
 	const vector<string>& meshes,
 	const vector<string>& materials,
-	std::shared_ptr<CalCoreModel> core_model,
-	int **animation_ids
+	std::shared_ptr<CalCoreModel> core_model
 )
 {
 	#if defined(DEBUG)
@@ -127,8 +126,6 @@ bool load_anims_meshes_materials
 	cout << "Loading animations..." << endl;
 	#endif
 
-	*animation_ids = static_cast<int *>(malloc(animations.size()*sizeof(int)));
-
 	for (size_t i = 0; i < animations.size(); ++i) {
 		const string& anim = animations[i];
 		string anim_filename = dir + "/" + anim;
@@ -142,7 +139,6 @@ bool load_anims_meshes_materials
 			CalError::printLastError();
 			return false;
 		}
-		(*animation_ids)[i] = id;
 	}
 
 	#if defined(DEBUG)
@@ -168,7 +164,6 @@ bool load_anims_meshes_materials
 
 bool make_model(
 	const string& dir,
-	int *anim_ids,
 	std::shared_ptr<CalCoreModel>& core_model,
 	std::shared_ptr<CalModel>& model
 )
@@ -232,8 +227,8 @@ bool make_model(
 	model->setMaterialSet(0);
 
 	// set initial animation state
-	model->getMixer()->blendCycle(anim_ids[2], 0.2f, 0.0f);
-	model->getMixer()->blendCycle(anim_ids[6], 0.8f, 0.0f);
+	model->getMixer()->blendCycle(2, 0.2f, 0.0f);
+	model->getMixer()->blendCycle(6, 0.8f, 0.0f);
 
 	return true;
 }
@@ -243,7 +238,7 @@ bool load_core_model(
 	const string& file,
 	const string& name,
 	shared_ptr<CalCoreModel>& core_model,
-	shared_ptr<CalModel>& model
+	string& data_dir
 )
 {
 	// data from the configuration file
@@ -276,24 +271,16 @@ bool load_core_model(
 	cout << "    Found: " << materials.size() << " materials" << endl;
 	#endif
 
-	int *anim_ids;
-
-	string dir_to_data = dir + "/" + data_path;
+	data_dir = dir + "/" + data_path;
 	bool lamm = load_anims_meshes_materials(
-		dir_to_data, skeleton,
+		data_dir, skeleton,
 		animations, meshes, materials,
-		core_model, &anim_ids
+		core_model
 	);
 	if (not lamm) {
 		return false;
 	}
 
-	bool ltm = make_model(dir_to_data, anim_ids, core_model, model);
-	if (not ltm) {
-		return false;
-	}
-
-	free(anim_ids);
 	return true;
 }
 

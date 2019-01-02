@@ -14,6 +14,7 @@
 #include <render/triangle_mesh/rendered_triangle_mesh.hpp>
 #include <render/geometry/rgeometry.hpp>
 #include <render/shader/shader.hpp>
+#include <render/character/rendered_character.hpp>
 #include <anim/terrain/regular_grid.hpp>
 #include <anim/utils/utils.hpp>
 #include <anim/definitions.hpp>
@@ -57,6 +58,9 @@ namespace charanim {
 
 	/* RENDERISATION */
 
+	/* characters */
+	extern std::vector<rendered_character> characters;
+
 	/* view control */
 	extern viewer V;
 	extern float move_x;
@@ -70,6 +74,7 @@ namespace charanim {
 	extern shader flat_shader;
 	extern shader material_shader;
 	extern shader texture_shader;
+	extern shader character_shader;
 
 	/* render control */
 	extern bool render_base_spheres;
@@ -77,6 +82,7 @@ namespace charanim {
 	extern bool render_dist_func;
 	extern bool render_velocity_vector;
 	extern bool render_target_vector;
+	extern bool render_orientation_vector;
 	extern bool render_targets;
 
 	/* --------- */
@@ -86,6 +92,8 @@ namespace charanim {
 	bool load_shaders();
 	// Load sphere model for sized and agent particles
 	bool load_sphere();
+	// Load characters for sized and agent particles
+	bool load_characters(const vector<string>& dirs, const vector<string>& names);
 
 	/* rendering functions */
 	void render_agent_vectors();

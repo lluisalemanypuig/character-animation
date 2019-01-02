@@ -9,8 +9,8 @@
 using namespace std;
 
 // glm includes
-#include <glm/glm.hpp>
 #define GLM_FORCE_RADIANS
+#include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
 // render includes

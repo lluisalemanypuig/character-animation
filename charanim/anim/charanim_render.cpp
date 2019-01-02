@@ -6,6 +6,7 @@
 using namespace std;
 
 // glm includes
+#define GLM_FORCE_RADIANS
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_inverse.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -79,6 +80,21 @@ namespace charanim {
 					glVertex3f(a.target.x, a.target.y, a.target.z);
 				glEnd();
 			}
+			if (render_orientation_vector) {
+				glLineWidth(2.5f);
+				glDisable(GL_LIGHTING);
+				glColor3f(1.0f,1.0f,0.0f);
+				glBegin(GL_LINES);
+					glVertex3f(
+						a.cur_pos.x,
+						a.cur_pos.y + 2.0f*a.R,
+						a.cur_pos.z);
+					glVertex3f(
+						a.cur_pos.x + 10.0f*a.orientation.x,
+						a.cur_pos.y + 10.0f*a.orientation.y + 2.0f*a.R,
+						a.cur_pos.z + 10.0f*a.orientation.z);
+				glEnd();
+			}
 		}
 	}
 
@@ -93,7 +109,6 @@ namespace charanim {
 
 		flat_shader.bind();
 		flat_shader.set_bool("wireframe", false);
-		flat_shader.set_vec3("view_pos", glm::vec3(0.0f,0.0f,0.0f));
 		flat_shader.set_vec4("colour", glm::vec4(0.0f,0.0f,1.0f,1.0f));
 		flat_shader.set_mat4("projection", projection);
 
@@ -152,11 +167,43 @@ namespace charanim {
 				sphere->render();
 			}
 		}
-
 		flat_shader.release();
 
-		/* draw walls and stuff */
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+		if (not render_base_spheres and as.size() > 0) {
+			float ninety = static_cast<float>(M_PI)/2.0f;
+
+			character_shader.bind();
+			character_shader.set_mat4("projection", projection);
+			for (size_t i = 0; i < as.size(); ++i) {
+				rendered_character& C = characters[i];
+				C.get_model()->update(0.01f);
+
+				shader_helper::activate_materials_textures(C, character_shader);
+
+				glm::mat4 model(1.0f);
+				model = glm::translate(model, to_gvec3(as[i].cur_pos));
+
+				vec2 pointy(0.0f, 1.0f);
+				vec2 ori(as[i].orientation.x, as[i].orientation.z);
+				float angle = dot(pointy, ori)/(norm(ori)) - ninety;
+				model = glm::rotate(model, -angle, glm::vec3(0.0f, 1.0f, 0.0f));
+				model = glm::rotate(model, -ninety, glm::vec3(1.0f, 0.0f, 0.0f));
+				model = glm::scale(model, glm::vec3(0.1f, 0.1f, 0.1f));
+
+				glm::mat4 modelview = view*model;
+				glm::mat3 normal_matrix = glm::inverseTranspose(glm::mat3(modelview));
+
+				character_shader.set_mat4("modelview", modelview);
+				character_shader.set_mat3("normal_matrix", normal_matrix);
+				C.flatten_data();
+				C.fill_buffers();
+				C.render();
+			}
+			character_shader.release();
+		}
+
+		/* draw walls and stuff */
 		glDisable(GL_LIGHTING);
 		for (const rgeom *r : geometry) {
 			if (r->get_model() == nullptr) {

@@ -52,7 +52,6 @@ namespace study_cases {
 	static vector<vec2> sim_200_smoothed_path;
 
 	// only agent in the simulation
-	static agent_particle sim_200_agent;
 	static size_t sim_200_what_target;
 
 	// render stuff
@@ -120,8 +119,9 @@ namespace study_cases {
 		glTranslatef(move_x, 0.0f, move_z);
 
 		render_agent_vectors();
-
 		base_render();
+
+		glDisable(GL_LIGHTING);
 
 		// render path finder (on the xy plane)
 		const regular_grid *rg = sim_200_T.get_regular_grid();
@@ -140,9 +140,11 @@ namespace study_cases {
 
 		// simulate agents only if we have a path
 		if (sim_200_smoothed_path.size() > 0) {
-			for (int i = 0; i < 10; ++i) {
+			for (int i = 0; i < 100; ++i) {
 				S.simulate_agent_particles();
 			}
+
+			agent_particle& sim_200_agent = S.get_agent_particle(0);
 
 			// when the agent is 1 meter away from its attractor
 			// move the attractor to the next point
@@ -167,14 +169,9 @@ namespace study_cases {
 
 						cout << "Reaching last target..." << endl;
 						cout << "    Behaviour set to 'arrival'" << endl;
-						sim_200_agent.behaviour = agent_behaviour_type::arrival;
-
-						sim_200_agent.slowing_distance =
-						0.5f*physim::math::dist(
-							sim_200_agent.cur_pos, sim_200_agent.target
-						);
+						sim_200_agent.unset_behaviour(agent_behaviour_type::seek);
+						sim_200_agent.set_behaviour(agent_behaviour_type::arrival);
 					}
-
 				}
 				else {
 					// agent reached its goal
@@ -207,21 +204,24 @@ namespace study_cases {
 
 	void sim_200_init_simulation() {
 		// add agent particles
+		agent_particle sim_200_agent;
 		sim_200_agent.lifetime = 9999.0f; // immortal agent
-		sim_200_agent.R = 1.0f;
+		sim_200_agent.R = sim_200_R;
 		sim_200_agent.cur_pos = vec3(5.0f,1.0f,5.0f);
-		sim_200_agent.max_speed = 10.0f;
-		sim_200_agent.max_force = 10.0f;
-		sim_200_agent.seek_weight = 0.2f;
-		sim_200_agent.flee_weight = 0.3f;
-		sim_200_agent.arrival_weight = 0.3f;
+		sim_200_agent.max_speed = 0.5f;
+		sim_200_agent.max_force = 100.0f;
+		sim_200_agent.seek_weight = 5.0f;
+		sim_200_agent.arrival_weight = 5.0f;
+		sim_200_agent.slowing_distance = 20.0f;
+		sim_200_agent.coll_avoid_weight = 0.5f;
+		sim_200_agent.ahead_distance = 5.0f;
 		sim_200_agent.mass = 60.0f;
-		sim_200_agent.bouncing = 1.0f;
-		sim_200_agent.friction = 0.0f;
+		sim_200_agent.set_behaviour(agent_behaviour_type::seek);
+		sim_200_agent.set_behaviour(agent_behaviour_type::collision_avoidance);
 		S.add_agent_particle(sim_200_agent);
 
 		// set time step and collision checking
-		S.set_time_step(0.200f);
+		S.set_time_step(0.001f);
 		S.set_particle_particle_collisions(true);
 
 		// add geometry
@@ -266,6 +266,10 @@ namespace study_cases {
 
 		V.set_window_dims(width, height);
 		V.init_cameras();
+
+		if (sim_200_disk == nullptr) {
+			sim_200_disk = gluNewQuadric();
+		}
 	}
 
 	int sim_200_parse_arguments(int argc, char *argv[]) {
@@ -302,10 +306,6 @@ namespace study_cases {
 		input_2_points(start,goal);
 		cout << "Input radius: "; cin >> sim_200_R;
 
-		if (sim_200_disk == nullptr) {
-			sim_200_disk = gluNewQuadric();
-		}
-
 		sim_200_astar_path.clear();
 		sim_200_smoothed_path.clear();
 		regular_grid *rg = sim_200_T.get_regular_grid();
@@ -321,6 +321,8 @@ namespace study_cases {
 
 		/* initialise agent's movement */
 
+		agent_particle& sim_200_agent = S.get_agent_particle(0);
+
 		// 1. set current position
 		sim_200_agent.cur_pos.x = sim_200_smoothed_path[0].x;
 		sim_200_agent.cur_pos.y = 1.0f;
@@ -332,8 +334,6 @@ namespace study_cases {
 		sim_200_agent.target.z = sim_200_smoothed_path[1].y;
 		sim_200_what_target = 1;
 
-		sim_200_agent.behaviour = agent_behaviour_type::seek;
-
 		// 3. set velocity so that the particle can start moving
 		float mv = sim_200_agent.max_speed;
 		sim_200_agent.cur_vel =
@@ -344,7 +344,7 @@ namespace study_cases {
 
 		render_targets = true;
 
-		cout << "First attractor at: ("
+		cout << "First target at: ("
 			 << sim_200_agent.target.x << ","
 			 << sim_200_agent.target.y << ","
 			 << sim_200_agent.target.z << ")" << endl;
@@ -389,8 +389,8 @@ namespace study_cases {
 		render_grid = false;
 		render_dist_func = false;
 		render_targets = false;
-		render_velocity_vector = false;
-		render_target_vector = false;
+		render_velocity_vector = true;
+		render_target_vector = true;
 
 		sim_200_what_target = 1000;
 
@@ -417,6 +417,8 @@ namespace study_cases {
 
 		glEnable(GL_DEPTH_TEST);
 
+		sim_200_init_simulation();
+
 		float zoomP = V.get_perspective_camera().get_zoom();
 		float zoomC = V.get_orthogonal_camera().get_zoom();
 
@@ -429,8 +431,6 @@ namespace study_cases {
 			move_z = _move_z;
 		}
 
-		sim_200_init_simulation();
-
 		bool success;
 		success = load_shaders();
 		if (not success) {
@@ -441,6 +441,12 @@ namespace study_cases {
 		success = load_sphere();
 		if (not success) {
 			cerr << "Error: error when loading sphere" << endl;
+			return 1;
+		}
+
+		success = load_characters({"../../characters"}, {"paladin.cfg"});
+		if (not success) {
+			cerr << "Error: error when loading characters" << endl;
 			return 1;
 		}
 
@@ -458,6 +464,7 @@ namespace study_cases {
 		case 'd': render_dist_func = not render_dist_func; break;
 		case 'g': render_grid = not render_grid; break;
 		case 'v': render_velocity_vector = not render_velocity_vector; break;
+		case 'o': render_orientation_vector = not render_orientation_vector; break;
 		}
 	}
 
