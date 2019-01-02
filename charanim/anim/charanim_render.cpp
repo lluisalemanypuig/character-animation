@@ -100,7 +100,6 @@ namespace charanim {
 		/* render sized particles */
 		const vector<sized_particle>& ps = S.get_sized_particles();
 		if (render_base_spheres and ps.size() > 0) {
-
 			for (const sized_particle& p : ps) {
 				glm::mat4 model(1.0f);
 				model = glm::translate(model, to_gvec3(p.cur_pos));
@@ -139,10 +138,8 @@ namespace charanim {
 		/* render attractors of agent particles */
 		if (render_targets) {
 			flat_shader.set_vec4("colour", glm::vec4(1.0f,0.0f,0.0f,1.0f));
-
 			for (const agent_particle& a : as) {
 				const vec3& att = a.target;
-
 				glm::mat4 model(1.0f);
 				model = glm::translate(model, glm::vec3(att.x, att.y, att.z));
 				model = glm::scale(model, glm::vec3(3.0f, 3.0f, 3.0f));
@@ -165,15 +162,6 @@ namespace charanim {
 			if (r->get_model() == nullptr) {
 				r->draw_geometry();
 			}
-		}
-		if (not render_base_spheres and ps.size() > 0) {
-			glPointSize(3.0f);
-			glBegin(GL_POINTS);
-			glColor3f(0.0f,0.0f,1.0f);
-			for (const sized_particle& p : ps) {
-				glVertex3f(p.cur_pos.x, p.cur_pos.y, p.cur_pos.z);
-			}
-			glEnd();
 		}
 
 		glEnable(GL_LIGHTING);
@@ -200,10 +188,6 @@ namespace charanim {
 		glClearColor(bgd_color.x, bgd_color.y, bgd_color.z, 1.0);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		for (int i = 0; i < 10; ++i) {
-			S.apply_time_step();
-		}
-
 		// no shader for all
 		glMatrixMode(GL_PROJECTION);
 		glLoadIdentity();
@@ -216,6 +200,10 @@ namespace charanim {
 		glTranslatef(move_x, 0.0f, move_z);
 
 		base_render();
+
+		for (int i = 0; i < 10; ++i) {
+			S.apply_time_step();
+		}
 
 		if (window_id != -1) {
 			glutSwapBuffers();

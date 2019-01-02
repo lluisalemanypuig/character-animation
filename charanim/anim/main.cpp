@@ -32,7 +32,7 @@ void list_all_cases() {
 	cout << "    * 103 : Visualise obstacle avoidance and seek steering behaviours."
 		<< endl;
 	cout << "    * 200 : visualise any map passed as parameter." << endl;
-	cout << "            Make an agent particle follow a path." << endl;
+	cout << "            Make an agent follow a path." << endl;
 	cout << endl;
 }
 

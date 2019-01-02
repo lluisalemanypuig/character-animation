@@ -83,48 +83,49 @@ namespace study_cases {
 			glVertex3f(q.x, yoff, q.y);
 		}
 		glEnd();
-		if (sim_000_render_circles) {
-			if (not spheres) {
-				glColor3f(ccol.x, ccol.y, ccol.z);
-				for (size_t i = 0; i < apath.size(); ++i) {
-					const vec2& p = apath[i];
-					glPushMatrix();
-						glTranslatef(p.x, yoff, p.y);
-						glRotatef(-90.0f, 1.0f,0.0f,0.0f);
-						gluDisk(sim_000_disk, double(sim_000_R)*0.9, double(sim_000_R), 20, 20);
-					glPopMatrix();
-				}
+		if (not sim_000_render_circles) {
+			return;
+		}
+		if (not spheres) {
+			glColor3f(ccol.x, ccol.y, ccol.z);
+			for (size_t i = 0; i < apath.size(); ++i) {
+				const vec2& p = apath[i];
+				glPushMatrix();
+					glTranslatef(p.x, yoff, p.y);
+					glRotatef(-90.0f, 1.0f,0.0f,0.0f);
+					gluDisk(sim_000_disk, double(sim_000_R)*0.9, double(sim_000_R), 20, 20);
+				glPopMatrix();
 			}
-			else {
-				glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-				glm::mat4 projection(1.0f), view(1.0f);
-				V.make_projection_matrix(projection);
-				V.make_view_matrix(view);
-				view = glm::translate(view, glm::vec3(move_x, 0.0f, move_z));
+		}
+		else {
+			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+			glm::mat4 projection(1.0f), view(1.0f);
+			V.make_projection_matrix(projection);
+			V.make_view_matrix(view);
+			view = glm::translate(view, glm::vec3(move_x, 0.0f, move_z));
 
-				flat_shader.bind();
-				flat_shader.set_vec4("colour", glm::vec4(ccol, 1.0f));
-				flat_shader.set_bool("wireframe", true);
-				flat_shader.set_mat4("projection", projection);
-				flat_shader.set_vec3("view_pos", glm::vec3(0.0f,0.0f,0.0f));
+			flat_shader.bind();
+			flat_shader.set_vec4("colour", glm::vec4(ccol, 1.0f));
+			flat_shader.set_bool("wireframe", true);
+			flat_shader.set_mat4("projection", projection);
+			flat_shader.set_vec3("view_pos", glm::vec3(0.0f,0.0f,0.0f));
 
-				for (size_t i = 0; i < apath.size(); ++i) {
-					const vec2& p = apath[i];
+			for (size_t i = 0; i < apath.size(); ++i) {
+				const vec2& p = apath[i];
 
-					glm::mat4 model(1.0f);
-					model = glm::translate(model, glm::vec3(p.x, yoff, p.y));
-					float R = 2.0f*sim_000_R;
-					model = glm::scale(model, glm::vec3(R, R, R));
+				glm::mat4 model(1.0f);
+				model = glm::translate(model, glm::vec3(p.x, yoff, p.y));
+				float R = 2.0f*sim_000_R;
+				model = glm::scale(model, glm::vec3(R, R, R));
 
-					glm::mat4 modelview = view*model;
-					glm::mat3 normal_matrix = glm::inverseTranspose(glm::mat3(modelview));
+				glm::mat4 modelview = view*model;
+				glm::mat3 normal_matrix = glm::inverseTranspose(glm::mat3(modelview));
 
-					flat_shader.set_mat4("modelview", modelview);
-					flat_shader.set_mat3("normal_matrix", normal_matrix);
-					sphere->render();
-				}
-				flat_shader.release();
+				flat_shader.set_mat4("modelview", modelview);
+				flat_shader.set_mat3("normal_matrix", normal_matrix);
+				sphere->render();
 			}
+			flat_shader.release();
 		}
 	}
 
@@ -144,6 +145,8 @@ namespace study_cases {
 		glTranslatef(move_x, 0.0f, move_z);
 
 		base_render();
+
+		glDisable(GL_LIGHTING);
 
 		// render path finder (on the xy plane)
 		const regular_grid *rg = sim_000_T.get_regular_grid();
