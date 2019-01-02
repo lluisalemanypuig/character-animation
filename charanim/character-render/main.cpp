@@ -247,16 +247,22 @@ void refresh() {
 	glm::vec3 vmin, vmax;
 	C.get_bounding_box(vmin, vmax);
 
-	glPushMatrix();
-		/*glEnable(GL_LIGHTING);
-		glEnable(GL_LIGHT0);
-		//C.flatten_data();
-		C.draw();*/
+	/*glEnable(GL_LIGHTING);
+	glEnable(GL_LIGHT0);
+	//C.flatten_data();
+	C.draw();*/
 
-		glDisable(GL_LIGHTING);
-		glColor3f(1.0f, 0.0f, 0.0f);
-		draw_box(vmin, vmax);
-	glPopMatrix();
+	glDisable(GL_LIGHTING);
+	glColor3f(1.0f, 0.0f, 0.0f);
+	draw_box(vmin, vmax);
+
+	glBegin(GL_QUADS);
+		glColor3f(1.0f,1.0f,1.0f);
+		glVertex3f(-1.0f, 0.0f,  1.0f);
+		glVertex3f(-1.0f, 0.0f, -1.0f);
+		glVertex3f( 1.0f, 0.0f, -1.0f);
+		glVertex3f( 1.0f, 0.0f,  1.0f);
+	glEnd();
 
 	glutSwapBuffers();
 }

@@ -298,10 +298,12 @@ bool rendered_character::flatten_data() {
 			int n_verts = cal_renderer->getVertices(&vertices[vertex_counter]);
 
 			// retrieve normals
-			cal_renderer->getNormals(&normals[normal_counter]);
+			int n_normals = cal_renderer->getNormals(&normals[normal_counter]);
 
 			vertex_counter += 3*static_cast<size_t>(n_verts);
-			normal_counter += 3*static_cast<size_t>(n_verts);
+			normal_counter += 3*static_cast<size_t>(n_normals);
+
+			assert(n_verts == n_normals);
 		}
 	}
 
@@ -363,6 +365,10 @@ void rendered_character::render() const {
 }
 
 void rendered_character::draw() const {
+	// we will use vertex arrays, so enable them
+	glEnableClientState(GL_VERTEX_ARRAY);
+	glEnableClientState(GL_NORMAL_ARRAY);
+
 	CalRenderer *cal_renderer = model->getRenderer();
 	bool begin_render = cal_renderer->beginRendering();
 	if (not begin_render) {
@@ -410,34 +416,39 @@ void rendered_character::draw() const {
 
 			bool textenable = false;
 			// set the texture coordinate buffer and state if necessary
-			if ((cal_renderer->getMapCount() > 0) and (n_tex_coords > 0)) {
+			if (cal_renderer->getMapCount() > 0 and n_tex_coords > 0) {
 				textenable = true;
 				glEnable(GL_TEXTURE_2D);
+				glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+				glEnable(GL_COLOR_MATERIAL);
 				glBindTexture(GL_TEXTURE_2D,
 					static_cast<uint>(
 					reinterpret_cast<uintptr_t>(cal_renderer->getMapUserData(0))
 					)
 				);
+				glTexCoordPointer(2, GL_FLOAT, 0, &tex_coords[0][0]);
+				glColor3f(1.0f, 1.0f, 1.0f);
 			}
 			else {
 				glDisable(GL_TEXTURE_2D);
 			}
 
-			for (int f = 0; f < n_faces; ++f) {
-				glBegin(GL_TRIANGLES);
-				for (int k = 0; k < 3; ++k) {
-					int v = faces[f][k];
-					if (textenable) {
-						glTexCoord2f(tex_coords[v][0], tex_coords[v][1]);
-					}
-					glNormal3f(normals[v][0], normals[v][1], normals[v][2]);
-					glVertex3f(verts[v][0], verts[v][1], verts[v][2]);
-				}
-				glEnd();
+			glVertexPointer(3, GL_FLOAT, 0, &verts[0][0]);
+			glNormalPointer(GL_FLOAT, 0, &normals[0][0]);
+			glDrawElements(GL_TRIANGLES, 3*n_faces, GL_UNSIGNED_INT, &faces[0][0]);
+
+			if (cal_renderer->getMapCount() > 0 and n_tex_coords > 0) {
+				glDisable(GL_COLOR_MATERIAL);
+				glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+				glDisable(GL_TEXTURE_2D);
 			}
 		}
 	}
 	cal_renderer->endRendering();
+
+	// clear vertex array state
+	glDisableClientState(GL_NORMAL_ARRAY);
+	glDisableClientState(GL_VERTEX_ARRAY);
 
 	/*
 	// use flattened data to render character.
