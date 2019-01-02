@@ -14,7 +14,7 @@ namespace charanim {
 namespace sim_1xx {
 
 	// only agent in the simulation
-	agent_particle *sim_1xx_agent;
+	agent_particle sim_1xx_agent;
 
 	vec3 sim_1xx_ini_pos;
 	vec3 sim_1xx_ini_vel;
@@ -34,7 +34,7 @@ namespace sim_1xx {
 	vector<vec3> sim_1xx_path;
 	size_t sim_1xx_path_it;
 
-#define has_behaviour(behav) sim_1xx_agent->is_behaviour_set(behav)
+#define has_behaviour(behav) sim_1xx_agent.is_behaviour_set(behav)
 
 	void print_1xx_info() {
 		bool has_seek = has_behaviour(agent_behaviour_type::seek);

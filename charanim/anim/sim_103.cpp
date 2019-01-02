@@ -84,12 +84,12 @@ namespace study_cases {
 		}
 
 		if (sim_1xx_path_it < sim_1xx_path.size() - 1) {
-			if (dist(sim_1xx_agent->cur_pos, sim_1xx_agent->target) <= 2.5f) {
+			if (dist(sim_1xx_agent.cur_pos, sim_1xx_agent.target) <= 2.5f) {
 				++sim_1xx_path_it;
-				sim_1xx_agent->target = sim_1xx_path[sim_1xx_path_it];
+				sim_1xx_agent.target = sim_1xx_path[sim_1xx_path_it];
 				if (sim_1xx_path_it == sim_1xx_path.size() - 1) {
-					sim_1xx_agent->unset_behaviour(agent_behaviour_type::seek);
-					sim_1xx_agent->set_behaviour(agent_behaviour_type::arrival);
+					sim_1xx_agent.unset_behaviour(agent_behaviour_type::seek);
+					sim_1xx_agent.set_behaviour(agent_behaviour_type::arrival);
 				}
 			}
 		}
@@ -117,7 +117,7 @@ namespace study_cases {
 	}
 
 	void sim_103_init_simulation() {
-		sim_1xx_agent = nullptr;
+		
 
 		sim_1xx_path.clear();
 		sim_1xx_path = { vec3(25.0f, 0.0f, 12.0f),
@@ -125,33 +125,33 @@ namespace study_cases {
 						 vec3(25.0f, 0.0f, 40.0f) };
 
 		// add agent particles
-		sim_1xx_agent = new agent_particle();
-		sim_1xx_agent->lifetime = 9999.0f; // immortal agent
-		sim_1xx_agent->R = 0.5f;
+		
+		sim_1xx_agent.lifetime = 9999.0f; // immortal agent
+		sim_1xx_agent.R = 0.5f;
 
 		sim_1xx_path_it = 0;
-		sim_1xx_agent->target = sim_1xx_path[sim_1xx_path_it];
+		sim_1xx_agent.target = sim_1xx_path[sim_1xx_path_it];
 
-		sim_1xx_agent->cur_pos = sim_1xx_ini_pos;
-		sim_1xx_agent->cur_vel = sim_1xx_ini_vel;
-		sim_1xx_agent->orientation = physim::math::normalise(sim_1xx_ini_vel);
+		sim_1xx_agent.cur_pos = sim_1xx_ini_pos;
+		sim_1xx_agent.cur_vel = sim_1xx_ini_vel;
+		sim_1xx_agent.orientation = physim::math::normalise(sim_1xx_ini_vel);
 
-		sim_1xx_agent->max_speed = sim_1xx_max_speed;
-		sim_1xx_agent->max_force = sim_1xx_max_force;
+		sim_1xx_agent.max_speed = sim_1xx_max_speed;
+		sim_1xx_agent.max_force = sim_1xx_max_force;
 
-		sim_1xx_agent->seek_weight = sim_1xx_seek_weight;
-		sim_1xx_agent->arrival_weight = sim_1xx_arrival_weight;
-		sim_1xx_agent->slowing_distance = sim_1xx_slowing_distance;
-		sim_1xx_agent->coll_avoid_weight = sim_1xx_coll_avoid_weight;
-		sim_1xx_agent->ahead_distance = sim_1xx_ahead_distance;
+		sim_1xx_agent.seek_weight = sim_1xx_seek_weight;
+		sim_1xx_agent.arrival_weight = sim_1xx_arrival_weight;
+		sim_1xx_agent.slowing_distance = sim_1xx_slowing_distance;
+		sim_1xx_agent.coll_avoid_weight = sim_1xx_coll_avoid_weight;
+		sim_1xx_agent.ahead_distance = sim_1xx_ahead_distance;
 
-		sim_1xx_agent->mass = sim_1xx_mass;
-		sim_1xx_agent->bouncing = 1.0f;
-		sim_1xx_agent->friction = 0.0f;
+		sim_1xx_agent.mass = sim_1xx_mass;
+		sim_1xx_agent.bouncing = 1.0f;
+		sim_1xx_agent.friction = 0.0f;
 
-		sim_1xx_agent->unset_all_behaviours();
-		sim_1xx_agent->set_behaviour(agent_behaviour_type::seek);
-		sim_1xx_agent->set_behaviour(agent_behaviour_type::collision_avoidance);
+		sim_1xx_agent.unset_all_behaviours();
+		sim_1xx_agent.set_behaviour(agent_behaviour_type::seek);
+		sim_1xx_agent.set_behaviour(agent_behaviour_type::collision_avoidance);
 
 		S.add_agent_particle(sim_1xx_agent);
 
@@ -277,7 +277,7 @@ namespace study_cases {
 	void sim_103_exit() {
 		exit_func();
 
-		sim_1xx_agent = nullptr;
+		
 	}
 
 	int sim_103_init(bool init_window) {

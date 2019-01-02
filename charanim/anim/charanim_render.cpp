@@ -39,21 +39,21 @@ namespace charanim {
 	}
 
 	void render_agent_vectors() {
-		const vector<agent_particle *>& as = S.get_agent_particles();
-		for (const agent_particle *a : as) {
+		const vector<agent_particle>& as = S.get_agent_particles();
+		for (const agent_particle& a : as) {
 			if (render_velocity_vector) {
 				glLineWidth(2.0f);
 				glDisable(GL_LIGHTING);
 				glColor3f(0.0f,1.0f,0.0f);
 				glBegin(GL_LINES);
 					glVertex3f(
-						a->cur_pos.x,
-						a->cur_pos.y + a->R,
-						a->cur_pos.z);
+						a.cur_pos.x,
+						a.cur_pos.y + a.R,
+						a.cur_pos.z);
 					glVertex3f(
-						a->cur_pos.x + a->cur_vel.x,
-						a->cur_pos.y + a->cur_vel.y + a->R,
-						a->cur_pos.z + a->cur_vel.z);
+						a.cur_pos.x + a.cur_vel.x,
+						a.cur_pos.y + a.cur_vel.y + a.R,
+						a.cur_pos.z + a.cur_vel.z);
 				glEnd();
 
 				glLineWidth(2.0f);
@@ -61,13 +61,13 @@ namespace charanim {
 				glColor3f(1.0f,0.0f,1.0f);
 				glBegin(GL_LINES);
 					glVertex3f(
-						a->cur_pos.x,
-						a->cur_pos.y + a->R,
-						a->cur_pos.z);
+						a.cur_pos.x,
+						a.cur_pos.y + a.R,
+						a.cur_pos.z);
 					glVertex3f(
-						a->cur_pos.x + 10.0f*a->cur_vel.x,
-						a->cur_pos.y + 10.0f*a->cur_vel.y + a->R,
-						a->cur_pos.z + 10.0f*a->cur_vel.z);
+						a.cur_pos.x + 10.0f*a.cur_vel.x,
+						a.cur_pos.y + 10.0f*a.cur_vel.y + a.R,
+						a.cur_pos.z + 10.0f*a.cur_vel.z);
 				glEnd();
 			}
 			if (render_target_vector) {
@@ -75,8 +75,8 @@ namespace charanim {
 				glDisable(GL_LIGHTING);
 				glColor3f(0.0f,1.0f,1.0f);
 				glBegin(GL_LINES);
-					glVertex3f(a->cur_pos.x, a->cur_pos.y, a->cur_pos.z);
-					glVertex3f(a->target.x, a->target.y, a->target.z);
+					glVertex3f(a.cur_pos.x, a.cur_pos.y, a.cur_pos.z);
+					glVertex3f(a.target.x, a.target.y, a.target.z);
 				glEnd();
 			}
 		}
@@ -98,13 +98,13 @@ namespace charanim {
 		flat_shader.set_mat4("projection", projection);
 
 		/* render sized particles */
-		const vector<sized_particle *>& ps = S.get_sized_particles();
+		const vector<sized_particle>& ps = S.get_sized_particles();
 		if (render_base_spheres and ps.size() > 0) {
 
-			for (const sized_particle *p : ps) {
+			for (const sized_particle& p : ps) {
 				glm::mat4 model(1.0f);
-				model = glm::translate(model, to_gvec3(p->cur_pos));
-				float R = 2.0f*p->R;
+				model = glm::translate(model, to_gvec3(p.cur_pos));
+				float R = 2.0f*p.R;
 				model = glm::scale(model, glm::vec3(R, R, R));
 
 				glm::mat4 modelview = view*model;
@@ -117,14 +117,14 @@ namespace charanim {
 		}
 
 		/* render agent particles */
-		const vector<agent_particle *>& as = S.get_agent_particles();
+		const vector<agent_particle>& as = S.get_agent_particles();
 		if (render_base_spheres and as.size() > 0) {
 			flat_shader.set_vec4("colour", glm::vec4(0.0f,0.0f,1.0f,1.0f));
 
-			for (const agent_particle *a : as) {
+			for (const agent_particle& a : as) {
 				glm::mat4 model(1.0f);
-				model = glm::translate(model, to_gvec3(a->cur_pos));
-				float R = 2.0f*a->R;
+				model = glm::translate(model, to_gvec3(a.cur_pos));
+				float R = 2.0f*a.R;
 				model = glm::scale(model, glm::vec3(R, R, R));
 
 				glm::mat4 modelview = view*model;
@@ -140,8 +140,8 @@ namespace charanim {
 		if (render_targets) {
 			flat_shader.set_vec4("colour", glm::vec4(1.0f,0.0f,0.0f,1.0f));
 
-			for (const agent_particle *a : as) {
-				const vec3& att = a->target;
+			for (const agent_particle& a : as) {
+				const vec3& att = a.target;
 
 				glm::mat4 model(1.0f);
 				model = glm::translate(model, glm::vec3(att.x, att.y, att.z));
@@ -170,8 +170,8 @@ namespace charanim {
 			glPointSize(3.0f);
 			glBegin(GL_POINTS);
 			glColor3f(0.0f,0.0f,1.0f);
-			for (const sized_particle *p : ps) {
-				glVertex3f(p->cur_pos.x, p->cur_pos.y, p->cur_pos.z);
+			for (const sized_particle& p : ps) {
+				glVertex3f(p.cur_pos.x, p.cur_pos.y, p.cur_pos.z);
 			}
 			glEnd();
 		}

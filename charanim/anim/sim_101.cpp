@@ -105,29 +105,29 @@ namespace study_cases {
 	}
 
 	void sim_101_init_simulation() {
-		sim_1xx_agent = nullptr;
+		
 
 		// add agent particles
-		sim_1xx_agent = new agent_particle();
-		sim_1xx_agent->lifetime = 9999.0f; // immortal agent
-		sim_1xx_agent->R = 1.0f;
+		
+		sim_1xx_agent.lifetime = 9999.0f; // immortal agent
+		sim_1xx_agent.R = 1.0f;
 
-		sim_1xx_agent->target = sim_1xx_target;
+		sim_1xx_agent.target = sim_1xx_target;
 
-		sim_1xx_agent->cur_pos = sim_1xx_ini_pos;
-		sim_1xx_agent->cur_vel = sim_1xx_ini_vel;
-		sim_1xx_agent->orientation = physim::math::normalise(sim_1xx_ini_vel);
+		sim_1xx_agent.cur_pos = sim_1xx_ini_pos;
+		sim_1xx_agent.cur_vel = sim_1xx_ini_vel;
+		sim_1xx_agent.orientation = physim::math::normalise(sim_1xx_ini_vel);
 
-		sim_1xx_agent->max_speed = sim_1xx_max_speed;
-		sim_1xx_agent->max_force = sim_1xx_max_force;
-		sim_1xx_agent->flee_weight = sim_1xx_flee_weight;
+		sim_1xx_agent.max_speed = sim_1xx_max_speed;
+		sim_1xx_agent.max_force = sim_1xx_max_force;
+		sim_1xx_agent.flee_weight = sim_1xx_flee_weight;
 
-		sim_1xx_agent->mass = sim_1xx_mass;
-		sim_1xx_agent->bouncing = 1.0f;
-		sim_1xx_agent->friction = 0.0f;
+		sim_1xx_agent.mass = sim_1xx_mass;
+		sim_1xx_agent.bouncing = 1.0f;
+		sim_1xx_agent.friction = 0.0f;
 
-		sim_1xx_agent->unset_all_behaviours();
-		sim_1xx_agent->set_behaviour(agent_behaviour_type::flee);
+		sim_1xx_agent.unset_all_behaviours();
+		sim_1xx_agent.set_behaviour(agent_behaviour_type::flee);
 
 		S.add_agent_particle(sim_1xx_agent);
 
@@ -210,7 +210,7 @@ namespace study_cases {
 	void sim_101_exit() {
 		exit_func();
 
-		sim_1xx_agent = nullptr;
+		
 	}
 
 	int sim_101_init(bool init_window) {

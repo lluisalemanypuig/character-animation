@@ -52,7 +52,7 @@ namespace study_cases {
 	static vector<vec2> sim_200_smoothed_path;
 
 	// only agent in the simulation
-	static agent_particle *sim_200_agent;
+	static agent_particle sim_200_agent;
 	static size_t sim_200_what_target;
 
 	// render stuff
@@ -146,39 +146,39 @@ namespace study_cases {
 
 			// when the agent is 1 meter away from its attractor
 			// move the attractor to the next point
-			if (dist(sim_200_agent->cur_pos, sim_200_agent->target) <= 1.0f) {
+			if (dist(sim_200_agent.cur_pos, sim_200_agent.target) <= 1.0f) {
 				++sim_200_what_target;
 				if (sim_200_what_target < sim_200_smoothed_path.size()) {
 
 					size_t attr = sim_200_what_target;
-					sim_200_agent->target.x = sim_200_smoothed_path[attr].x;
-					sim_200_agent->target.y = 1.0f;
-					sim_200_agent->target.z = sim_200_smoothed_path[attr].y;
+					sim_200_agent.target.x = sim_200_smoothed_path[attr].x;
+					sim_200_agent.target.y = 1.0f;
+					sim_200_agent.target.z = sim_200_smoothed_path[attr].y;
 
 					cout << "Change of target:" << endl;
 					cout << "    target index: " << attr << endl;
 					cout << "    Position: ("
-						 << sim_200_agent->target.x << ","
-						 << sim_200_agent->target.y << ","
-						 << sim_200_agent->target.z << ")" << endl;
+						 << sim_200_agent.target.x << ","
+						 << sim_200_agent.target.y << ","
+						 << sim_200_agent.target.z << ")" << endl;
 
 					if (sim_200_what_target == sim_200_smoothed_path.size() - 1) {
 						// agent is about to reach the last target
 
 						cout << "Reaching last target..." << endl;
 						cout << "    Behaviour set to 'arrival'" << endl;
-						sim_200_agent->behaviour = agent_behaviour_type::arrival;
+						sim_200_agent.behaviour = agent_behaviour_type::arrival;
 
-						sim_200_agent->slowing_distance =
+						sim_200_agent.slowing_distance =
 						0.5f*physim::math::dist(
-							sim_200_agent->cur_pos, sim_200_agent->target
+							sim_200_agent.cur_pos, sim_200_agent.target
 						);
 					}
 
 				}
 				else {
 					// agent reached its goal
-					sim_200_agent->cur_vel = vec3(0.0f);
+					sim_200_agent.cur_vel = vec3(0.0f);
 				}
 			}
 		}
@@ -206,21 +206,18 @@ namespace study_cases {
 	}
 
 	void sim_200_init_simulation() {
-		sim_200_agent = nullptr;
-
 		// add agent particles
-		sim_200_agent = new agent_particle();
-		sim_200_agent->lifetime = 9999.0f; // immortal agent
-		sim_200_agent->R = 1.0f;
-		sim_200_agent->cur_pos = vec3(5.0f,1.0f,5.0f);
-		sim_200_agent->max_speed = 10.0f;
-		sim_200_agent->max_force = 10.0f;
-		sim_200_agent->seek_weight = 0.2f;
-		sim_200_agent->flee_weight = 0.3f;
-		sim_200_agent->arrival_weight = 0.3f;
-		sim_200_agent->mass = 60.0f;
-		sim_200_agent->bouncing = 1.0f;
-		sim_200_agent->friction = 0.0f;
+		sim_200_agent.lifetime = 9999.0f; // immortal agent
+		sim_200_agent.R = 1.0f;
+		sim_200_agent.cur_pos = vec3(5.0f,1.0f,5.0f);
+		sim_200_agent.max_speed = 10.0f;
+		sim_200_agent.max_force = 10.0f;
+		sim_200_agent.seek_weight = 0.2f;
+		sim_200_agent.flee_weight = 0.3f;
+		sim_200_agent.arrival_weight = 0.3f;
+		sim_200_agent.mass = 60.0f;
+		sim_200_agent.bouncing = 1.0f;
+		sim_200_agent.friction = 0.0f;
 		S.add_agent_particle(sim_200_agent);
 
 		// set time step and collision checking
@@ -325,32 +322,32 @@ namespace study_cases {
 		/* initialise agent's movement */
 
 		// 1. set current position
-		sim_200_agent->cur_pos.x = sim_200_smoothed_path[0].x;
-		sim_200_agent->cur_pos.y = 1.0f;
-		sim_200_agent->cur_pos.z = sim_200_smoothed_path[0].y;
+		sim_200_agent.cur_pos.x = sim_200_smoothed_path[0].x;
+		sim_200_agent.cur_pos.y = 1.0f;
+		sim_200_agent.cur_pos.z = sim_200_smoothed_path[0].y;
 
 		// 2. set first attractor
-		sim_200_agent->target.x = sim_200_smoothed_path[1].x;
-		sim_200_agent->target.y = 1.0f;
-		sim_200_agent->target.z = sim_200_smoothed_path[1].y;
+		sim_200_agent.target.x = sim_200_smoothed_path[1].x;
+		sim_200_agent.target.y = 1.0f;
+		sim_200_agent.target.z = sim_200_smoothed_path[1].y;
 		sim_200_what_target = 1;
 
-		sim_200_agent->behaviour = agent_behaviour_type::seek;
+		sim_200_agent.behaviour = agent_behaviour_type::seek;
 
 		// 3. set velocity so that the particle can start moving
-		float mv = sim_200_agent->max_speed;
-		sim_200_agent->cur_vel =
-			normalise(sim_200_agent->target - sim_200_agent->cur_pos)*mv;
+		float mv = sim_200_agent.max_speed;
+		sim_200_agent.cur_vel =
+			normalise(sim_200_agent.target - sim_200_agent.cur_pos)*mv;
 
 		// 4. set attractor acceleration and radius
-		sim_200_agent->R = sim_200_R;
+		sim_200_agent.R = sim_200_R;
 
 		render_targets = true;
 
 		cout << "First attractor at: ("
-			 << sim_200_agent->target.x << ","
-			 << sim_200_agent->target.y << ","
-			 << sim_200_agent->target.z << ")" << endl;
+			 << sim_200_agent.target.x << ","
+			 << sim_200_agent.target.y << ","
+			 << sim_200_agent.target.z << ")" << endl;
 	}
 
 	void sim_200_exit() {
@@ -362,7 +359,6 @@ namespace study_cases {
 		if (sim_200_disk != nullptr) {
 			gluDeleteQuadric(sim_200_disk);
 		}
-		sim_200_agent = nullptr;
 	}
 
 	int sim_200_init(bool init_window) {
