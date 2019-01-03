@@ -295,7 +295,7 @@ void regular_grid::find_path(
 	[&](const latticePoint& cell) {
 		// distance to closest obstacle
 		double dist_closest = double(grid_cells[global_xy(cell.x(),cell.y())]);
-		return l2(cell, goal);
+		return 0.5*l2(cell, goal) - 2.0*dist_closest;
 	};
 
 	// array of neighbours of a lattice point
@@ -415,14 +415,9 @@ void regular_grid::find_path(
 		}
 	}
 
-	cout << "Path found!" << endl;
-
 	// make path from goal to start and reverse
 	latticePoint lp = goal;
 	while (lp != start) {
-
-		cout << "backtrack from: " << latpoint_out(lp) << endl;
-
 		path.push_back(from_latPoint_to_vec2(lp));
 		lp = parent[global_latpoint(lp)];
 	}
