@@ -12,7 +12,7 @@ namespace charanim {
 namespace sim_1xx {
 
 	// only agent in the simulation
-	extern physim::particles::agent_particle sim_1xx_agent;
+	extern physim::particles::agent_particle *sim_1xx_agent;
 
 	extern physim::math::vec3 sim_1xx_ini_pos;
 	extern physim::math::vec3 sim_1xx_ini_vel;
