@@ -49,11 +49,11 @@ namespace charanim {
 				glBegin(GL_LINES);
 					glVertex3f(
 						a.cur_pos.x,
-						a.cur_pos.y + a.R,
+						a.cur_pos.y + 1.5f*a.R,
 						a.cur_pos.z);
 					glVertex3f(
 						a.cur_pos.x + a.cur_vel.x,
-						a.cur_pos.y + a.cur_vel.y + a.R,
+						a.cur_pos.y + a.cur_vel.y + 1.5f*a.R,
 						a.cur_pos.z + a.cur_vel.z);
 				glEnd();
 

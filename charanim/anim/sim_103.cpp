@@ -322,7 +322,7 @@ namespace study_cases {
 		sim_1xx_arrival_weight = 5.0f;
 		sim_1xx_slowing_distance = 20.0f;
 		sim_1xx_coll_avoid_weight = 1.0f;
-		sim_1xx_ahead_distance = 15.0f;
+		sim_1xx_ahead_distance = 10.0f;
 
 		/* PARSE ARGUMENTS */
 		int arg_parse = sim_103_parse_arguments(_argc, _argv);
