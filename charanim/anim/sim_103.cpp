@@ -194,8 +194,6 @@ namespace study_cases {
 		V.set_window_dims(width, height);
 		V.init_cameras();
 
-		V.increment_theta(50.0f);
-
 		// add physical geometry
 		rrectangle *r = new rrectangle();
 		r->set_points(gvec3(0.0f, 0.0f, 25.0f), gvec3(40.0f, 0.0f, 25.0f),
@@ -360,6 +358,12 @@ namespace study_cases {
 			return 1;
 		}
 
+		success = load_characters({"../../characters"}, {"paladin.cfg"});
+		if (not success) {
+			cerr << "Error: error when loading characters" << endl;
+			return 1;
+		}
+
 		sim_103_init_simulation();
 
 		float zoomP = V.get_perspective_camera().get_zoom();
@@ -376,7 +380,6 @@ namespace study_cases {
 
 		sim_103_usage();
 		print_1xx_info();
-
 		return 0;
 	}
 

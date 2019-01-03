@@ -152,10 +152,6 @@ namespace study_cases {
 
 		V.set_window_dims(width, height);
 		V.init_cameras();
-
-		V.set_theta(0.0f);
-
-		V.increment_theta(50.0f);
 	}
 
 	int sim_101_parse_arguments(int argc, char *argv[]) {

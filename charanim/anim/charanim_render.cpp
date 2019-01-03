@@ -293,6 +293,11 @@ namespace charanim {
 
 		V.get_box().clear();
 		S.clear_simulation();
+
+		for (rendered_character& C : characters) {
+			C.clear_buffers();
+		}
+		characters.clear();
 	}
 
 	void special_keys_keyboard(int key, int x, int y) {
