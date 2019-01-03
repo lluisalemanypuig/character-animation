@@ -210,6 +210,7 @@ namespace study_cases {
 		sim_200_agent.cur_pos = vec3(5.0f,1.0f,5.0f);
 		sim_200_agent.max_speed = 0.5f;
 		sim_200_agent.max_force = 100.0f;
+		sim_200_agent.align_weight = 0.01f;
 		sim_200_agent.seek_weight = 5.0f;
 		sim_200_agent.arrival_weight = 5.0f;
 		sim_200_agent.slowing_distance = 20.0f;
@@ -338,6 +339,7 @@ namespace study_cases {
 		float mv = sim_200_agent.max_speed;
 		sim_200_agent.cur_vel =
 			normalise(sim_200_agent.target - sim_200_agent.cur_pos)*mv;
+		sim_200_agent.orientation = normalise(sim_200_agent.cur_vel);
 
 		// 4. set attractor acceleration and radius
 		sim_200_agent.R = sim_200_R;

@@ -74,7 +74,6 @@ namespace charanim {
 	extern shader flat_shader;
 	extern shader material_shader;
 	extern shader texture_shader;
-	extern shader character_shader;
 
 	/* render control */
 	extern bool render_base_spheres;

@@ -24,6 +24,7 @@ namespace sim_1xx {
 
 	float sim_1xx_max_speed;
 	float sim_1xx_max_force;
+	float sim_1xx_alignment_weight;
 	float sim_1xx_seek_weight;
 	float sim_1xx_flee_weight;
 	float sim_1xx_arrival_weight;
@@ -58,9 +59,10 @@ namespace sim_1xx {
 											 << sim_1xx_ini_vel.z << ")"
 											 << endl;
 		cout << "Behaviour parameters:" << endl;
-		cout << "    max speed:      " << sim_1xx_max_speed << endl;
-		cout << "    max force:      " << sim_1xx_max_force << endl;
-		cout << "    agent's weight: " << sim_1xx_mass << endl;
+		cout << "    max speed:        " << sim_1xx_max_speed << endl;
+		cout << "    max force:        " << sim_1xx_max_force << endl;
+		cout << "    alignment weight: " << sim_1xx_alignment_weight << endl;
+		cout << "    agent's weight:   " << sim_1xx_mass << endl;
 		cout << "    Behaviour: " << endl;
 
 		cout << "        Seek? " << (has_seek ? "Yes" : "No") << endl;

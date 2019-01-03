@@ -22,6 +22,7 @@ namespace sim_1xx {
 
 	extern float sim_1xx_max_speed;
 	extern float sim_1xx_max_force;
+	extern float sim_1xx_alignment_weight;
 	extern float sim_1xx_seek_weight;
 	extern float sim_1xx_flee_weight;
 	extern float sim_1xx_arrival_weight;

@@ -76,7 +76,6 @@ namespace study_cases {
 		glTranslatef(move_x, 0.0f, move_z);
 
 		render_agent_vectors();
-
 		base_render();
 
 		for (int i = 0; i < 100; ++i) {
@@ -141,7 +140,7 @@ namespace study_cases {
 
 		sim_1xx_agent->max_speed = sim_1xx_max_speed;
 		sim_1xx_agent->max_force = sim_1xx_max_force;
-
+		sim_1xx_agent->align_weight = sim_1xx_alignment_weight;
 		sim_1xx_agent->seek_weight = sim_1xx_seek_weight;
 		sim_1xx_agent->arrival_weight = sim_1xx_arrival_weight;
 		sim_1xx_agent->slowing_distance = sim_1xx_slowing_distance;
@@ -219,9 +218,6 @@ namespace study_cases {
 
 		sim_ball->load_textures();
 		sim_ball->make_buffers_materials_textures();
-		texture_shader.bind();
-		shader_helper::activate_materials_textures(*sim_ball, texture_shader);
-		texture_shader.release();
 	}
 
 	int sim_103_parse_arguments(int argc, char *argv[]) {
@@ -307,6 +303,7 @@ namespace study_cases {
 		render_targets = true;
 		render_velocity_vector = true;
 		render_target_vector = true;
+		render_orientation_vector = true;
 
 		sim_1xx_ini_pos = vec3(25.0f,0.0f,0.0f);
 		sim_1xx_ini_vel = vec3(0.5f, 0.0f, 0.5f);
@@ -316,6 +313,7 @@ namespace study_cases {
 
 		sim_1xx_max_speed = 0.5f;
 		sim_1xx_max_force = 100.0f;
+		sim_1xx_alignment_weight = 0.001f;
 		sim_1xx_seek_weight = 5.0f;
 		sim_1xx_arrival_weight = 5.0f;
 		sim_1xx_slowing_distance = 20.0f;
@@ -345,19 +343,18 @@ namespace study_cases {
 		}
 
 		glEnable(GL_DEPTH_TEST);
+
 		bool success;
 		success = load_shaders();
 		if (not success) {
 			cerr << "Error: error when loading shaders" << endl;
 			return 1;
 		}
-
 		success = load_sphere();
 		if (not success) {
 			cerr << "Error: error when loading sphere" << endl;
 			return 1;
 		}
-
 		success = load_characters({"../../characters"}, {"paladin.cfg"});
 		if (not success) {
 			cerr << "Error: error when loading characters" << endl;

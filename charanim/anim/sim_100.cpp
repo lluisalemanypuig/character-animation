@@ -68,7 +68,6 @@ namespace study_cases {
 		glTranslatef(move_x, 0.0f, move_z);
 
 		render_agent_vectors();
-
 		base_render();
 
 		glDisable(GL_LIGHTING);
@@ -108,7 +107,8 @@ namespace study_cases {
 		agent_particle dummy;
 		S.add_agent_particle(dummy);
 
-		// add agent particles
+		sim_1xx_agent = &S.get_agent_particle(0);
+
 		sim_1xx_agent->lifetime = 9999.0f; // immortal agent
 		sim_1xx_agent->R = 1.0f;
 
@@ -120,6 +120,7 @@ namespace study_cases {
 
 		sim_1xx_agent->max_speed = sim_1xx_max_speed;
 		sim_1xx_agent->max_force = sim_1xx_max_force;
+		sim_1xx_agent->align_weight = sim_1xx_alignment_weight;
 		sim_1xx_agent->seek_weight = sim_1xx_seek_weight;
 
 		sim_1xx_agent->mass = sim_1xx_mass;
@@ -203,8 +204,6 @@ namespace study_cases {
 
 	void sim_100_exit() {
 		exit_func();
-
-
 	}
 
 	int sim_100_init(bool init_window) {
@@ -244,6 +243,7 @@ namespace study_cases {
 
 		sim_1xx_max_speed = 0.5f;
 		sim_1xx_max_force = 100.0f;
+		sim_1xx_alignment_weight = 0.001f;
 		sim_1xx_seek_weight = 5.0f;
 		sim_1xx_mass = 60.0f;
 
@@ -270,6 +270,23 @@ namespace study_cases {
 
 		glEnable(GL_DEPTH_TEST);
 
+		bool success;
+		success = load_shaders();
+		if (not success) {
+			cerr << "Error: error when loading shaders" << endl;
+			return 1;
+		}
+		success = load_sphere();
+		if (not success) {
+			cerr << "Error: error when loading sphere" << endl;
+			return 1;
+		}
+		success = load_characters({"../../characters"}, {"paladin.cfg"});
+		if (not success) {
+			cerr << "Error: error when loading characters" << endl;
+			return 1;
+		}
+
 		float zoomP = V.get_perspective_camera().get_zoom();
 		float zoomC = V.get_orthogonal_camera().get_zoom();
 
@@ -283,19 +300,6 @@ namespace study_cases {
 		}
 
 		sim_100_init_simulation();
-
-		bool success;
-		success = load_shaders();
-		if (not success) {
-			cerr << "Error: error when loading shaders" << endl;
-			return 1;
-		}
-
-		success = load_sphere();
-		if (not success) {
-			cerr << "Error: error when loading sphere" << endl;
-			return 1;
-		}
 
 		sim_100_usage();
 		print_1xx_info();

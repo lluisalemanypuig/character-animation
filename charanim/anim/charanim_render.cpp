@@ -31,32 +31,10 @@ namespace charanim {
 	static const double PI_7_4 = 7.0/4.0*M_PI;
 	static const double PI_2_1 = 2.0*M_PI;
 
-	static inline
-	bool inside_window(int x, int y) {
-		int w = V.window_width();
-		int h = V.window_height();
-		return ((0 <= x) and (x <= w))
-		   and ((0 <= y) and (y <= h));
-	}
-
 	void render_agent_vectors() {
 		const vector<agent_particle>& as = S.get_agent_particles();
 		for (const agent_particle& a : as) {
 			if (render_velocity_vector) {
-				glLineWidth(2.0f);
-				glDisable(GL_LIGHTING);
-				glColor3f(0.0f,1.0f,0.0f);
-				glBegin(GL_LINES);
-					glVertex3f(
-						a.cur_pos.x,
-						a.cur_pos.y + 1.5f*a.R,
-						a.cur_pos.z);
-					glVertex3f(
-						a.cur_pos.x + a.cur_vel.x,
-						a.cur_pos.y + a.cur_vel.y + 1.5f*a.R,
-						a.cur_pos.z + a.cur_vel.z);
-				glEnd();
-
 				glLineWidth(2.0f);
 				glDisable(GL_LIGHTING);
 				glColor3f(1.0f,0.0f,1.0f);
@@ -90,9 +68,9 @@ namespace charanim {
 						a.cur_pos.y + 2.0f*a.R,
 						a.cur_pos.z);
 					glVertex3f(
-						a.cur_pos.x + 10.0f*a.orientation.x,
-						a.cur_pos.y + 10.0f*a.orientation.y + 2.0f*a.R,
-						a.cur_pos.z + 10.0f*a.orientation.z);
+						a.cur_pos.x + 5.0f*a.orientation.x,
+						a.cur_pos.y + 5.0f*a.orientation.y + 2.0f*a.R,
+						a.cur_pos.z + 5.0f*a.orientation.z);
 				glEnd();
 			}
 		}
@@ -108,8 +86,6 @@ namespace charanim {
 		glLineWidth(1.0f);
 
 		flat_shader.bind();
-		flat_shader.set_bool("wireframe", false);
-		flat_shader.set_vec4("colour", glm::vec4(0.0f,0.0f,1.0f,1.0f));
 		flat_shader.set_mat4("projection", projection);
 
 		/* render sized particles */
@@ -129,7 +105,6 @@ namespace charanim {
 				sphere->render();
 			}
 		}
-
 		/* render agent particles */
 		const vector<agent_particle>& as = S.get_agent_particles();
 		if (render_base_spheres and as.size() > 0) {
@@ -149,7 +124,6 @@ namespace charanim {
 				sphere->render();
 			}
 		}
-
 		/* render attractors of agent particles */
 		if (render_targets) {
 			flat_shader.set_vec4("colour", glm::vec4(1.0f,0.0f,0.0f,1.0f));
@@ -169,52 +143,53 @@ namespace charanim {
 		}
 		flat_shader.release();
 
+		/* render characters and other texturised models */
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+		texture_shader.bind();
+		texture_shader.set_mat4("projection", projection);
+		texture_shader.set_vec3("view_pos", glm::vec3(0.0f,0.0f,0.0f));
 		if (not render_base_spheres and as.size() > 0) {
+
+			texture_shader.set_vec4("light.diffuse", glm::vec4(0.5f, 0.5f, 0.5f, 1.0f));
+			texture_shader.set_vec4("light.specular", glm::vec4(0.1f, 0.1f, 0.1f, 1.0f));
+			texture_shader.set_vec4("light.ambient", glm::vec4(0.3f, 0.3f, 0.3f, 1.0f));
+			texture_shader.set_vec3("light.position", glm::vec3(1.0f, -1.0f, 1.0f));
+
 			float ninety = static_cast<float>(M_PI)/2.0f;
 
-			character_shader.bind();
-			character_shader.set_mat4("projection", projection);
 			for (size_t i = 0; i < as.size(); ++i) {
 				rendered_character& C = characters[i];
 				C.get_model()->update(0.01f);
 
-				shader_helper::activate_materials_textures(C, character_shader);
+				shader_helper::activate_materials_textures(C, texture_shader);
 
 				glm::mat4 model(1.0f);
 				model = glm::translate(model, to_gvec3(as[i].cur_pos));
 
-				vec2 pointy(0.0f, 1.0f);
+				// angle w.r.t. vector (0,1)
 				vec2 ori(as[i].orientation.x, as[i].orientation.z);
-				float angle = dot(pointy, ori)/(norm(ori)) - ninety;
+				float sign_x = std::signbit(ori.x) ? 1.0f : -1.0f;
+				float angle = sign_x*std::acos(ori.y/(norm(ori)));
+
 				model = glm::rotate(model, -angle, glm::vec3(0.0f, 1.0f, 0.0f));
 				model = glm::rotate(model, -ninety, glm::vec3(1.0f, 0.0f, 0.0f));
-				model = glm::scale(model, glm::vec3(0.1f, 0.1f, 0.1f));
+				model = glm::scale(model, glm::vec3(0.05f, 0.05f, 0.05f));
 
 				glm::mat4 modelview = view*model;
 				glm::mat3 normal_matrix = glm::inverseTranspose(glm::mat3(modelview));
 
-				character_shader.set_mat4("modelview", modelview);
-				character_shader.set_mat3("normal_matrix", normal_matrix);
+				texture_shader.set_mat4("modelview", modelview);
+				texture_shader.set_mat3("normal_matrix", normal_matrix);
 				C.flatten_data();
 				C.fill_buffers();
 				C.render();
 			}
-			character_shader.release();
 		}
 
-		/* draw walls and stuff */
-		glDisable(GL_LIGHTING);
-		for (const rgeom *r : geometry) {
-			if (r->get_model() == nullptr) {
-				r->draw_geometry();
-			}
-		}
-
-		glEnable(GL_LIGHTING);
-		texture_shader.bind();
-		texture_shader.set_vec3("view_pos", glm::vec3(0.0f,0.0f,0.0f));
-		texture_shader.set_mat4("projection", projection);
+		texture_shader.set_vec4("light.diffuse", glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+		texture_shader.set_vec4("light.specular", glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+		texture_shader.set_vec4("light.ambient", glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+		texture_shader.set_vec3("light.position", glm::vec3(1.0f, -1.0f, 1.0f));
 		for (const rgeom *r : geometry) {
 			if (r->get_model() != nullptr) {
 				glm::mat4 model(1.0f);
@@ -225,10 +200,20 @@ namespace charanim {
 
 				texture_shader.set_mat4("modelview", modelview);
 				texture_shader.set_mat3("normal_matrix", normal_matrix);
+
+				shader_helper::activate_materials_textures(*r->get_model(), texture_shader);
 				r->draw();
 			}
 		}
 		texture_shader.release();
+
+		/* draw walls and stuff */
+		glDisable(GL_LIGHTING);
+		for (const rgeom *r : geometry) {
+			if (r->get_model() == nullptr) {
+				r->draw_geometry();
+			}
+		}
 	}
 
 	void full_render() {

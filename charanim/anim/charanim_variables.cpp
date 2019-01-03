@@ -48,7 +48,6 @@ namespace charanim {
 	shader flat_shader;
 	shader material_shader;
 	shader texture_shader;
-	shader character_shader;
 
 	/* render control */
 	bool render_base_spheres = false;

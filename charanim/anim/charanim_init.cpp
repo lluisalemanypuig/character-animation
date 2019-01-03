@@ -35,27 +35,15 @@ namespace charanim {
 		r = texture_shader.init("../../charanim/shaders", "textures.vert", "textures.frag");
 		if (not r) { return false; }
 
-		r = character_shader.init("../../charanim/shaders", "character.vert", "character.frag");
-		if (not r) { return 1; }
-
 		flat_shader.bind();
 		flat_shader.set_vec3("view_pos", glm::vec3(0.0f,0.0f,0.0f));
+		flat_shader.set_bool("wireframe", false);
+		flat_shader.set_vec4("colour", glm::vec4(0.0f,0.0f,1.0f,1.0f));
 		flat_shader.release();
 
 		texture_shader.bind();
-		texture_shader.set_vec4("light.diffuse", glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
-		texture_shader.set_vec4("light.specular", glm::vec4(0.1f, 0.1f, 0.1f, 1.0f));
-		texture_shader.set_vec4("light.ambient", glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
-		texture_shader.set_vec3("light.position", glm::vec3(1.0f, -1.0f, 1.0f));
+		texture_shader.set_vec3("view_pos", glm::vec3(0.0f,0.0f,0.0f));
 		texture_shader.release();
-
-		character_shader.bind();
-		character_shader.set_vec4("light.diffuse", glm::vec4(0.5f, 0.5f, 0.5f, 1.0f));
-		character_shader.set_vec4("light.specular", glm::vec4(0.1f, 0.1f, 0.1f, 1.0f));
-		character_shader.set_vec4("light.ambient", glm::vec4(0.3f, 0.3f, 0.3f, 1.0f));
-		character_shader.set_vec3("light.position", glm::vec3(1.0f, -1.0f, 1.0f));
-		character_shader.set_vec3("view_pos", glm::vec3(0.0f,0.0f,0.0f));
-		character_shader.release();
 
 		return true;
 	}
