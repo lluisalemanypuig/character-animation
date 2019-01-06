@@ -295,7 +295,6 @@ namespace study_cases {
 		FPS = 60;
 		fps_count = 0;
 		display_fps = false;
-		sec = timing::now();
 
 		render_base_spheres = true;
 		render_grid = false;
@@ -400,6 +399,9 @@ namespace study_cases {
 			}
 			return;
 		}
+
+		sec = timing::now();
+		exe_time = timing::now();
 
 		atexit(sim_103_exit);
 		glutDisplayFunc(sim_103_render);

@@ -135,6 +135,10 @@ bool load_anims_meshes_materials
 		#endif
 
 		int id = core_model->loadCoreAnimation(anim_filename);
+
+		CalCoreAnimation *animation = core_model->getCoreAnimation(id);
+		cout << "Duration of " << id << ": " << animation->getDuration() << endl;
+
 		if (id == -1) {
 			CalError::printLastError();
 			return false;
@@ -229,7 +233,6 @@ bool make_model(
 	// set initial animation state
 	model->getMixer()->blendCycle(2, 0.2f, 0.0f);
 	model->getMixer()->blendCycle(6, 0.8f, 0.0f);
-
 	return true;
 }
 

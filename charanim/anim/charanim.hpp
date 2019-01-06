@@ -55,6 +55,7 @@ namespace charanim {
 	extern unsigned int fps_count;
 	extern bool display_fps;
 	extern timing::time_point sec;
+	extern timing::time_point exe_time;
 
 	/* RENDERISATION */
 

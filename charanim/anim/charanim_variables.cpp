@@ -29,6 +29,7 @@ namespace charanim {
 	unsigned int fps_count;
 	bool display_fps;
 	timing::time_point sec;
+	timing::time_point exe_time;
 
 	/* RENDERISATION */
 

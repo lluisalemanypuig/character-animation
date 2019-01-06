@@ -30,6 +30,7 @@ namespace charanim {
 	static const double PI_3_2 = 3.0/2.0*M_PI;
 	static const double PI_7_4 = 7.0/4.0*M_PI;
 	static const double PI_2_1 = 2.0*M_PI;
+	static const float ninety = static_cast<float>(PI_1_2);
 
 	void render_agent_vectors() {
 		const vector<agent_particle>& as = S.get_agent_particles();
@@ -77,71 +78,17 @@ namespace charanim {
 	}
 
 	void base_render() {
+		timing::time_point here = timing::now();
+		float elapsed = static_cast<float>(timing::elapsed_seconds(exe_time, here));
+		exe_time = timing::now();
+
 		glm::mat4 projection(1.0f), view(1.0f);
 		V.make_projection_matrix(projection);
 		V.make_view_matrix(view);
 		view = glm::translate(view, glm::vec3(move_x, 0.0f, move_z));
 
-		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-		glLineWidth(1.0f);
-
-		flat_shader.bind();
-		flat_shader.set_mat4("projection", projection);
-
-		/* render sized particles */
 		const vector<sized_particle>& ps = S.get_sized_particles();
-		if (render_base_spheres and ps.size() > 0) {
-			for (const sized_particle& p : ps) {
-				glm::mat4 model(1.0f);
-				model = glm::translate(model, to_gvec3(p.cur_pos));
-				float R = 2.0f*p.R;
-				model = glm::scale(model, glm::vec3(R, R, R));
-
-				glm::mat4 modelview = view*model;
-				glm::mat3 normal_matrix = glm::inverseTranspose(glm::mat3(modelview));
-
-				flat_shader.set_mat4("modelview", modelview);
-				flat_shader.set_mat3("normal_matrix", normal_matrix);
-				sphere->render();
-			}
-		}
-		/* render agent particles */
 		const vector<agent_particle>& as = S.get_agent_particles();
-		if (render_base_spheres and as.size() > 0) {
-			flat_shader.set_vec4("colour", glm::vec4(0.0f,0.0f,1.0f,1.0f));
-
-			for (const agent_particle& a : as) {
-				glm::mat4 model(1.0f);
-				model = glm::translate(model, to_gvec3(a.cur_pos));
-				float R = 2.0f*a.R;
-				model = glm::scale(model, glm::vec3(R, R, R));
-
-				glm::mat4 modelview = view*model;
-				glm::mat3 normal_matrix = glm::inverseTranspose(glm::mat3(modelview));
-
-				flat_shader.set_mat4("modelview", modelview);
-				flat_shader.set_mat3("normal_matrix", normal_matrix);
-				sphere->render();
-			}
-		}
-		/* render attractors of agent particles */
-		if (render_targets) {
-			flat_shader.set_vec4("colour", glm::vec4(1.0f,0.0f,0.0f,1.0f));
-			for (const agent_particle& a : as) {
-				const vec3& att = a.target;
-				glm::mat4 model(1.0f);
-				model = glm::translate(model, glm::vec3(att.x, att.y, att.z));
-				model = glm::scale(model, glm::vec3(3.0f, 3.0f, 3.0f));
-
-				glm::mat4 modelview = view*model;
-				glm::mat3 normal_matrix = glm::inverseTranspose(glm::mat3(modelview));
-
-				flat_shader.set_mat4("modelview", modelview);
-				flat_shader.set_mat3("normal_matrix", normal_matrix);
-				sphere->render();
-			}
-		}
-		flat_shader.release();
 
 		/* render characters and other texturised models */
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
@@ -155,11 +102,9 @@ namespace charanim {
 			texture_shader.set_vec4("light.ambient", glm::vec4(0.3f, 0.3f, 0.3f, 1.0f));
 			texture_shader.set_vec3("light.position", glm::vec3(1.0f, -1.0f, 1.0f));
 
-			float ninety = static_cast<float>(M_PI)/2.0f;
-
 			for (size_t i = 0; i < as.size(); ++i) {
 				rendered_character& C = characters[i];
-				C.get_model()->update(0.01f);
+				C.get_model()->update(elapsed);
 
 				shader_helper::activate_materials_textures(C, texture_shader);
 
@@ -214,6 +159,63 @@ namespace charanim {
 				r->draw_geometry();
 			}
 		}
+
+		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+		glLineWidth(1.0f);
+		flat_shader.bind();
+		flat_shader.set_mat4("projection", projection);
+		/* render sized particles */
+		if (render_base_spheres and ps.size() > 0) {
+			for (const sized_particle& p : ps) {
+				glm::mat4 model(1.0f);
+				model = glm::translate(model, to_gvec3(p.cur_pos));
+				float R = 2.0f*p.R;
+				model = glm::scale(model, glm::vec3(R, R, R));
+
+				glm::mat4 modelview = view*model;
+				glm::mat3 normal_matrix = glm::inverseTranspose(glm::mat3(modelview));
+
+				flat_shader.set_mat4("modelview", modelview);
+				flat_shader.set_mat3("normal_matrix", normal_matrix);
+				sphere->render();
+			}
+		}
+		/* render agent particles */
+		if (render_base_spheres and as.size() > 0) {
+			flat_shader.set_vec4("colour", glm::vec4(0.0f,0.0f,1.0f,1.0f));
+
+			for (const agent_particle& a : as) {
+				glm::mat4 model(1.0f);
+				model = glm::translate(model, to_gvec3(a.cur_pos));
+				float R = 2.0f*a.R;
+				model = glm::scale(model, glm::vec3(R, R, R));
+
+				glm::mat4 modelview = view*model;
+				glm::mat3 normal_matrix = glm::inverseTranspose(glm::mat3(modelview));
+
+				flat_shader.set_mat4("modelview", modelview);
+				flat_shader.set_mat3("normal_matrix", normal_matrix);
+				sphere->render();
+			}
+		}
+		/* render attractors of agent particles */
+		if (render_targets) {
+			flat_shader.set_vec4("colour", glm::vec4(1.0f,0.0f,0.0f,1.0f));
+			for (const agent_particle& a : as) {
+				const vec3& att = a.target;
+				glm::mat4 model(1.0f);
+				model = glm::translate(model, glm::vec3(att.x, att.y, att.z));
+				model = glm::scale(model, glm::vec3(3.0f, 3.0f, 3.0f));
+
+				glm::mat4 modelview = view*model;
+				glm::mat3 normal_matrix = glm::inverseTranspose(glm::mat3(modelview));
+
+				flat_shader.set_mat4("modelview", modelview);
+				flat_shader.set_mat3("normal_matrix", normal_matrix);
+				sphere->render();
+			}
+		}
+		flat_shader.release();
 	}
 
 	void full_render() {
@@ -388,9 +390,7 @@ namespace charanim {
 	}
 
 	/* render non-GLUT */
-
 	void render_regular_grid(const regular_grid *r) {
-
 		const float *cells = r->get_grid();
 		const size_t rX = r->get_resX();
 		const size_t rY = r->get_resY();

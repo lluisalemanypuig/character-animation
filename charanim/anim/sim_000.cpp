@@ -25,6 +25,7 @@ using namespace physim::geometric;
 #include <anim/vec_helper.hpp>
 #include <anim/terrain/terrain.hpp>
 #include <anim/terrain/regular_grid.hpp>
+#include <anim/utils/utils.hpp>
 
 #define input_2_points(p,q)					\
 	cout << "Input two points:" << endl;	\
@@ -259,7 +260,6 @@ namespace study_cases {
 		FPS = 60;
 		fps_count = 0;
 		display_fps = false;
-		sec = timing::now();
 
 		render_base_spheres = false;
 		render_grid = false;
@@ -406,6 +406,9 @@ namespace study_cases {
 			}
 			return;
 		}
+
+		sec = timing::now();
+		exe_time = timing::now();
 
 		atexit(sim_000_exit);
 		glutDisplayFunc(sim_000_render);
