@@ -24,9 +24,9 @@ namespace sim_1xx {
 	extern float sim_1xx_flee_weight;
 	extern float sim_1xx_arrival_weight;
 	extern float sim_1xx_slowing_distance;
-	extern float sim_1xx_coll_avoid_weight;
+	extern float sim_1xx_coll_weight;
 	extern float sim_1xx_collision_distance;
-	extern float sim_1xx_ucoll_avoid_weight;
+	extern float sim_1xx_ucoll_weight;
 	extern float sim_1xx_ucollision_distance;
 
 	extern size_t sim_1xx_path_it;

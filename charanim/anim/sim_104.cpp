@@ -118,8 +118,8 @@ namespace study_cases {
 		a1.bouncing = 1.0f;
 		a1.friction = 0.0f;
 
-		a1.target = vec3(0,0,49.5);
-		a1.cur_pos = vec3(0,0,0);
+		a1.target = vec3(0,0,50);
+		a1.cur_pos = vec3(-1,0,0);
 		a1.cur_vel = vec3(0,0,0.5);
 		a1.orientation = physim::math::normalise(a1.cur_vel);
 
@@ -129,7 +129,7 @@ namespace study_cases {
 		a1.seek_weight = sim_1xx_seek_weight;
 		a1.arrival_weight = sim_1xx_arrival_weight;
 		a1.slowing_distance = sim_1xx_slowing_distance;
-		a1.ucoll_avoid_weight = sim_1xx_ucoll_avoid_weight;
+		a1.ucoll_weight = sim_1xx_ucoll_weight;
 		a1.ucollision_distance = sim_1xx_ucollision_distance;
 
 		a1.unset_all_behaviours();
@@ -145,8 +145,8 @@ namespace study_cases {
 		a2.bouncing = 1.0f;
 		a2.friction = 0.0f;
 
-		a2.target = vec3(0,0,0.5);
-		a2.cur_pos = vec3(0,0,50);
+		a2.target = vec3(0,0,0);
+		a2.cur_pos = vec3(1,0,50);
 		a2.cur_vel = vec3(0,0,-0.5);
 		a2.orientation = physim::math::normalise(a2.cur_vel);
 
@@ -156,7 +156,7 @@ namespace study_cases {
 		a2.seek_weight = sim_1xx_seek_weight;
 		a2.arrival_weight = sim_1xx_arrival_weight;
 		a2.slowing_distance = sim_1xx_slowing_distance;
-		a2.ucoll_avoid_weight = sim_1xx_ucoll_avoid_weight;
+		a2.ucoll_weight = sim_1xx_ucoll_weight;
 		a2.ucollision_distance = sim_1xx_ucollision_distance;
 
 		a2.unset_all_behaviours();
@@ -231,7 +231,7 @@ namespace study_cases {
 				++i;
 			}
 			else if (strcmp(argv[i], "--ucoll-avoid") == 0) {
-				sim_1xx_coll_avoid_weight = atof(argv[i + 1]);
+				sim_1xx_coll_weight = atof(argv[i + 1]);
 				++i;
 			}
 			else if (strcmp(argv[i], "--ucoll-distance") == 0) {
@@ -287,11 +287,10 @@ namespace study_cases {
 		sim_1xx_max_speed = 0.5f;
 		sim_1xx_max_force = 100.0f;
 		sim_1xx_alignment_weight = 0.001f;
-		sim_1xx_seek_weight = 5.0f;
 		sim_1xx_arrival_weight = 5.0f;
 		sim_1xx_slowing_distance = 20.0f;
-		sim_1xx_coll_avoid_weight = 1.0f;
-		sim_1xx_collision_distance = 10.0f;
+		sim_1xx_ucoll_weight = 1.0f;
+		sim_1xx_ucollision_distance = 15.0f;
 
 		/* PARSE ARGUMENTS */
 		int arg_parse = sim_104_parse_arguments(_argc, _argv);
@@ -304,8 +303,10 @@ namespace study_cases {
 			glutInit(&_argc, _argv);
 			glutInitDisplayMode(GLUT_DEPTH | GLUT_DOUBLE | GLUT_RGBA);
 			glutInitWindowSize(width, height);
-			window_id =
-			glutCreateWindow("Character animation - Collision avoidance steering inspection");
+
+			string title =
+			"Character animation - Unaligned collision avoidance steering inspection";
+			window_id = glutCreateWindow(title.c_str());
 
 			GLenum err = glewInit();
 			if (err != 0) {

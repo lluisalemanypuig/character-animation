@@ -25,9 +25,9 @@ namespace sim_1xx {
 	float sim_1xx_flee_weight;
 	float sim_1xx_arrival_weight;
 	float sim_1xx_slowing_distance;
-	float sim_1xx_coll_avoid_weight;
+	float sim_1xx_coll_weight;
 	float sim_1xx_collision_distance;
-	float sim_1xx_ucoll_avoid_weight;
+	float sim_1xx_ucoll_weight;
 	float sim_1xx_ucollision_distance;
 
 	vector<vec3> sim_1xx_path;
@@ -87,7 +87,7 @@ namespace sim_1xx {
 			 << (has_coll_avoid ? "Yes" : "No") << endl;
 		if (has_coll_avoid) {
 			cout << "                collision avoidance weight: "
-				 << a.coll_avoid_weight << endl;
+				 << a.coll_weight << endl;
 			cout << "                ahead distance: "
 				 << a.collision_distance << endl;
 		}
@@ -96,7 +96,7 @@ namespace sim_1xx {
 			 << (has_ucoll_avoid ? "Yes" : "No") << endl;
 		if (has_ucoll_avoid) {
 			cout << "                unaligned collision avoidance weight: "
-				 << a.ucoll_avoid_weight << endl;
+				 << a.ucoll_weight << endl;
 			cout << "                ahead distance: "
 				 << a.ucollision_distance << endl;
 		}
