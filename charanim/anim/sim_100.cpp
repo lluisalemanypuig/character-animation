@@ -67,14 +67,20 @@ namespace study_cases {
 
 		glTranslatef(move_x, 0.0f, move_z);
 
-		render_agent_vectors();
 		base_render();
+		render_agent_vectors();
+
+		agent_particle& sim_1xx_agent = S.get_agent_particle(0);
 
 		glDisable(GL_LIGHTING);
 		glColor3f(1.0f,1.0f,1.0f);
 		glBegin(GL_LINES);
-			glVertex3f(sim_1xx_target.x, sim_1xx_target.y, sim_1xx_target.z);
-			glVertex3f(sim_1xx_ini_pos.x, sim_1xx_ini_pos.y, sim_1xx_ini_pos.z);
+			glVertex3f(sim_1xx_agent.target.x,
+					   sim_1xx_agent.target.y,
+					   sim_1xx_agent.target.z);
+			glVertex3f(sim_1xx_ini_pos.x,
+					   sim_1xx_ini_pos.y,
+					   sim_1xx_ini_pos.z);
 		glEnd();
 
 		for (int i = 0; i < 100; ++i) {
@@ -107,35 +113,33 @@ namespace study_cases {
 		agent_particle dummy;
 		S.add_agent_particle(dummy);
 
-		sim_1xx_agent = &S.get_agent_particle(0);
+		agent_particle& sim_1xx_agent = S.get_agent_particle(0);
 
-		sim_1xx_agent->lifetime = 9999.0f; // immortal agent
-		sim_1xx_agent->R = 1.0f;
+		sim_1xx_agent.lifetime = 9999.0f; // immortal agent
+		sim_1xx_agent.R = 1.0f;
 
-		sim_1xx_agent->target = sim_1xx_target;
+		sim_1xx_agent.target = sim_1xx_target;
 
-		sim_1xx_agent->cur_pos = sim_1xx_ini_pos;
-		sim_1xx_agent->cur_vel = sim_1xx_ini_vel;
-		sim_1xx_agent->orientation = physim::math::normalise(sim_1xx_ini_vel);
+		sim_1xx_agent.cur_pos = sim_1xx_ini_pos;
+		sim_1xx_agent.cur_vel = sim_1xx_ini_vel;
+		sim_1xx_agent.orientation = physim::math::normalise(sim_1xx_ini_vel);
 
-		sim_1xx_agent->max_speed = sim_1xx_max_speed;
-		sim_1xx_agent->max_force = sim_1xx_max_force;
-		sim_1xx_agent->align_weight = sim_1xx_alignment_weight;
-		sim_1xx_agent->seek_weight = sim_1xx_seek_weight;
+		sim_1xx_agent.max_speed = sim_1xx_max_speed;
+		sim_1xx_agent.max_force = sim_1xx_max_force;
+		sim_1xx_agent.align_weight = sim_1xx_alignment_weight;
+		sim_1xx_agent.seek_weight = sim_1xx_seek_weight;
 
-		sim_1xx_agent->mass = sim_1xx_mass;
-		sim_1xx_agent->bouncing = 1.0f;
-		sim_1xx_agent->friction = 0.0f;
+		sim_1xx_agent.mass = sim_1xx_mass;
+		sim_1xx_agent.bouncing = 1.0f;
+		sim_1xx_agent.friction = 0.0f;
 
-		sim_1xx_agent->unset_all_behaviours();
-		sim_1xx_agent->set_behaviour(agent_behaviour_type::seek);
+		sim_1xx_agent.unset_all_behaviours();
+		sim_1xx_agent.set_behaviour(agent_behaviour_type::seek);
 
 		S.set_time_step(0.001f);
 	}
 
 	void sim_100_init_geometry() {
-		// add the geometry read from the map
-
 		rplane *rp = new rplane();
 		rp->set_points(
 			gvec3(-25.0f, -2.0f, -25.0f), gvec3(-25.0f, -2.0f,  25.0f),
@@ -301,7 +305,7 @@ namespace study_cases {
 		sim_100_init_simulation();
 
 		sim_100_usage();
-		print_1xx_info();
+		print_1xx_info(S.get_agent_particle(0));
 
 		return 0;
 	}

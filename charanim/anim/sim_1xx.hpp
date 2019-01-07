@@ -8,11 +8,8 @@
 #include <physim/math/vec3.hpp>
 
 namespace charanim {
-/// Variables and functions for simulations 1xx
+/// Variables and functions for simulations 10x
 namespace sim_1xx {
-
-	// only agent in the simulation
-	extern physim::particles::agent_particle *sim_1xx_agent;
 
 	extern physim::math::vec3 sim_1xx_ini_pos;
 	extern physim::math::vec3 sim_1xx_ini_vel;
@@ -28,12 +25,14 @@ namespace sim_1xx {
 	extern float sim_1xx_arrival_weight;
 	extern float sim_1xx_slowing_distance;
 	extern float sim_1xx_coll_avoid_weight;
-	extern float sim_1xx_ahead_distance;
+	extern float sim_1xx_collision_distance;
+	extern float sim_1xx_ucoll_avoid_weight;
+	extern float sim_1xx_ucollision_distance;
 
 	extern size_t sim_1xx_path_it;
 	extern std::vector<physim::math::vec3> sim_1xx_path;
 
-	void print_1xx_info();
+	void print_1xx_info(const physim::particles::agent_particle& a);
 
 } // -- namespace sim_1xx
 } // -- namespace charanim

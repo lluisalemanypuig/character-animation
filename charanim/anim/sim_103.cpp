@@ -50,7 +50,7 @@ namespace study_cases {
 		cout << "    --max-speed" << endl;
 		cout << "    --max-force" << endl;
 		cout << "    --coll-avoid" << endl;
-		cout << "    --ahead-distance" << endl;
+		cout << "    --coll-distance" << endl;
 		cout << endl;
 		cout << "Keyboard keys:" << endl;
 		cout << "    h: show the usage." << endl;
@@ -75,20 +75,22 @@ namespace study_cases {
 
 		glTranslatef(move_x, 0.0f, move_z);
 
-		render_agent_vectors();
 		base_render();
+		render_agent_vectors();
 
 		for (int i = 0; i < 100; ++i) {
 			S.simulate_agent_particles();
 		}
 
+		agent_particle& sim_1xx_agent = S.get_agent_particle(0);
+
 		if (sim_1xx_path_it < sim_1xx_path.size() - 1) {
-			if (dist(sim_1xx_agent->cur_pos, sim_1xx_agent->target) <= 2.5f) {
+			if (dist(sim_1xx_agent.cur_pos, sim_1xx_agent.target) <= 2.5f) {
 				++sim_1xx_path_it;
-				sim_1xx_agent->target = sim_1xx_path[sim_1xx_path_it];
+				sim_1xx_agent.target = sim_1xx_path[sim_1xx_path_it];
 				if (sim_1xx_path_it == sim_1xx_path.size() - 1) {
-					sim_1xx_agent->unset_behaviour(agent_behaviour_type::seek);
-					sim_1xx_agent->set_behaviour(agent_behaviour_type::arrival);
+					sim_1xx_agent.unset_behaviour(agent_behaviour_type::seek);
+					sim_1xx_agent.set_behaviour(agent_behaviour_type::arrival);
 				}
 			}
 		}
@@ -119,7 +121,7 @@ namespace study_cases {
 		agent_particle dummy;
 		S.add_agent_particle(dummy);
 
-		sim_1xx_agent = &S.get_agent_particle(0);
+		agent_particle& sim_1xx_agent = S.get_agent_particle(0);
 		
 		sim_1xx_path.clear();
 		sim_1xx_path = { vec3(25.0f, 0.0f, 12.0f),
@@ -128,32 +130,32 @@ namespace study_cases {
 
 		// add agent particles
 		
-		sim_1xx_agent->lifetime = 9999.0f; // immortal agent
-		sim_1xx_agent->R = 0.5f;
+		sim_1xx_agent.lifetime = 9999.0f; // immortal agent
+		sim_1xx_agent.R = 0.5f;
 
 		sim_1xx_path_it = 0;
-		sim_1xx_agent->target = sim_1xx_path[sim_1xx_path_it];
+		sim_1xx_agent.target = sim_1xx_path[sim_1xx_path_it];
 
-		sim_1xx_agent->cur_pos = sim_1xx_ini_pos;
-		sim_1xx_agent->cur_vel = sim_1xx_ini_vel;
-		sim_1xx_agent->orientation = physim::math::normalise(sim_1xx_ini_vel);
+		sim_1xx_agent.cur_pos = sim_1xx_ini_pos;
+		sim_1xx_agent.cur_vel = sim_1xx_ini_vel;
+		sim_1xx_agent.orientation = physim::math::normalise(sim_1xx_ini_vel);
 
-		sim_1xx_agent->max_speed = sim_1xx_max_speed;
-		sim_1xx_agent->max_force = sim_1xx_max_force;
-		sim_1xx_agent->align_weight = sim_1xx_alignment_weight;
-		sim_1xx_agent->seek_weight = sim_1xx_seek_weight;
-		sim_1xx_agent->arrival_weight = sim_1xx_arrival_weight;
-		sim_1xx_agent->slowing_distance = sim_1xx_slowing_distance;
-		sim_1xx_agent->coll_avoid_weight = sim_1xx_coll_avoid_weight;
-		sim_1xx_agent->ahead_distance = sim_1xx_ahead_distance;
+		sim_1xx_agent.max_speed = sim_1xx_max_speed;
+		sim_1xx_agent.max_force = sim_1xx_max_force;
+		sim_1xx_agent.align_weight = sim_1xx_alignment_weight;
+		sim_1xx_agent.seek_weight = sim_1xx_seek_weight;
+		sim_1xx_agent.arrival_weight = sim_1xx_arrival_weight;
+		sim_1xx_agent.slowing_distance = sim_1xx_slowing_distance;
+		sim_1xx_agent.coll_avoid_weight = sim_1xx_coll_avoid_weight;
+		sim_1xx_agent.collision_distance = sim_1xx_collision_distance;
 
-		sim_1xx_agent->mass = sim_1xx_mass;
-		sim_1xx_agent->bouncing = 1.0f;
-		sim_1xx_agent->friction = 0.0f;
+		sim_1xx_agent.mass = sim_1xx_mass;
+		sim_1xx_agent.bouncing = 1.0f;
+		sim_1xx_agent.friction = 0.0f;
 
-		sim_1xx_agent->unset_all_behaviours();
-		sim_1xx_agent->set_behaviour(agent_behaviour_type::seek);
-		sim_1xx_agent->set_behaviour(agent_behaviour_type::collision_avoidance);
+		sim_1xx_agent.unset_all_behaviours();
+		sim_1xx_agent.set_behaviour(agent_behaviour_type::seek);
+		sim_1xx_agent.set_behaviour(agent_behaviour_type::collision_avoidance);
 
 		S.set_time_step(0.001f);
 
@@ -174,8 +176,6 @@ namespace study_cases {
 	}
 
 	void sim_103_init_geometry() {
-		// add the geometry read from the map
-
 		rplane *rp = new rplane();
 		rp->set_points(
 			gvec3(0.0f,  -2.0f, 0.0f),  gvec3(0.0f, -2.0f, 50.0f),
@@ -260,8 +260,8 @@ namespace study_cases {
 				sim_1xx_coll_avoid_weight = atof(argv[i + 1]);
 				++i;
 			}
-			else if (strcmp(argv[i], "--ahead-distance") == 0) {
-				sim_1xx_ahead_distance = atof(argv[i + 1]);
+			else if (strcmp(argv[i], "--coll-distance") == 0) {
+				sim_1xx_collision_distance = atof(argv[i + 1]);
 				++i;
 			}
 		}
@@ -317,7 +317,7 @@ namespace study_cases {
 		sim_1xx_arrival_weight = 5.0f;
 		sim_1xx_slowing_distance = 20.0f;
 		sim_1xx_coll_avoid_weight = 1.0f;
-		sim_1xx_ahead_distance = 10.0f;
+		sim_1xx_collision_distance = 10.0f;
 
 		/* PARSE ARGUMENTS */
 		int arg_parse = sim_103_parse_arguments(_argc, _argv);
@@ -375,7 +375,7 @@ namespace study_cases {
 		}
 
 		sim_103_usage();
-		print_1xx_info();
+		print_1xx_info(S.get_agent_particle(0));
 		return 0;
 	}
 

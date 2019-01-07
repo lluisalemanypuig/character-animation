@@ -14,6 +14,7 @@ namespace study_cases {
 	void sim_101(int argc, char *argv[]);
 	void sim_102(int argc, char *argv[]);
 	void sim_103(int argc, char *argv[]);
+	void sim_104(int argc, char *argv[]);
 
 	void sim_200(int argc, char *argv[]);
 
@@ -26,10 +27,12 @@ void list_all_cases() {
 	cout << endl;
 	cout << "    * 000 : visualise any map passed as parameter." << endl;
 	cout << "            Find a path in this map." << endl;
-	cout << "    * 100 : Visualise seek steering behaviour." << endl;
-	cout << "    * 101 : Visualise flee steering behaviour." << endl;
-	cout << "    * 102 : Visualise arrival steering behaviour." << endl;
-	cout << "    * 103 : Visualise obstacle avoidance and seek steering behaviours."
+	cout << "    * 100 : validation of seek steering behaviour." << endl;
+	cout << "    * 101 : validation of flee steering behaviour." << endl;
+	cout << "    * 102 : validation of arrival steering behaviour." << endl;
+	cout << "    * 103 : validation of obstacle avoidance and seek steering behaviours."
+		<< endl;
+	cout << "    * 104 : validation of unaligned obstacle avoidance between two agents."
 		<< endl;
 	cout << "    * 200 : visualise any map passed as parameter." << endl;
 	cout << "            Make an agent follow a path." << endl;
@@ -65,6 +68,9 @@ int main(int argc, char *argv[]) {
 	}
 	else if (strcmp(argv[1], "103") == 0) {
 		charanim::study_cases::sim_103(argc, argv);
+	}
+	else if (strcmp(argv[1], "104") == 0) {
+		charanim::study_cases::sim_104(argc, argv);
 	}
 	else if (strcmp(argv[1], "200") == 0) {
 		charanim::study_cases::sim_200(argc, argv);
