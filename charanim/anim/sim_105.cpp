@@ -39,7 +39,7 @@ using namespace sim_1xx;
 
 namespace study_cases {
 
-	void sim_104_usage() {
+	void sim_105_usage() {
 		cout << "Simulation 103: validation of collision avoidance behaviour" << endl;
 		cout << endl;
 		cout << "This simulated uses a 'pre-computed' path" << endl;
@@ -60,7 +60,7 @@ namespace study_cases {
 		cout << endl;
 	}
 
-	void sim_104_render() {
+	void sim_105_render() {
 		glClearColor(bgd_color.x, bgd_color.y, bgd_color.z, 1.0);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -87,8 +87,8 @@ namespace study_cases {
 		}
 	}
 
-	void sim_104_timed_refresh(int v) {
-		sim_104_render();
+	void sim_105_timed_refresh(int v) {
+		sim_105_render();
 
 		++fps_count;
 		timing::time_point here = timing::now();
@@ -101,73 +101,60 @@ namespace study_cases {
 			sec = timing::now();
 		}
 
-		glutTimerFunc(1000/FPS, sim_104_timed_refresh, v);
+		glutTimerFunc(1000/FPS, sim_105_timed_refresh, v);
 	}
 
-	void sim_104_init_simulation() {
+	void sim_105_init_agent(agent_particle& a) {
+		a.lifetime = 9999.0f; // immortal agent
+		a.R = 1.0f;
+		a.mass = 60.0f;
+		a.bouncing = 1.0f;
+		a.friction = 0.0f;
+		a.orientation = physim::math::normalise(a.cur_vel);
+
+		a.max_speed = 0.5f;
+		a.max_force = 5.0f;
+		a.align_weight = 0.001f;
+		a.seek_weight = sim_1xx_seek_weight;
+		a.arrival_weight = sim_1xx_arrival_weight;
+		a.slowing_distance = sim_1xx_slowing_distance;
+		a.ucoll_weight = sim_1xx_ucoll_weight;
+		a.ucollision_distance = sim_1xx_ucollision_distance;
+
+		a.unset_all_behaviours();
+		a.set_behaviour(agent_behaviour_type::arrival);
+		a.set_behaviour(agent_behaviour_type::unaligned_collision_avoidance);
+	}
+
+	void sim_105_init_simulation() {
 		agent_particle dummy;
 		S.add_agent_particle(dummy);
 		S.add_agent_particle(dummy);
+		S.add_agent_particle(dummy);
+		S.add_agent_particle(dummy);
+		S.add_agent_particle(dummy);
+		S.add_agent_particle(dummy);
 
-		// agent 1
+		vector<vec3> targets	= {vec3(5,0,50), vec3(0,0,50), vec3(-5,0,50),
+								   vec3(5,0,0),  vec3(0,0,0),  vec3(-5,0,0)};
+		vector<vec3> positions	= {vec3(-5,0,0),    vec3(0,0,0),  vec3(5,0,0),
+								   vec3(-5.5,0,50), vec3(1,0,50), vec3(5.5,0,50)};
+		vector<vec3> velocities	= {vec3(0.5,0,0.5),  vec3(0,0,1),  vec3(-0.5,0,0.5),
+								   vec3(0.5,0,-0.5), vec3(0,0,-1), vec3(-0.5,0,-0.5)};
 
-		agent_particle& a1 = S.get_agent_particle(0);
-		a1.lifetime = 9999.0f; // immortal agent
-		a1.R = 1.0f;
-		a1.mass = 60.0f;
-		a1.bouncing = 1.0f;
-		a1.friction = 0.0f;
-
-		a1.target = vec3(0,0,50);
-		a1.cur_pos = vec3(-1,0,0);
-		a1.cur_vel = vec3(0,0,0.5);
-		a1.orientation = physim::math::normalise(a1.cur_vel);
-
-		a1.max_speed = 0.5f;
-		a1.max_force = 5.0f;
-		a1.align_weight = 0.001f;
-		a1.seek_weight = sim_1xx_seek_weight;
-		a1.arrival_weight = sim_1xx_arrival_weight;
-		a1.slowing_distance = sim_1xx_slowing_distance;
-		a1.ucoll_weight = sim_1xx_ucoll_weight;
-		a1.ucollision_distance = sim_1xx_ucollision_distance;
-
-		a1.unset_all_behaviours();
-		a1.set_behaviour(agent_behaviour_type::arrival);
-		a1.set_behaviour(agent_behaviour_type::unaligned_collision_avoidance);
-
-		// agent 2
-
-		agent_particle& a2 = S.get_agent_particle(1);
-		a2.lifetime = 9999.0f; // immortal agent
-		a2.R = 1.0f;
-		a2.mass = 60.0f;
-		a2.bouncing = 1.0f;
-		a2.friction = 0.0f;
-
-		a2.target = vec3(0,0,0);
-		a2.cur_pos = vec3(1,0,50);
-		a2.cur_vel = vec3(0,0,-0.5);
-		a2.orientation = physim::math::normalise(a2.cur_vel);
-
-		a2.max_speed = 0.5f;
-		a2.max_force = 5.0f;
-		a2.align_weight = 0.001f;
-		a2.seek_weight = sim_1xx_seek_weight;
-		a2.arrival_weight = sim_1xx_arrival_weight;
-		a2.slowing_distance = sim_1xx_slowing_distance;
-		a2.ucoll_weight = sim_1xx_ucoll_weight;
-		a2.ucollision_distance = sim_1xx_ucollision_distance;
-
-		a2.unset_all_behaviours();
-		a2.set_behaviour(agent_behaviour_type::arrival);
-		a2.set_behaviour(agent_behaviour_type::unaligned_collision_avoidance);
+		for (size_t i = 0; i < S.n_agent_particles(); ++i) {
+			agent_particle& a = S.get_agent_particle(i);
+			a.target = targets[i];
+			a.cur_pos = positions[i];
+			a.cur_vel = velocities[i];
+			sim_105_init_agent(a);
+		}
 
 		S.set_particle_particle_collisions(true);
 		S.set_time_step(0.001f);
 	}
 
-	void sim_104_init_geometry() {
+	void sim_105_init_geometry() {
 		rplane *rp = new rplane();
 		rp->set_points(
 			gvec3(-25.0f, -2.0f, -5.0f), gvec3(-25.0f, -2.0f, 55.0f),
@@ -186,14 +173,14 @@ namespace study_cases {
 		V.init_cameras();
 	}
 
-	int sim_104_parse_arguments(int argc, char *argv[]) {
+	int sim_105_parse_arguments(int argc, char *argv[]) {
 		string map_file = "none";
 
 		float x,y,z;
 
 		for (int i = 1; i < argc; ++i) {
 			if (strcmp(argv[i], "--help") == 0) {
-				sim_104_usage();
+				sim_105_usage();
 				return 2;
 			}
 			else if (strcmp(argv[i], "--max-speed") == 0) {
@@ -229,11 +216,11 @@ namespace study_cases {
 		return 0;
 	}
 
-	void sim_104_exit() {
+	void sim_105_exit() {
 		exit_func();
 	}
 
-	int sim_104_init(bool init_window) {
+	int sim_105_init(bool init_window) {
 		width = 640;
 		height = 480;
 
@@ -279,7 +266,7 @@ namespace study_cases {
 		sim_1xx_ucollision_distance = 15.0f;
 
 		/* PARSE ARGUMENTS */
-		int arg_parse = sim_104_parse_arguments(_argc, _argv);
+		int arg_parse = sim_105_parse_arguments(_argc, _argv);
 		if (arg_parse != 0) {
 			return arg_parse;
 		}
@@ -291,7 +278,7 @@ namespace study_cases {
 			glutInitWindowSize(width, height);
 
 			string title =
-			"Character animation - Unaligned collision avoidance steering inspection 1";
+			"Character animation - Unaligned collision avoidance steering inspection 2";
 			window_id = glutCreateWindow(title.c_str());
 
 			GLenum err = glewInit();
@@ -315,21 +302,24 @@ namespace study_cases {
 			cerr << "Error: error when loading sphere" << endl;
 			return 1;
 		}
+
+		string dir = "../../characters";
 		success = load_characters(
-			{"../../characters", "../../characters"},
-			{"paladin.cfg", "paladin.cfg"}
+			{dir, dir, dir, dir, dir, dir},
+			{"paladin.cfg", "cally.cfg", "skeleton.cfg",
+			 "paladin.cfg", "cally.cfg", "skeleton.cfg"}
 		);
 		if (not success) {
 			cerr << "Error: error when loading characters" << endl;
 			return 1;
 		}
 
-		sim_104_init_simulation();
+		sim_105_init_simulation();
 
 		float zoomP = V.get_perspective_camera().get_zoom();
 		float zoomC = V.get_orthogonal_camera().get_zoom();
 
-		sim_104_init_geometry();
+		sim_105_init_geometry();
 
 		if (not init_window) {
 			V.get_perspective_camera().set_zoom(zoomP);
@@ -338,27 +328,27 @@ namespace study_cases {
 			move_z = _move_z;
 		}
 
-		sim_104_usage();
+		sim_105_usage();
 		for (const agent_particle& a : S.get_agent_particles()) {
 			print_1xx_info(a);
 		}
 		return 0;
 	}
 
-	void sim_104_regular_keys_keyboard(unsigned char c, int x, int y) {
+	void sim_105_regular_keys_keyboard(unsigned char c, int x, int y) {
 		charanim::regular_keys_keyboard(c, x, y);
 		switch (c) {
-		case 'h': sim_104_usage(); break;
-		case 'r': sim_104_exit(); sim_104_init(false); break;
+		case 'h': sim_105_usage(); break;
+		case 'r': sim_105_exit(); sim_105_init(false); break;
 		case 'a': render_target_vector = not render_target_vector; break;
 		case 'v': render_velocity_vector = not render_velocity_vector; break;
 		}
 	}
 
-	void sim_104(int argc, char *argv[]) {
+	void sim_105(int argc, char *argv[]) {
 		_argc = argc;
 		_argv = argv;
-		int r = sim_104_init(true);
+		int r = sim_105_init(true);
 		if (r != 0) {
 			if (r == 1) {
 				cerr << "Error in initialisation of simulation 00" << endl;
@@ -369,16 +359,16 @@ namespace study_cases {
 		sec = timing::now();
 		exe_time = timing::now();
 
-		atexit(sim_104_exit);
-		glutDisplayFunc(sim_104_render);
+		atexit(sim_105_exit);
+		glutDisplayFunc(sim_105_render);
 		glutReshapeFunc(charanim::resize);
 		glutMouseFunc(charanim::mouse_click);
 		glutPassiveMotionFunc(charanim::mouse_passive);
 		glutMotionFunc(charanim::mouse_drag);
 		glutSpecialFunc(charanim::special_keys_keyboard);
-		glutKeyboardFunc(sim_104_regular_keys_keyboard);
+		glutKeyboardFunc(sim_105_regular_keys_keyboard);
 
-		glutTimerFunc(1030.0f/charanim::FPS, sim_104_timed_refresh, 0);
+		glutTimerFunc(1030.0f/charanim::FPS, sim_105_timed_refresh, 0);
 
 		glutMainLoop();
 	}
