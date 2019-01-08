@@ -50,6 +50,8 @@ namespace study_cases {
 		cout << "    r: reset simulation." << endl;
 		cout << "    v: render velocity vector" << endl;
 		cout << "    a: render attractor vector" << endl;
+		cout << "    s: render wireframe spheres" << endl;
+		cout << "    b: run simulation" << endl;
 		cout << endl;
 	}
 

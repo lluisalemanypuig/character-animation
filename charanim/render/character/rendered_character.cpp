@@ -33,12 +33,16 @@ void rendered_character::clear_buffer(uint& buf_id) {
 
 rendered_character::rendered_character() {
 	core_model = nullptr;
+	model = nullptr;
 
-	VAO = VBO_verts = VBO_normals = VBO_tex_coords = EBO = 0;
+	VAO = VBO_verts = VBO_normals = VBO_tex_coords = 0;
+	IBO_mats = IBO_texs = 0;
+	EBO = 0;
 }
 
 rendered_character::~rendered_character() {
 	core_model = nullptr;
+	model = nullptr;
 
 	clear_buffers();
 }

@@ -40,9 +40,7 @@ using namespace sim_1xx;
 namespace study_cases {
 
 	void sim_105_usage() {
-		cout << "Simulation 103: validation of collision avoidance behaviour" << endl;
-		cout << endl;
-		cout << "This simulated uses a 'pre-computed' path" << endl;
+		cout << "Simulation 104: validation of unaligned collision avoidance behaviour" << endl;
 		cout << endl;
 		cout << "Parameters:" << endl;
 		cout << "    --help" << endl;
@@ -57,6 +55,8 @@ namespace study_cases {
 		cout << "    r: reset simulation." << endl;
 		cout << "    v: render velocity vector" << endl;
 		cout << "    a: render attractor vector" << endl;
+		cout << "    s: render wireframe spheres" << endl;
+		cout << "    b: run simulation" << endl;
 		cout << endl;
 	}
 
@@ -114,14 +114,13 @@ namespace study_cases {
 		a.friction = 0.0f;
 		a.orientation = physim::math::normalise(a.cur_vel);
 
-		a.max_speed = 1.0f;
-		a.max_force = 5.0f;
-		a.align_weight = 0.001f;
-		a.seek_weight = sim_1xx_seek_weight;
+		a.max_speed = sim_1xx_max_speed;
+		a.max_force = sim_1xx_max_force;
+		a.align_weight = sim_1xx_alignment_weight;
 		a.arrival_weight = sim_1xx_arrival_weight;
 		a.arrival_distance = sim_1xx_arrival_distance;
 		a.ucoll_weight = sim_1xx_ucoll_weight;
-		a.ucoll_distance = sim_1xx_ucollision_distance;
+		a.ucoll_distance = sim_1xx_ucoll_distance;
 
 		a.unset_all_behaviours();
 		a.set_behaviour(agent_behaviour_type::arrival);
@@ -129,14 +128,6 @@ namespace study_cases {
 	}
 
 	void sim_105_init_simulation() {
-		agent_particle dummy;
-		S.add_agent_particle(dummy);
-		S.add_agent_particle(dummy);
-		S.add_agent_particle(dummy);
-		S.add_agent_particle(dummy);
-		S.add_agent_particle(dummy);
-		S.add_agent_particle(dummy);
-
 		vector<vec3> targets	= {vec3(5,0,50), vec3(0,0,50), vec3(-5,0,50),
 								   vec3(5,0,0),  vec3(0,0,0),  vec3(-5,0,0)};
 		vector<vec3> positions	= {vec3(-5,0,0),    vec3(0,0,0),  vec3(5,0,0),
@@ -144,11 +135,12 @@ namespace study_cases {
 		vector<vec3> velocities	= {vec3(1,0,0.5),  vec3(0,0,1),  vec3(-0.2f,0,0.5),
 								   vec3(0.9f,0,-0.3f), vec3(0,0,-1), vec3(-0.4f,0,-0.67f)};
 
-		for (size_t i = 0; i < S.n_agent_particles(); ++i) {
-			agent_particle& a = S.get_agent_particle(i);
-			a.target = targets[i];
-			a.cur_pos = positions[i];
-			a.cur_vel = velocities[i];
+		for (size_t i = 0; i < 6; ++i) {
+			size_t idx = S.add_agent_particle();
+			agent_particle& a = S.get_agent_particle(idx);
+			a.target = targets[idx];
+			a.cur_pos = positions[idx];
+			a.cur_vel = velocities[idx];
 			sim_105_init_agent(a);
 		}
 
@@ -193,24 +185,20 @@ namespace study_cases {
 				sim_1xx_max_force = atof(argv[i + 1]);
 				++i;
 			}
-			else if (strcmp(argv[i], "--seek-weight") == 0) {
-				sim_1xx_seek_weight = atof(argv[i + 1]);
-				++i;
-			}
 			else if (strcmp(argv[i], "--arrival-weight") == 0) {
 				sim_1xx_arrival_weight = atof(argv[i + 1]);
 				++i;
 			}
-			else if (strcmp(argv[i], "--slow-dist") == 0) {
+			else if (strcmp(argv[i], "--arrival-dist") == 0) {
 				sim_1xx_arrival_distance = atof(argv[i + 1]);
 				++i;
 			}
 			else if (strcmp(argv[i], "--ucoll-avoid") == 0) {
-				sim_1xx_coll_weight = atof(argv[i + 1]);
+				sim_1xx_ucoll_weight = atof(argv[i + 1]);
 				++i;
 			}
 			else if (strcmp(argv[i], "--ucoll-distance") == 0) {
-				sim_1xx_collision_distance = atof(argv[i + 1]);
+				sim_1xx_ucoll_distance = atof(argv[i + 1]);
 				++i;
 			}
 		}
@@ -259,13 +247,13 @@ namespace study_cases {
 
 		sim_1xx_mass = 60.0f;
 
-		sim_1xx_max_speed = 0.5f;
+		sim_1xx_max_speed = 1.0f;
 		sim_1xx_max_force = 100.0f;
 		sim_1xx_alignment_weight = 0.001f;
 		sim_1xx_arrival_weight = 5.0f;
 		sim_1xx_arrival_distance = 20.0f;
 		sim_1xx_ucoll_weight = 1.5f;
-		sim_1xx_ucollision_distance = 15.0f;
+		sim_1xx_ucoll_distance = 20.0f;
 
 		/* PARSE ARGUMENTS */
 		int arg_parse = sim_105_parse_arguments(_argc, _argv);

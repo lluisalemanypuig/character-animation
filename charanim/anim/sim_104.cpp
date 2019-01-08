@@ -57,6 +57,8 @@ namespace study_cases {
 		cout << "    r: reset simulation." << endl;
 		cout << "    v: render velocity vector" << endl;
 		cout << "    a: render attractor vector" << endl;
+		cout << "    s: render wireframe spheres" << endl;
+		cout << "    b: run simulation" << endl;
 		cout << endl;
 	}
 
@@ -132,7 +134,7 @@ namespace study_cases {
 		a1.arrival_weight = sim_1xx_arrival_weight;
 		a1.arrival_distance = sim_1xx_arrival_distance;
 		a1.ucoll_weight = sim_1xx_ucoll_weight;
-		a1.ucoll_distance = sim_1xx_ucollision_distance;
+		a1.ucoll_distance = sim_1xx_ucoll_distance;
 
 		a1.unset_all_behaviours();
 		a1.set_behaviour(agent_behaviour_type::arrival);
@@ -159,7 +161,7 @@ namespace study_cases {
 		a2.arrival_weight = sim_1xx_arrival_weight;
 		a2.arrival_distance = sim_1xx_arrival_distance;
 		a2.ucoll_weight = sim_1xx_ucoll_weight;
-		a2.ucoll_distance = sim_1xx_ucollision_distance;
+		a2.ucoll_distance = sim_1xx_ucoll_distance;
 
 		a2.unset_all_behaviours();
 		a2.set_behaviour(agent_behaviour_type::arrival);
@@ -278,7 +280,7 @@ namespace study_cases {
 		sim_1xx_arrival_weight = 5.0f;
 		sim_1xx_arrival_distance = 20.0f;
 		sim_1xx_ucoll_weight = 1.0f;
-		sim_1xx_ucollision_distance = 15.0f;
+		sim_1xx_ucoll_distance = 15.0f;
 
 		/* PARSE ARGUMENTS */
 		int arg_parse = sim_104_parse_arguments(_argc, _argv);
