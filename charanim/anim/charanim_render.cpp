@@ -218,49 +218,6 @@ namespace charanim {
 		flat_shader.release();
 	}
 
-	void full_render() {
-		glClearColor(bgd_color.x, bgd_color.y, bgd_color.z, 1.0);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-		// no shader for all
-		glMatrixMode(GL_PROJECTION);
-		glLoadIdentity();
-		V.apply_projection();
-
-		glMatrixMode(GL_MODELVIEW);
-		glLoadIdentity();
-		V.apply_view();
-
-		glTranslatef(move_x, 0.0f, move_z);
-
-		base_render();
-
-		for (int i = 0; i < 10; ++i) {
-			S.apply_time_step();
-		}
-
-		if (window_id != -1) {
-			glutSwapBuffers();
-		}
-	}
-
-	void timed_refresh(int v) {
-		full_render();
-
-		++fps_count;
-		timing::time_point here = timing::now();
-		double elapsed = timing::elapsed_seconds(sec, here);
-		if (elapsed >= 1.0) {
-			if (display_fps) {
-				cout << "fps= " << fps_count << " (" << FPS << ")" << endl;
-			}
-			fps_count = 0;
-			sec = timing::now();
-		}
-
-		glutTimerFunc(1000.0f/FPS, timed_refresh, v);
-	}
-
 	void exit_func() {
 		if (sphere != nullptr) {
 			sphere->clear();
@@ -302,6 +259,8 @@ namespace charanim {
 		case 's':
 			render_base_spheres = not render_base_spheres;
 			break;
+		case 'b':
+			run = not run; break;
 		}
 	}
 

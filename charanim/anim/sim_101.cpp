@@ -83,8 +83,10 @@ namespace study_cases {
 					   sim_1xx_ini_pos.z);
 		glEnd();
 
-		for (int i = 0; i < 100; ++i) {
-			S.simulate_agent_particles();
+		if (run) {
+			for (int i = 0; i < 100; ++i) {
+				S.simulate_agent_particles();
+			}
 		}
 
 		if (window_id != -1) {

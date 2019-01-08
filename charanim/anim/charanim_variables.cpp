@@ -30,6 +30,7 @@ namespace charanim {
 	bool display_fps;
 	timing::time_point sec;
 	timing::time_point exe_time;
+	bool run = false;
 
 	/* RENDERISATION */
 

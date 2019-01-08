@@ -24,7 +24,7 @@ namespace sim_1xx {
 	float sim_1xx_seek_weight;
 	float sim_1xx_flee_weight;
 	float sim_1xx_arrival_weight;
-	float sim_1xx_slowing_distance;
+	float sim_1xx_arrival_distance;
 	float sim_1xx_coll_weight;
 	float sim_1xx_collision_distance;
 	float sim_1xx_ucoll_weight;
@@ -80,7 +80,7 @@ namespace sim_1xx {
 		if (has_arrival) {
 			cout
 			 << "                arrival weight:    " << a.arrival_weight << endl
-			 << "                slowing distance:  " << a.slowing_distance << endl;
+			 << "                arrival distance:  " << a.arrival_distance << endl;
 		}
 
 		cout << "            Collision avoidance? "
@@ -89,7 +89,7 @@ namespace sim_1xx {
 			cout << "                collision avoidance weight: "
 				 << a.coll_weight << endl;
 			cout << "                ahead distance: "
-				 << a.collision_distance << endl;
+				 << a.coll_distance << endl;
 		}
 
 		cout << "            Unaligned collision avoidance? "
@@ -98,7 +98,7 @@ namespace sim_1xx {
 			cout << "                unaligned collision avoidance weight: "
 				 << a.ucoll_weight << endl;
 			cout << "                ahead distance: "
-				 << a.ucollision_distance << endl;
+				 << a.ucoll_distance << endl;
 		}
 	}
 

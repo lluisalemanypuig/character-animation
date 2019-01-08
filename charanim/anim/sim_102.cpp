@@ -84,8 +84,10 @@ namespace study_cases {
 					   sim_1xx_ini_pos.z);
 		glEnd();
 
-		for (int i = 0; i < 100; ++i) {
-			S.simulate_agent_particles();
+		if (run) {
+			for (int i = 0; i < 100; ++i) {
+				S.simulate_agent_particles();
+			}
 		}
 
 		if (window_id != -1) {
@@ -129,7 +131,7 @@ namespace study_cases {
 		sim_1xx_agent.max_force = sim_1xx_max_force;
 		sim_1xx_agent.align_weight = sim_1xx_alignment_weight;
 		sim_1xx_agent.arrival_weight = sim_1xx_arrival_weight;
-		sim_1xx_agent.slowing_distance = sim_1xx_slowing_distance;
+		sim_1xx_agent.arrival_distance = sim_1xx_arrival_distance;
 
 		sim_1xx_agent.mass = sim_1xx_mass;
 		sim_1xx_agent.bouncing = 1.0f;
@@ -196,7 +198,7 @@ namespace study_cases {
 				++i;
 			}
 			else if (strcmp(argv[i], "--slow-dist") == 0) {
-				sim_1xx_slowing_distance = atof(argv[i + 1]);
+				sim_1xx_arrival_distance = atof(argv[i + 1]);
 				++i;
 			}
 			else if (strcmp(argv[i], "--max-speed") == 0) {
@@ -257,7 +259,7 @@ namespace study_cases {
 		sim_1xx_max_force = 100.0f;
 		sim_1xx_alignment_weight = 0.001f;
 		sim_1xx_arrival_weight = 5.0f;
-		sim_1xx_slowing_distance = 20.0f;
+		sim_1xx_arrival_distance = 20.0f;
 		sim_1xx_mass = 60.0f;
 
 		/* PARSE ARGUMENTS */

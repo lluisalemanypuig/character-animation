@@ -78,8 +78,10 @@ namespace study_cases {
 		base_render();
 		render_agent_vectors();
 
-		for (int i = 0; i < 100; ++i) {
-			S.simulate_agent_particles();
+		if (run) {
+			for (int i = 0; i < 100; ++i) {
+				S.simulate_agent_particles();
+			}
 		}
 
 		if (window_id != -1) {
@@ -128,9 +130,9 @@ namespace study_cases {
 		a1.align_weight = 0.001f;
 		a1.seek_weight = sim_1xx_seek_weight;
 		a1.arrival_weight = sim_1xx_arrival_weight;
-		a1.slowing_distance = sim_1xx_slowing_distance;
+		a1.arrival_distance = sim_1xx_arrival_distance;
 		a1.ucoll_weight = sim_1xx_ucoll_weight;
-		a1.ucollision_distance = sim_1xx_ucollision_distance;
+		a1.ucoll_distance = sim_1xx_ucollision_distance;
 
 		a1.unset_all_behaviours();
 		a1.set_behaviour(agent_behaviour_type::arrival);
@@ -155,9 +157,9 @@ namespace study_cases {
 		a2.align_weight = 0.001f;
 		a2.seek_weight = sim_1xx_seek_weight;
 		a2.arrival_weight = sim_1xx_arrival_weight;
-		a2.slowing_distance = sim_1xx_slowing_distance;
+		a2.arrival_distance = sim_1xx_arrival_distance;
 		a2.ucoll_weight = sim_1xx_ucoll_weight;
-		a2.ucollision_distance = sim_1xx_ucollision_distance;
+		a2.ucoll_distance = sim_1xx_ucollision_distance;
 
 		a2.unset_all_behaviours();
 		a2.set_behaviour(agent_behaviour_type::arrival);
@@ -213,7 +215,7 @@ namespace study_cases {
 				++i;
 			}
 			else if (strcmp(argv[i], "--slow-dist") == 0) {
-				sim_1xx_slowing_distance = atof(argv[i + 1]);
+				sim_1xx_arrival_distance = atof(argv[i + 1]);
 				++i;
 			}
 			else if (strcmp(argv[i], "--ucoll-avoid") == 0) {
@@ -274,7 +276,7 @@ namespace study_cases {
 		sim_1xx_max_force = 100.0f;
 		sim_1xx_alignment_weight = 0.001f;
 		sim_1xx_arrival_weight = 5.0f;
-		sim_1xx_slowing_distance = 20.0f;
+		sim_1xx_arrival_distance = 20.0f;
 		sim_1xx_ucoll_weight = 1.0f;
 		sim_1xx_ucollision_distance = 15.0f;
 
@@ -317,7 +319,7 @@ namespace study_cases {
 		}
 		success = load_characters(
 			{"../../characters", "../../characters"},
-			{"paladin.cfg", "paladin.cfg"}
+			{"paladin.cfg", "cally.cfg"}
 		);
 		if (not success) {
 			cerr << "Error: error when loading characters" << endl;

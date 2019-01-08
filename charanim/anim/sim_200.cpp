@@ -213,9 +213,9 @@ namespace study_cases {
 		sim_200_agent.align_weight = 0.01f;
 		sim_200_agent.seek_weight = 5.0f;
 		sim_200_agent.arrival_weight = 5.0f;
-		sim_200_agent.slowing_distance = 20.0f;
+		sim_200_agent.arrival_distance = 20.0f;
 		sim_200_agent.coll_weight = 0.5f;
-		sim_200_agent.collision_distance = 5.0f;
+		sim_200_agent.coll_distance = 5.0f;
 		sim_200_agent.mass = 60.0f;
 		sim_200_agent.set_behaviour(agent_behaviour_type::seek);
 		sim_200_agent.set_behaviour(agent_behaviour_type::collision_avoidance);

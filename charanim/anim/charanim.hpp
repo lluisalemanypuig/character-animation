@@ -56,6 +56,7 @@ namespace charanim {
 	extern bool display_fps;
 	extern timing::time_point sec;
 	extern timing::time_point exe_time;
+	extern bool run;
 
 	/* RENDERISATION */
 
@@ -98,8 +99,6 @@ namespace charanim {
 	/* rendering functions */
 	void render_agent_vectors();
 	void base_render();
-	void full_render();
-	void timed_refresh(int v);
 	void exit_func();
 	void special_keys_keyboard(int key, int x, int y);
 	void regular_keys_keyboard(unsigned char c, int x, int y);

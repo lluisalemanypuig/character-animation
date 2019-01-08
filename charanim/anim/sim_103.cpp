@@ -78,20 +78,21 @@ namespace study_cases {
 		base_render();
 		render_agent_vectors();
 
-		for (int i = 0; i < 100; ++i) {
-			S.simulate_agent_particles();
-		}
-
-		agent_particle& sim_1xx_agent = S.get_agent_particle(0);
-
-		if (sim_1xx_path_it < sim_1xx_path.size() - 1) {
-			if (dist(sim_1xx_agent.cur_pos, sim_1xx_agent.target) <= 2.5f) {
-				++sim_1xx_path_it;
-				sim_1xx_agent.target = sim_1xx_path[sim_1xx_path_it];
-				if (sim_1xx_path_it == sim_1xx_path.size() - 1) {
-					sim_1xx_agent.unset_behaviour(agent_behaviour_type::seek);
-					sim_1xx_agent.set_behaviour(agent_behaviour_type::arrival);
+		if (run) {
+			agent_particle& sim_1xx_agent = S.get_agent_particle(0);
+			if (sim_1xx_path_it < sim_1xx_path.size() - 1) {
+				if (dist(sim_1xx_agent.cur_pos, sim_1xx_agent.target) <= 2.5f) {
+					++sim_1xx_path_it;
+					sim_1xx_agent.target = sim_1xx_path[sim_1xx_path_it];
+					if (sim_1xx_path_it == sim_1xx_path.size() - 1) {
+						sim_1xx_agent.unset_behaviour(agent_behaviour_type::seek);
+						sim_1xx_agent.set_behaviour(agent_behaviour_type::arrival);
+					}
 				}
+			}
+
+			for (int i = 0; i < 100; ++i) {
+				S.simulate_agent_particles();
 			}
 		}
 
@@ -145,9 +146,9 @@ namespace study_cases {
 		sim_1xx_agent.align_weight = sim_1xx_alignment_weight;
 		sim_1xx_agent.seek_weight = sim_1xx_seek_weight;
 		sim_1xx_agent.arrival_weight = sim_1xx_arrival_weight;
-		sim_1xx_agent.slowing_distance = sim_1xx_slowing_distance;
+		sim_1xx_agent.arrival_distance = sim_1xx_arrival_distance;
 		sim_1xx_agent.coll_weight = sim_1xx_coll_weight;
-		sim_1xx_agent.collision_distance = sim_1xx_collision_distance;
+		sim_1xx_agent.coll_distance = sim_1xx_collision_distance;
 
 		sim_1xx_agent.mass = sim_1xx_mass;
 		sim_1xx_agent.bouncing = 1.0f;
@@ -315,7 +316,7 @@ namespace study_cases {
 		sim_1xx_alignment_weight = 0.001f;
 		sim_1xx_seek_weight = 5.0f;
 		sim_1xx_arrival_weight = 5.0f;
-		sim_1xx_slowing_distance = 20.0f;
+		sim_1xx_arrival_distance = 20.0f;
 		sim_1xx_coll_weight = 1.0f;
 		sim_1xx_collision_distance = 10.0f;
 
