@@ -132,8 +132,8 @@ namespace study_cases {
 								   vec3(5,0,0),  vec3(0,0,0),  vec3(-5,0,0)};
 		vector<vec3> positions	= {vec3(-5,0,0),    vec3(0,0,0),  vec3(5,0,0),
 								   vec3(-5.5,0,50), vec3(1,0,50), vec3(5.5,0,50)};
-		vector<vec3> velocities	= {vec3(1,0,0.5),  vec3(0,0,1),  vec3(-0.2f,0,0.5),
-								   vec3(0.9f,0,-0.3f), vec3(0,0,-1), vec3(-0.4f,0,-0.67f)};
+		vector<vec3> velocities	= {vec3(0.7f,0,0.5f),  vec3(0,0, 1.2f), vec3(-0.2f,0,0.5),
+								   vec3(0.9f,0,-0.3f), vec3(0,0,-1.0f), vec3(-0.4f,0,-0.67f)};
 
 		for (size_t i = 0; i < 6; ++i) {
 			size_t idx = S.add_agent_particle();
@@ -253,7 +253,7 @@ namespace study_cases {
 		sim_1xx_arrival_weight = 5.0f;
 		sim_1xx_arrival_distance = 20.0f;
 		sim_1xx_ucoll_weight = 1.5f;
-		sim_1xx_ucoll_distance = 20.0f;
+		sim_1xx_ucoll_distance = 10.0f;
 
 		/* PARSE ARGUMENTS */
 		int arg_parse = sim_105_parse_arguments(_argc, _argv);
