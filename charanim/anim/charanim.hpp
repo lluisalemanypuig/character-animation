@@ -57,6 +57,8 @@ namespace charanim {
 	extern timing::time_point sec;
 	extern timing::time_point exe_time;
 	extern bool run;
+	extern bool record;
+	extern size_t record_counter;
 
 	/* RENDERISATION */
 
@@ -96,6 +98,8 @@ namespace charanim {
 	// Load characters for sized and agent particles
 	bool load_characters(const vector<string>& dirs, const vector<string>& names);
 
+	/* recording functions */
+	void record_screen();
 	/* rendering functions */
 	void render_agent_vectors();
 	void base_render();

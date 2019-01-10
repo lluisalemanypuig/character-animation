@@ -181,6 +181,9 @@ namespace study_cases {
 		}
 
 		if (window_id != -1) {
+			if (record) {
+				record_screen();
+			}
 			glutSwapBuffers();
 		}
 	}

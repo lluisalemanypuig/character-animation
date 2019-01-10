@@ -85,6 +85,9 @@ namespace study_cases {
 		}
 
 		if (window_id != -1) {
+			if (record) {
+				record_screen();
+			}
 			glutSwapBuffers();
 		}
 	}
@@ -253,7 +256,7 @@ namespace study_cases {
 		sim_1xx_arrival_weight = 5.0f;
 		sim_1xx_arrival_distance = 20.0f;
 		sim_1xx_ucoll_weight = 1.5f;
-		sim_1xx_ucoll_distance = 10.0f;
+		sim_1xx_ucoll_distance = 15.0f;
 
 		/* PARSE ARGUMENTS */
 		int arg_parse = sim_105_parse_arguments(_argc, _argv);

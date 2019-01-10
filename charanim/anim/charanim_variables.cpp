@@ -31,6 +31,8 @@ namespace charanim {
 	timing::time_point sec;
 	timing::time_point exe_time;
 	bool run = false;
+	bool record = false;
+	size_t record_counter = 0;
 
 	/* RENDERISATION */
 
