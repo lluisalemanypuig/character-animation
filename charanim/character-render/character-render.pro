@@ -35,6 +35,9 @@ unix {
     exists(/usr/include/cal3d) {
         LIBS += -lcal3d
     }
+	exists(/usr/local/include/cal3d) {
+		LIBS += -lcal3d
+	}
     else {
         LIBS += -L../../../cal3d/lib64/ -lcal3d
         INCLUDEPATH += -I ../../../cal3d/include
