@@ -50,7 +50,7 @@ namespace study_cases {
 		cout << "    --seek-weight" << endl;
 		cout << "    --max-speed" << endl;
 		cout << "    --max-force" << endl;
-		cout << "    --coll-avoid" << endl;
+		cout << "    --coll-weight" << endl;
 		cout << "    --coll-distance" << endl;
 		cout << endl;
 		cout << "Keyboard keys:" << endl;
@@ -263,7 +263,7 @@ namespace study_cases {
 				sim_1xx_max_force = atof(argv[i + 1]);
 				++i;
 			}
-			else if (strcmp(argv[i], "--coll-avoid") == 0) {
+			else if (strcmp(argv[i], "--coll-weight") == 0) {
 				sim_1xx_coll_weight = atof(argv[i + 1]);
 				++i;
 			}
@@ -393,9 +393,6 @@ namespace study_cases {
 		switch (c) {
 		case 'h': sim_103_usage(); break;
 		case 'r': sim_103_exit(); sim_103_init(false); break;
-		case 'a': render_target_vector = not render_target_vector; break;
-		case 'v': render_velocity_vector = not render_velocity_vector; break;
-		case 'o': render_orientation_vector = not render_orientation_vector; break;
 		}
 	}
 

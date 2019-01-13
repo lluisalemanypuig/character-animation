@@ -42,7 +42,7 @@ namespace study_cases {
 		cout << "    --pos" << endl;
 		cout << "    --vel" << endl;
 		cout << "    --arrival-weight" << endl;
-		cout << "    --slow-dist" << endl;
+		cout << "    --arrival-dist" << endl;
 		cout << "    --max-speed" << endl;
 		cout << "    --max-force" << endl;
 		cout << endl;
@@ -203,7 +203,7 @@ namespace study_cases {
 				sim_1xx_arrival_weight = atof(argv[i + 1]);
 				++i;
 			}
-			else if (strcmp(argv[i], "--slow-dist") == 0) {
+			else if (strcmp(argv[i], "--arrival-dist") == 0) {
 				sim_1xx_arrival_distance = atof(argv[i + 1]);
 				++i;
 			}
@@ -335,9 +335,6 @@ namespace study_cases {
 		switch (c) {
 		case 'h': sim_102_usage(); break;
 		case 'r': sim_102_exit(); sim_102_init(false); break;
-		case 'a': render_target_vector = not render_target_vector; break;
-		case 'v': render_velocity_vector = not render_velocity_vector; break;
-		case 'o': render_orientation_vector = not render_orientation_vector; break;
 		}
 	}
 

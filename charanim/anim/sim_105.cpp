@@ -41,14 +41,14 @@ using namespace sim_1xx;
 namespace study_cases {
 
 	void sim_105_usage() {
-		cout << "Simulation 104: validation of unaligned collision avoidance behaviour" << endl;
+		cout << "Simulation 105: validation of unaligned collision avoidance behaviour" << endl;
 		cout << endl;
 		cout << "Parameters:" << endl;
 		cout << "    --help" << endl;
 		cout << "    --seek-weight" << endl;
 		cout << "    --max-speed" << endl;
 		cout << "    --max-force" << endl;
-		cout << "    --ucoll-avoid" << endl;
+		cout << "    --ucoll-weight" << endl;
 		cout << "    --ucoll-distance" << endl;
 		cout << endl;
 		cout << "Keyboard keys:" << endl;
@@ -56,6 +56,7 @@ namespace study_cases {
 		cout << "    r: reset simulation." << endl;
 		cout << "    v: render velocity vector" << endl;
 		cout << "    a: render attractor vector" << endl;
+		cout << "    o: render orientation vector" << endl;
 		cout << "    s: render wireframe spheres" << endl;
 		cout << "    b: run simulation" << endl;
 		cout << endl;
@@ -197,7 +198,7 @@ namespace study_cases {
 				sim_1xx_arrival_distance = atof(argv[i + 1]);
 				++i;
 			}
-			else if (strcmp(argv[i], "--ucoll-avoid") == 0) {
+			else if (strcmp(argv[i], "--ucoll-weight") == 0) {
 				sim_1xx_ucoll_weight = atof(argv[i + 1]);
 				++i;
 			}
@@ -256,8 +257,8 @@ namespace study_cases {
 		sim_1xx_alignment_weight = 0.001f;
 		sim_1xx_arrival_weight = 5.0f;
 		sim_1xx_arrival_distance = 20.0f;
-		sim_1xx_ucoll_weight = 1.5f;
-		sim_1xx_ucoll_distance = 15.0f;
+		sim_1xx_ucoll_weight = 7.5f;
+		sim_1xx_ucoll_distance = 2.5f;
 
 		/* PARSE ARGUMENTS */
 		int arg_parse = sim_105_parse_arguments(_argc, _argv);
@@ -338,8 +339,6 @@ namespace study_cases {
 		switch (c) {
 		case 'h': sim_105_usage(); break;
 		case 'r': sim_105_exit(); sim_105_init(false); break;
-		case 'a': render_target_vector = not render_target_vector; break;
-		case 'v': render_velocity_vector = not render_velocity_vector; break;
 		}
 	}
 

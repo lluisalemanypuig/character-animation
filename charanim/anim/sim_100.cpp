@@ -325,9 +325,6 @@ namespace study_cases {
 		switch (c) {
 		case 'h': sim_100_usage(); break;
 		case 'r': sim_100_exit(); sim_100_init(false); break;
-		case 'a': render_target_vector = not render_target_vector; break;
-		case 'v': render_velocity_vector = not render_velocity_vector; break;
-		case 'o': render_orientation_vector = not render_orientation_vector; break;
 		}
 	}
 

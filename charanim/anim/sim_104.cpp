@@ -41,7 +41,7 @@ using namespace sim_1xx;
 namespace study_cases {
 
 	void sim_104_usage() {
-		cout << "Simulation 103: validation of collision avoidance behaviour" << endl;
+		cout << "Simulation 104: validation of collision avoidance behaviour" << endl;
 		cout << endl;
 		cout << "This simulated uses a 'pre-computed' path" << endl;
 		cout << endl;
@@ -50,7 +50,7 @@ namespace study_cases {
 		cout << "    --seek-weight" << endl;
 		cout << "    --max-speed" << endl;
 		cout << "    --max-force" << endl;
-		cout << "    --ucoll-avoid" << endl;
+		cout << "    --ucoll-weight" << endl;
 		cout << "    --ucoll-distance" << endl;
 		cout << endl;
 		cout << "Keyboard keys:" << endl;
@@ -220,11 +220,11 @@ namespace study_cases {
 				sim_1xx_arrival_weight = atof(argv[i + 1]);
 				++i;
 			}
-			else if (strcmp(argv[i], "--slow-dist") == 0) {
+			else if (strcmp(argv[i], "--arrival-dist") == 0) {
 				sim_1xx_arrival_distance = atof(argv[i + 1]);
 				++i;
 			}
-			else if (strcmp(argv[i], "--ucoll-avoid") == 0) {
+			else if (strcmp(argv[i], "--ucoll-weight") == 0) {
 				sim_1xx_coll_weight = atof(argv[i + 1]);
 				++i;
 			}
@@ -333,6 +333,8 @@ namespace study_cases {
 		}
 		characters[0].set_anim_weight(2, 0.2f, 0.0f);
 		characters[0].set_anim_weight(6, 0.8f, 0.0f);
+		characters[1].set_anim_weight(2, 0.2f, 0.0f);
+		characters[1].set_anim_weight(6, 0.8f, 0.0f);
 
 		sim_104_init_simulation();
 
@@ -360,9 +362,6 @@ namespace study_cases {
 		switch (c) {
 		case 'h': sim_104_usage(); break;
 		case 'r': sim_104_exit(); sim_104_init(false); break;
-		case 'a': render_target_vector = not render_target_vector; break;
-		case 'v': render_velocity_vector = not render_velocity_vector; break;
-		case 'o': render_orientation_vector = not render_orientation_vector; break;
 		}
 	}
 
