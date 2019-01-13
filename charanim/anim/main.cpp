@@ -16,6 +16,7 @@ namespace study_cases {
 	void sim_103(int argc, char *argv[]);
 	void sim_104(int argc, char *argv[]);
 	void sim_105(int argc, char *argv[]);
+	void sim_106(int argc, char *argv[]);
 
 	void sim_200(int argc, char *argv[]);
 
@@ -36,6 +37,8 @@ void list_all_cases() {
 	cout << "    * 104 : validation of unaligned obstacle avoidance between two agents."
 		<< endl;
 	cout << "    * 105 : validation of unaligned obstacle avoidance between several agents."
+		<< endl;
+	cout << "    * 106 : validation of 'walk off with' behaviour between several agents."
 		<< endl;
 	cout << "    * 200 : visualise any map passed as parameter." << endl;
 	cout << "            Make an agent follow a path." << endl;
@@ -77,6 +80,9 @@ int main(int argc, char *argv[]) {
 	}
 	else if (strcmp(argv[1], "105") == 0) {
 		charanim::study_cases::sim_105(argc, argv);
+	}
+	else if (strcmp(argv[1], "106") == 0) {
+		charanim::study_cases::sim_106(argc, argv);
 	}
 	else if (strcmp(argv[1], "200") == 0) {
 		charanim::study_cases::sim_200(argc, argv);

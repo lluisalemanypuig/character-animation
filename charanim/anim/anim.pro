@@ -87,4 +87,5 @@ SOURCES += main.cpp \
     sim_200.cpp \
     sim_104.cpp \
     sim_1xx.cpp \
-    sim_105.cpp
+    sim_105.cpp \
+    sim_106.cpp

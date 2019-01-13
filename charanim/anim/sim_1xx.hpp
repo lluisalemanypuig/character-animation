@@ -28,6 +28,8 @@ namespace sim_1xx {
 	extern float sim_1xx_collision_distance;
 	extern float sim_1xx_ucoll_weight;
 	extern float sim_1xx_ucoll_distance;
+	extern float sim_1xx_wow_weight;
+	extern float sim_1xx_wow_distance;
 
 	extern size_t sim_1xx_path_it;
 	extern std::vector<physim::math::vec3> sim_1xx_path;
