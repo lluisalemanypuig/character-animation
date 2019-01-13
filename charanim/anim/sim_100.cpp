@@ -297,6 +297,8 @@ namespace study_cases {
 			cerr << "Error: error when loading characters" << endl;
 			return 1;
 		}
+		characters[0].set_anim_weight(2, 0.2f, 0.0f);
+		characters[0].set_anim_weight(6, 0.8f, 0.0f);
 
 		float zoomP = V.get_perspective_camera().get_zoom();
 		float zoomC = V.get_orthogonal_camera().get_zoom();

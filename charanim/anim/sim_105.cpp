@@ -307,6 +307,10 @@ namespace study_cases {
 			cerr << "Error: error when loading characters" << endl;
 			return 1;
 		}
+		for (size_t i = 0; i < 6; ++i) {
+			characters[i].set_anim_weight(2, 0.2f, 0.0f);
+			characters[i].set_anim_weight(6, 0.8f, 0.0f);
+		}
 
 		sim_105_init_simulation();
 
