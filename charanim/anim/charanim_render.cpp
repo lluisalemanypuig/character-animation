@@ -374,8 +374,8 @@ namespace charanim {
 		glEnd();
 
 		if (render_grid) {
-			glBegin(GL_LINES);
 			glColor3f(0.7f, 0.7f, 0.7f);
+			glBegin(GL_LINES);
 			for (size_t x = 0; x < rX; ++x) {
 				for (size_t y = 0; y < rY; ++y) {
 					glVertex3f(x*lX, 0.2f, 0.0f);

@@ -149,6 +149,7 @@ namespace study_cases {
 		base_render();
 
 		glDisable(GL_LIGHTING);
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
 		// render path finder (on the xy plane)
 		const regular_grid *rg = sim_000_T.get_regular_grid();
