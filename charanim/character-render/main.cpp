@@ -37,6 +37,8 @@ typedef pair<int,int> point;
 static rendered_character C;
 static viewer V;
 
+static bool from_positive;
+static timing::time_point begin_time;
 static timing::time_point sec;
 static int FPS;
 static int fps_count;
@@ -121,7 +123,6 @@ void exit_func() {
 // -----------------
 
 int initGL(int argc, char *argv[]) {
-
 	// initial window size
 	int iw = 640;
 	int ih = 480;
@@ -210,6 +211,8 @@ int initGL(int argc, char *argv[]) {
 	V.init_cameras();
 
 	sec = timing::now();
+	begin_time = timing::now();
+	from_positive = false;
 
 	return 0;
 }
@@ -258,11 +261,7 @@ void refresh() {
 	glLoadIdentity();
 
 	V.apply_view();
-
 	glTranslatef(0.0f, -H, 0.0f);
-
-	glm::vec3 vmin, vmax;
-	C.get_bounding_box(vmin, vmax);
 
 	/*glEnable(GL_LIGHTING);
 	glEnable(GL_LIGHT0);
@@ -270,14 +269,29 @@ void refresh() {
 	C.draw();*/
 
 	glPushMatrix();
+		glm::vec3 vmin, vmax;
+		C.get_bounding_box(vmin, vmax);
 		glRotatef(-90.0f, 1.0f, 0.0f, 0.0f);
 		glDisable(GL_LIGHTING);
 		glColor3f(1.0f, 0.0f, 0.0f);
 		draw_box(vmin, vmax);
 	glPopMatrix();
 
+	glColor3f(1.0f,1.0f,1.0f);
+	glPointSize(10.0f);
+	timing::time_point cur = timing::now();
+	double elapsed = timing::elapsed_seconds(begin_time, cur);
+	float sinel = static_cast<float>(std::sin(elapsed));
+	float cosel = static_cast<float>(std::cos(elapsed));
+
+	glBegin(GL_POINTS);
+		glVertex3f(20.0f, 50.0f*sinel + (vmin.z + vmax.z)/2.0f, 20.0f);
+	glEnd();
+
+	C.set_anim_weight(2, std::abs(sinel), 0.0f);
+	C.set_anim_weight(4, std::abs(cosel), 0.0f);
+
 	glBegin(GL_QUADS);
-		glColor3f(1.0f,1.0f,1.0f);
 		glVertex3f(-1.0f, 0.0f,  1.0f);
 		glVertex3f(-1.0f, 0.0f, -1.0f);
 		glVertex3f( 1.0f, 0.0f, -1.0f);
