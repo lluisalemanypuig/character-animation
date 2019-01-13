@@ -229,10 +229,6 @@ bool make_model(
 
 	// set the material set of the whole model
 	model->setMaterialSet(0);
-
-	// set initial animation state
-	model->getMixer()->blendCycle(2, 0.2f, 0.0f);
-	model->getMixer()->blendCycle(6, 0.8f, 0.0f);
 	return true;
 }
 

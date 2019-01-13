@@ -53,6 +53,10 @@ class rendered_character {
 		(std::shared_ptr<CalCoreModel> core_model,
 		 std::shared_ptr<CalModel> model);
 
+		// model->getMixer()->blendCycle(id, w, s);
+		void set_anim_weight(int id, float w, float s);
+		void clear_anim(int id);
+
 		// needs set_cal_info
 		void initialise_buffers();
 		// needs set_cal_info

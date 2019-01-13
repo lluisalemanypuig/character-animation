@@ -177,6 +177,15 @@ void rendered_character::set_cal_info(
 	cal_renderer->endRendering();
 }
 
+void rendered_character::set_anim_weight(int id, float w, float s) {
+	// set initial animation state
+	model->getMixer()->blendCycle(id, w, s);
+}
+
+void rendered_character::clear_anim(int id) {
+	model->getMixer()->clearCycle(id, 0.0f);
+}
+
 void rendered_character::initialise_buffers() {
 	glGenVertexArrays(1, &VAO);
 	assert(glGetError() == GL_NO_ERROR);

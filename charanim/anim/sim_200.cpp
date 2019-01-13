@@ -465,12 +465,12 @@ namespace study_cases {
 		case 'h': sim_200_usage(); break;
 		case 'r': sim_200_exit(); sim_200_init(false); break;
 		case 'a': render_target_vector = not render_target_vector; break;
+		case 'v': render_velocity_vector = not render_velocity_vector; break;
+		case 'o': render_orientation_vector = not render_orientation_vector; break;
 		case 'p': sim_200_compute_path(); break;
 		case 'c': sim_200_render_circles = not sim_200_render_circles; break;
 		case 'd': render_dist_func = not render_dist_func; break;
 		case 'g': render_grid = not render_grid; break;
-		case 'v': render_velocity_vector = not render_velocity_vector; break;
-		case 'o': render_orientation_vector = not render_orientation_vector; break;
 		}
 	}
 
