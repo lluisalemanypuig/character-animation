@@ -154,7 +154,7 @@ namespace study_cases {
 		sim_1xx_agent.arrival_weight = sim_1xx_arrival_weight;
 		sim_1xx_agent.arrival_distance = sim_1xx_arrival_distance;
 		sim_1xx_agent.coll_weight = sim_1xx_coll_weight;
-		sim_1xx_agent.coll_distance = sim_1xx_collision_distance;
+		sim_1xx_agent.coll_distance = sim_1xx_coll_distance;
 
 		sim_1xx_agent.mass = sim_1xx_mass;
 		sim_1xx_agent.bouncing = 1.0f;
@@ -268,7 +268,7 @@ namespace study_cases {
 				++i;
 			}
 			else if (strcmp(argv[i], "--coll-distance") == 0) {
-				sim_1xx_collision_distance = atof(argv[i + 1]);
+				sim_1xx_coll_distance = atof(argv[i + 1]);
 				++i;
 			}
 		}
@@ -324,7 +324,7 @@ namespace study_cases {
 		sim_1xx_arrival_weight = 5.0f;
 		sim_1xx_arrival_distance = 20.0f;
 		sim_1xx_coll_weight = 1.0f;
-		sim_1xx_collision_distance = 10.0f;
+		sim_1xx_coll_distance = 10.0f;
 
 		/* PARSE ARGUMENTS */
 		int arg_parse = sim_103_parse_arguments(_argc, _argv);

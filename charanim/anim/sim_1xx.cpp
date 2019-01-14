@@ -26,7 +26,7 @@ namespace sim_1xx {
 	float sim_1xx_arrival_weight;
 	float sim_1xx_arrival_distance;
 	float sim_1xx_coll_weight;
-	float sim_1xx_collision_distance;
+	float sim_1xx_coll_distance;
 	float sim_1xx_ucoll_weight;
 	float sim_1xx_ucoll_distance;
 	float sim_1xx_wwm_weight;

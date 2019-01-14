@@ -135,7 +135,9 @@ namespace study_cases {
 		a.align_weight = sim_1xx_alignment_weight;
 		a.arrival_weight = sim_1xx_arrival_weight;
 		a.arrival_distance = sim_1xx_arrival_distance;
-		a.ucoll_weight = sim_1xx_ucoll_weight;
+		a.coll_weight = sim_1xx_coll_weight;
+		a.coll_distance = sim_1xx_coll_distance;
+		a.ucoll_weight = sim_1xx_coll_weight;
 		a.ucoll_distance = sim_1xx_ucoll_distance;
 		a.wow_weight = sim_1xx_wwm_weight;
 		a.wow_distance = sim_1xx_wwm_distance;
@@ -153,7 +155,7 @@ namespace study_cases {
 		agent_particle& a = S.get_agent_particle(idx);
 		a.target = sim_1xx_path[0];
 		a.cur_pos = vec3(10.0f, 0.0f, 4.0f);
-		a.cur_vel = normalise(a.target - a.cur_pos);
+		a.cur_vel = physim::math::normalise(a.target - a.cur_pos);
 		sim_107_init_agent(a);
 		a.set_behaviour(agent_behaviour_type::seek);
 		a.set_behaviour(agent_behaviour_type::walk_with_me);
@@ -276,9 +278,7 @@ namespace study_cases {
 		sim_1xx_alignment_weight = 0.001f;
 		sim_1xx_arrival_weight = 5.0f;
 		sim_1xx_arrival_distance = 20.0f;
-		sim_1xx_ucoll_weight = 7.5f;
-		sim_1xx_ucoll_distance = 2.5f;
-		sim_1xx_wwm_weight = 5.0f;
+		sim_1xx_wwm_weight = 2.0f;
 		sim_1xx_wwm_distance = 5.0f;
 
 		/* PARSE ARGUMENTS */
