@@ -41,7 +41,7 @@ using namespace sim_1xx;
 namespace study_cases {
 
 	void sim_106_usage() {
-		cout << "Simulation 106: validation of 'walk off with' behaviour" << endl;
+		cout << "Simulation 106: validation of 'walk with me' behaviour" << endl;
 		cout << endl;
 		cout << "Parameters:" << endl;
 		cout << "    --help" << endl;
@@ -276,7 +276,7 @@ namespace study_cases {
 			glutInitWindowSize(width, height);
 
 			string title =
-			"Character animation - Unaligned collision avoidance steering inspection 2";
+			"Character animation - Walk with me steering inspection 1";
 			window_id = glutCreateWindow(title.c_str());
 
 			GLenum err = glewInit();
@@ -349,7 +349,7 @@ namespace study_cases {
 		int r = sim_106_init(true);
 		if (r != 0) {
 			if (r == 1) {
-				cerr << "Error in initialisation of simulation 00" << endl;
+				cerr << "Error in initialisation of simulation 106" << endl;
 			}
 			return;
 		}

@@ -348,7 +348,7 @@ namespace study_cases {
 		int r = sim_105_init(true);
 		if (r != 0) {
 			if (r == 1) {
-				cerr << "Error in initialisation of simulation 00" << endl;
+				cerr << "Error in initialisation of simulation 105" << endl;
 			}
 			return;
 		}
