@@ -26,8 +26,6 @@ See [this](https://youtu.be/0QkEuy_MnOQ) video.
  See [this](https://youtu.be/2MXQZmuyw5Q) video.
 - Simulation 107: example (2) of _walk with me_ steering.
  See [this](https://youtu.be/YGUqM94e4lk) video.
-
-Path following:
 - Simulation 200: A single agent follows a path from a dynamically loaded
 map. 'Dyanmically loaded' means that the user can provide their own map
 to the simulation. The start and goal points of the path are also given
@@ -73,16 +71,17 @@ then the _.pro_ file needs to be modified appropriately.
 ## Compilation
 
 It is strongly suggested that this project be compiled in release mode.
-It contains several .pro [files](https://github.com/lluisalemanypuig/character-animation/tree/master/charanim)
-which can be opened using the IDE tool Qt Creator. These _.pro_ files need
-to contain:
+It contains one _.pro_ [file](https://github.com/lluisalemanypuig/character-animation/tree/master/charanim)
+grouping all these subprojects, which can be opened using the IDE tool Qt Creator. These _.pro_ files need
+to contain, if necessary:
 - The path to include the _physim_ library, and to link against it.
 - The paths to include the _glm_ lbrary. The .pro already include the
 include paths to these libraries assuming a Linux environment in which
 these are installed in the system.
-- The path to include the GL, GLUT, GLEW libraries. The .pro already include
-the include paths to these libraries assuming a Linux environment in which
-these are installed in the system.
+- The path to include the GL, GLUT, GLEW libraries.
+
+All the _.pro_ already have the paths to include and link againts these libraries assuming 
+they are installed in the system.
 
 In order to successfully compile the project, one can follow these intructions:
 
