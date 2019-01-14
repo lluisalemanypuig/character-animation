@@ -225,11 +225,11 @@ namespace study_cases {
 				++i;
 			}
 			else if (strcmp(argv[i], "--ucoll-weight") == 0) {
-				sim_1xx_coll_weight = atof(argv[i + 1]);
+				sim_1xx_ucoll_weight = atof(argv[i + 1]);
 				++i;
 			}
 			else if (strcmp(argv[i], "--ucoll-distance") == 0) {
-				sim_1xx_collision_distance = atof(argv[i + 1]);
+				sim_1xx_ucoll_distance = atof(argv[i + 1]);
 				++i;
 			}
 		}
