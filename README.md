@@ -31,7 +31,7 @@ Path following:
 - Simulation 200: A single agent follows a path from a dynamically loaded
 map. 'Dyanmically loaded' means that the user can provide their own map
 to the simulation. The start and goal points of the path are also given
-by the user.
+by the user. See [this](https://youtu.be/fRwBXJwTm2A) video.
 
 The details on how each steering behaviour is implemented can be found
 in the
