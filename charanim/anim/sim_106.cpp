@@ -48,8 +48,8 @@ namespace study_cases {
 		cout << "    --seek-weight" << endl;
 		cout << "    --max-speed" << endl;
 		cout << "    --max-force" << endl;
-		cout << "    --wow-weight" << endl;
-		cout << "    --wow-distance" << endl;
+		cout << "    --wwm-weight" << endl;
+		cout << "    --wwm-distance" << endl;
 		cout << endl;
 		cout << "Keyboard keys:" << endl;
 		cout << "    h: show the usage." << endl;
@@ -125,12 +125,12 @@ namespace study_cases {
 		a.arrival_distance = sim_1xx_arrival_distance;
 		a.ucoll_weight = sim_1xx_ucoll_weight;
 		a.ucoll_distance = sim_1xx_ucoll_distance;
-		a.wow_weight = sim_1xx_wow_weight;
-		a.wow_distance = sim_1xx_wow_distance;
+		a.wow_weight = sim_1xx_wwm_weight;
+		a.wow_distance = sim_1xx_wwm_distance;
 
 		a.unset_all_behaviours();
 		a.set_behaviour(agent_behaviour_type::arrival);
-		a.set_behaviour(agent_behaviour_type::walk_off_with);
+		a.set_behaviour(agent_behaviour_type::walk_with_me);
 	}
 
 	void sim_106_init_simulation() {
@@ -199,12 +199,12 @@ namespace study_cases {
 				sim_1xx_arrival_distance = atof(argv[i + 1]);
 				++i;
 			}
-			else if (strcmp(argv[i], "--wow-weight") == 0) {
-				sim_1xx_wow_weight = atof(argv[i + 1]);
+			else if (strcmp(argv[i], "--wwm-weight") == 0) {
+				sim_1xx_wwm_weight = atof(argv[i + 1]);
 				++i;
 			}
-			else if (strcmp(argv[i], "--wow-distance") == 0) {
-				sim_1xx_wow_distance = atof(argv[i + 1]);
+			else if (strcmp(argv[i], "--wwm-distance") == 0) {
+				sim_1xx_wwm_distance = atof(argv[i + 1]);
 				++i;
 			}
 		}
@@ -260,8 +260,8 @@ namespace study_cases {
 		sim_1xx_arrival_distance = 20.0f;
 		sim_1xx_ucoll_weight = 7.5f;
 		sim_1xx_ucoll_distance = 2.5f;
-		sim_1xx_wow_weight = 1.0f;
-		sim_1xx_wow_distance = 10.0f;
+		sim_1xx_wwm_weight = 1.0f;
+		sim_1xx_wwm_distance = 10.0f;
 
 		/* PARSE ARGUMENTS */
 		int arg_parse = sim_106_parse_arguments(_argc, _argv);

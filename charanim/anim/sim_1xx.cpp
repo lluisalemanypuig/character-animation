@@ -29,8 +29,8 @@ namespace sim_1xx {
 	float sim_1xx_collision_distance;
 	float sim_1xx_ucoll_weight;
 	float sim_1xx_ucoll_distance;
-	float sim_1xx_wow_weight;
-	float sim_1xx_wow_distance;
+	float sim_1xx_wwm_weight;
+	float sim_1xx_wwm_distance;
 
 	vector<vec3> sim_1xx_path;
 	size_t sim_1xx_path_it;
@@ -43,7 +43,7 @@ namespace sim_1xx {
 		bool has_arrival = has_behaviour(agent_behaviour_type::arrival);
 		bool has_coll_avoid = has_behaviour(agent_behaviour_type::collision_avoidance);
 		bool has_ucoll_avoid = has_behaviour(agent_behaviour_type::unaligned_collision_avoidance);
-		bool has_wow = has_behaviour(agent_behaviour_type::walk_off_with);
+		bool has_wow = has_behaviour(agent_behaviour_type::walk_with_me);
 
 		cout << "Agent " << a.index << " information:" << endl;
 		cout << "    Target position: (" << a.target.x << ","
@@ -104,10 +104,12 @@ namespace sim_1xx {
 				 << a.ucoll_distance << endl;
 		}
 
+		cout << "            Walk with me? "
+			 << (has_wow ? "Yes" : "No") << endl;
 		if (has_wow) {
-			cout << "                'walk off with' weight: "
+			cout << "                'walk with me' weight: "
 				 << a.wow_weight << endl;
-			cout << "                'walk off with' distance: "
+			cout << "                'walk with me' distance: "
 				 << a.wow_distance << endl;
 		}
 	}
