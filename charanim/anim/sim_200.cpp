@@ -141,7 +141,7 @@ namespace study_cases {
 		}
 
 		// simulate agents only if we have a path
-		if (sim_200_smoothed_path.size() > 0) {
+		if (run and sim_200_smoothed_path.size() > 0) {
 			for (int i = 0; i < 100; ++i) {
 				S.simulate_agent_particles();
 			}
