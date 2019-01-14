@@ -141,8 +141,6 @@ namespace study_cases {
 		a.wow_distance = sim_1xx_wwm_distance;
 
 		a.unset_all_behaviours();
-		a.set_behaviour(agent_behaviour_type::arrival);
-		a.set_behaviour(agent_behaviour_type::walk_with_me);
 	}
 
 	void sim_107_init_simulation() {
@@ -154,16 +152,20 @@ namespace study_cases {
 		idx = S.add_agent_particle();
 		agent_particle& a = S.get_agent_particle(idx);
 		a.target = sim_1xx_path[0];
-		a.cur_pos = vec3(12.0f, 0.0f, 10.0f);
+		a.cur_pos = vec3(10.0f, 0.0f, 4.0f);
 		a.cur_vel = normalise(a.target - a.cur_pos);
 		sim_107_init_agent(a);
+		a.set_behaviour(agent_behaviour_type::seek);
+		a.set_behaviour(agent_behaviour_type::walk_with_me);
 
 		idx = S.add_agent_particle();
 		agent_particle& b = S.get_agent_particle(idx);
 		b.target = vec3(-0.75f, 0.0f, 50.0f);
 		b.cur_pos = vec3(0.0f, 0.0f, 0.0f);
-		b.cur_vel = vec3(0.0f,0,1);
+		b.cur_vel = vec3(0.0f, 0.0f, 1.1f);
 		sim_107_init_agent(b);
+		b.set_behaviour(agent_behaviour_type::arrival);
+		b.set_behaviour(agent_behaviour_type::walk_with_me);
 
 		S.set_particle_particle_collisions(true);
 		S.set_time_step(0.001f);
@@ -276,8 +278,8 @@ namespace study_cases {
 		sim_1xx_arrival_distance = 20.0f;
 		sim_1xx_ucoll_weight = 7.5f;
 		sim_1xx_ucoll_distance = 2.5f;
-		sim_1xx_wwm_weight = 1.0f;
-		sim_1xx_wwm_distance = 10.0f;
+		sim_1xx_wwm_weight = 5.0f;
+		sim_1xx_wwm_distance = 5.0f;
 
 		/* PARSE ARGUMENTS */
 		int arg_parse = sim_107_parse_arguments(_argc, _argv);
