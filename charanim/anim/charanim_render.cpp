@@ -107,7 +107,8 @@ namespace charanim {
 
 			for (size_t i = 0; i < as.size(); ++i) {
 				rendered_character& C = characters[i];
-				C.get_model()->update(elapsed);
+				float l = physim::math::norm(as[i].cur_vel);
+				C.get_model()->update(elapsed*l/0.4f);
 
 				shader_helper::activate_materials_textures(C, texture_shader);
 
