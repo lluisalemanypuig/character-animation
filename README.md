@@ -11,19 +11,21 @@ These simulations can be found in the subproject
 [anim](https://github.com/lluisalemanypuig/character-animation/tree/master/charanim/anim).
 These simulations are:
 - Simulation 100: example of _seek_ steering.
-See [this](https://www.youtube.com/watch?v=mrXKAWbpMrg) video.
+See [this](https://youtu.be/mrXKAWbpMrg) video.
 - Simulation 101: example of _flee_ steering.
-See [this](https://www.youtube.com/watch?v=3nEgPSVR6Jc) video.
+See [this](https://youtu.be/3nEgPSVR6Jc) video.
 - Simulation 102: example of _arrival_ steering.
-See [this](https://www.youtube.com/watch?v=q4GoyllWeDo) video.
+See [this](https://youtu.be/q4GoyllWeDo) video.
 - Simulation 103: example of _collision avoidance_ steering.
-See [this](https://www.youtube.com/watch?v=oLG41e-VA8I) video.
+See [this](https://youtu.be/oLG41e-VA8I) video.
 - Simulation 104: example (1) of _unaligned collision avoidance_ steering.
-See [this](https://www.youtube.com/watch?v=Oy_2ld4sNNc) video.
+See [this](https://youtu.be/Oy_2ld4sNNc) video.
 - Simulation 105: example (2) of _unaligned collision avoidance_ steering.
-See [this](https://www.youtube.com/watch?v=0QkEuy_MnOQ&t=3s) video.
-- Simulation 106: example of _walk with me_ steering.
- See [this](https://www.youtube.com/watch?v=2MXQZmuyw5Q&t=1s) video.
+See [this](https://youtu.be/0QkEuy_MnOQ) video.
+- Simulation 106: example (1) of _walk with me_ steering.
+ See [this](https://youtu.be/2MXQZmuyw5Q) video.
+- Simulation 107: example (2) of _walk with me_ steering.
+ See [this](https://youtu.be/YGUqM94e4lk) video.
 
 Path following:
 - Simulation 200: A single agent follows a path from a dynamically loaded
