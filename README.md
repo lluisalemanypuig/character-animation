@@ -87,15 +87,31 @@ In order to successfully compile the project, one can follow these intructions:
 
 - Create the makefile
 
-		qmake -makefile charanim/charanim.pro -o charanim-release/Makefile
+	qmake -makefile charanim/charanim.pro -o charanim-release/Makefile
 
 - Compile:
 	
-		cd charanim-release/ && make && make
+	cd charanim-release/ && make && make
 
 The fact that the command _make_ has to be issued twice is that the
 _charanim_ project has subprojects depending on other subprojects, in
 which the latter may not be compiled before the former.
+
+### Execution
+
+The simulations listed above can be executed, after compiling, by navigating to the appropriate
+directory
+
+	cd charanim-release/
+
+and executing
+
+	./anim id
+
+where _id_ is one of {100,101,102,...,107,200}, all the simulations available.
+Each simulation admits different parameters. They can be checked with:
+
+	./anim id --help
 
 ## Context
 
