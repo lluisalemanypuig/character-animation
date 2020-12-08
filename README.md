@@ -87,4 +87,4 @@ where _id_ is one of {100,101,102,...,107,200}, all the simulations available. E
 
 ## Context
 
-This repository contains the first [Computer Animation](https://www.fib.upc.edu/en/studies/masters/master-innovation-and-research-informatics/curriculum/syllabus/CA-MIRI) course project, carried out during the first semester of the academic year 2018-2019. The course is part of the [Master in Innovation and Research in Informatics (MIRI)](https://www.fib.upc.edu/en/studies/masters/master-innovation-and-research-informatics) curriculum.
+This repository contains the second [Computer Animation](https://www.fib.upc.edu/en/studies/masters/master-innovation-and-research-informatics/curriculum/syllabus/CA-MIRI) course project, carried out during the first semester of the academic year 2018-2019. The course is part of the [Master in Innovation and Research in Informatics (MIRI)](https://www.fib.upc.edu/en/studies/masters/master-innovation-and-research-informatics) curriculum.
